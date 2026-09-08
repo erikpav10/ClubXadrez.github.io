@@ -11,96 +11,112 @@
     gtag('config', 'G-LPCG15LW60');
   </script>
 
-  <!-- =========================================================
-       FIREBASE
-       ========================================================= -->
-  <script type="module">
+ <!-- =========================================================
+     FIREBASE
+     ========================================================= -->
 
-    import {
-      initializeApp
-    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+<script type="module">
 
-    import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      signOut,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 
-    import {
-      getDatabase,
-      ref,
-      set,
-      get,
-      update,
-      remove,
-      onValue
-    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+
+  import {
+    getDatabase,
+    ref,
+    set,
+    get,
+    update,
+    remove,
+    onValue
+  } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
 
-    /*
-      ==========================================================
-      COLOQUE AQUI O SEU FIREBASE CONFIG ORIGINAL
-      ==========================================================
-    */
+  const firebaseConfig = {
 
-     <!-- FIREBASE -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-    import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      signOut,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+    apiKey: "AIzaSyAkrPkGCikrPhTKb3WfkVu524XrfNkDJP4",
 
-    import {
-      getDatabase,
-      ref,
-      set,
-      get,
-      update,
-      remove
-    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+    authDomain:
+      "club-do-xadrez.firebaseapp.com",
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAkrPkGCikrPhTKb3WfkVu524XrfNkDJP4",
-      authDomain: "club-do-xadrez.firebaseapp.com",
-      databaseURL: "https://club-do-xadrez-default-rtdb.firebaseio.com",
-      projectId: "club-do-xadrez",
-      storageBucket: "club-do-xadrez.firebasestorage.app",
-      messagingSenderId: "251324438462",
-      appId: "1:251324438462:web:500e3a0adec4600bb64bef",
-      measurementId: "G-G577QNXP8R"
-    };
+    databaseURL:
+      "https://club-do-xadrez-default-rtdb.firebaseio.com",
 
-    const app = initializeApp(firebaseConfig);
+    projectId:
+      "club-do-xadrez",
 
-    const auth = getAuth(app);
-    const database = getDatabase(app);
+    storageBucket:
+      "club-do-xadrez.firebasestorage.app",
 
-    /*
-      Deixamos o Firebase disponível para o restante do site.
-    */
-    window.firebaseAuth = auth;
-    window.firebaseDB = database;
+    messagingSenderId:
+      "251324438462",
 
-    window.firebaseFns = {
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      signOut,
-      onAuthStateChanged,
-      ref,
-      set,
-      get,
-      update,
-      remove
-    };
+    appId:
+      "1:251324438462:web:500e3a0adec4600bb64bef",
 
-    console.log("Firebase conectado com sucesso.");
-  </script>
+    measurementId:
+      "G-G577QNXP8R"
+
+  };
+
+
+  const app =
+    initializeApp(firebaseConfig);
+
+
+  const auth =
+    getAuth(app);
+
+
+  const database =
+    getDatabase(app);
+
+
+  window.firebaseAuth =
+    auth;
+
+
+  window.firebaseDB =
+    database;
+
+
+  window.firebaseFns = {
+
+    createUserWithEmailAndPassword,
+
+    signInWithEmailAndPassword,
+
+    signOut,
+
+    onAuthStateChanged,
+
+    ref,
+
+    set,
+
+    get,
+
+    update,
+
+    remove,
+
+    onValue
+
+  };
+
+
+  console.log(
+    "Firebase conectado com sucesso."
+  );
+
+</script>
 
   <meta charset="UTF-8">
 
