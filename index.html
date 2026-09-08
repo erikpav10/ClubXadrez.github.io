@@ -1,48 +1,86 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  
+
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-LPCG15LW60"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LPCG15LW60"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LPCG15LW60');
+  </script>
 
-  gtag('config', 'G-LPCG15LW60');
-</script>
+  <!-- FIREBASE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
-  import { getDatabase } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+    import {
+      getDatabase,
+      ref,
+      set,
+      get,
+      update,
+      remove
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyAkrPkGCikrPhTKb3WfkVu524XrfNkDJP4",
-  authDomain: "club-do-xadrez.firebaseapp.com",
-  databaseURL: "https://club-do-xadrez-default-rtdb.firebaseio.com",
-  projectId: "club-do-xadrez",
-  storageBucket: "club-do-xadrez.firebasestorage.app",
-  messagingSenderId: "251324438462",
-  appId: "1:251324438462:web:500e3a0adec4600bb64bef",
-  measurementId: "G-G577QNXP8R"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkrPkGCikrPhTKb3WfkVu524XrfNkDJP4",
+      authDomain: "club-do-xadrez.firebaseapp.com",
+      databaseURL: "https://club-do-xadrez-default-rtdb.firebaseio.com",
+      projectId: "club-do-xadrez",
+      storageBucket: "club-do-xadrez.firebasestorage.app",
+      messagingSenderId: "251324438462",
+      appId: "1:251324438462:web:500e3a0adec4600bb64bef",
+      measurementId: "G-G577QNXP8R"
+    };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-</script>
-  
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clube de Xadrez</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    const app = initializeApp(firebaseConfig);
+
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    /*
+      Deixamos o Firebase disponível para o restante do site.
+    */
+    window.firebaseAuth = auth;
+    window.firebaseDB = database;
+
+    window.firebaseFns = {
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged,
+      ref,
+      set,
+      get,
+      update,
+      remove
+    };
+
+    console.log("Firebase conectado com sucesso.");
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Clube de Xadrez</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+
 <style>
+
   :root{
     --bg: #12100e;
     --bg-elevated: #1b1815;
@@ -66,8 +104,16 @@ const analytics = getAnalytics(app);
     --sans: 'Inter', sans-serif;
     --radius: 3px;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+
+  *{
+    box-sizing:border-box;
+  }
+
+  html,body{
+    margin:0;
+    padding:0;
+  }
+
   body{
     background:
       radial-gradient(circle at 15% -10%, #1e1a15 0%, transparent 45%),
@@ -77,176 +123,719 @@ const analytics = getAnalytics(app);
     font-family:var(--sans);
     min-height:100vh;
   }
-  ::selection{background:var(--gold); color:#12100e;}
 
-  /* ---------- Top bar ---------- */
+  ::selection{
+    background:var(--gold);
+    color:#12100e;
+  }
+
   header.topbar{
-    display:flex; align-items:center; justify-content:space-between;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
     padding:18px 28px;
     border-bottom:1px solid var(--line);
     background:linear-gradient(180deg, rgba(255,255,255,.02), transparent);
   }
-  .brand{ display:flex; align-items:baseline; gap:10px; }
-  .brand .mark{ font-size:26px; color:var(--gold); transform:translateY(1px); }
-  .brand .word{ font-family:var(--serif); font-weight:700; font-size:22px; letter-spacing:.3px; }
-  .brand .sub{ font-family:var(--sans); font-size:11px; color:var(--text-dim); letter-spacing:.08em; }
 
-  nav.tabs{ display:flex; gap:4px; background:var(--bg-elevated); border:1px solid var(--line); border-radius:var(--radius); padding:4px; }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+
+  .brand .mark{
+    font-size:26px;
+    color:var(--gold);
+    transform:translateY(1px);
+  }
+
+  .brand .word{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:22px;
+    letter-spacing:.3px;
+  }
+
+  .brand .sub{
+    font-family:var(--sans);
+    font-size:11px;
+    color:var(--text-dim);
+    letter-spacing:.08em;
+  }
+
+  nav.tabs{
+    display:flex;
+    gap:4px;
+    background:var(--bg-elevated);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:4px;
+  }
+
   nav.tabs button{
-    background:transparent; border:none; color:var(--text-muted);
-    font-family:var(--sans); font-size:13.5px; font-weight:500;
-    padding:8px 16px; border-radius:2px; cursor:pointer;
+    background:transparent;
+    border:none;
+    color:var(--text-muted);
+    font-family:var(--sans);
+    font-size:13.5px;
+    font-weight:500;
+    padding:8px 16px;
+    border-radius:2px;
+    cursor:pointer;
     transition:background .15s, color .15s;
   }
-  nav.tabs button.active{ background:var(--gold); color:#1a1512; font-weight:600; }
-  nav.tabs button:not(.active):hover{ color:var(--text); background:rgba(255,255,255,.04); }
 
-  .account{ display:flex; align-items:center; gap:12px; font-size:13px; }
-  .account .who{ color:var(--text-muted); }
-  .account .who b{ color:var(--gold); font-weight:600; }
+  nav.tabs button.active{
+    background:var(--gold);
+    color:#1a1512;
+    font-weight:600;
+  }
+
+  nav.tabs button:not(.active):hover{
+    color:var(--text);
+    background:rgba(255,255,255,.04);
+  }
+
+  .account{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:13px;
+  }
+
+  .account .who{
+    color:var(--text-muted);
+  }
+
+  .account .who b{
+    color:var(--gold);
+    font-weight:600;
+  }
+
   .btn{
-    font-family:var(--sans); font-size:13px; font-weight:600;
-    padding:8px 16px; border-radius:2px; cursor:pointer;
-    border:1px solid var(--gold-soft); background:transparent; color:var(--gold);
+    font-family:var(--sans);
+    font-size:13px;
+    font-weight:600;
+    padding:8px 16px;
+    border-radius:2px;
+    cursor:pointer;
+    border:1px solid var(--gold-soft);
+    background:transparent;
+    color:var(--gold);
     transition:background .15s, color .15s;
   }
-  .btn:hover{ background:var(--gold); color:#1a1512; }
-  .btn.ghost{ border-color:var(--line); color:var(--text-muted); }
-  .btn.ghost:hover{ background:var(--bg-card); color:var(--text); }
-  .btn.primary{ background:var(--gold); color:#1a1512; }
-  .btn.primary:hover{ background:#dcb662; }
-  .btn:disabled{ opacity:.4; cursor:not-allowed; }
-  .btn:disabled:hover{ background:transparent; color:var(--gold); }
 
-  main{ max-width:1180px; margin:0 auto; padding:32px 24px 60px; }
-  .view{ display:none; }
-  .view.active{ display:block; }
+  .btn:hover{
+    background:var(--gold);
+    color:#1a1512;
+  }
 
-  /* ---------- Play view ---------- */
-  .play-grid{ display:grid; grid-template-columns:min(560px, 100%) 1fr; gap:32px; align-items:start; }
-  @media (max-width: 900px){ .play-grid{ grid-template-columns:1fr; } }
+  .btn.ghost{
+    border-color:var(--line);
+    color:var(--text-muted);
+  }
 
-  .board-wrap{ position:relative; }
+  .btn.ghost:hover{
+    background:var(--bg-card);
+    color:var(--text);
+  }
+
+  .btn.primary{
+    background:var(--gold);
+    color:#1a1512;
+  }
+
+  .btn.primary:hover{
+    background:#dcb662;
+  }
+
+  .btn:disabled{
+    opacity:.4;
+    cursor:not-allowed;
+  }
+
+  main{
+    max-width:1180px;
+    margin:0 auto;
+    padding:32px 24px 60px;
+  }
+
+  .view{
+    display:none;
+  }
+
+  .view.active{
+    display:block;
+  }
+
+  .play-grid{
+    display:grid;
+    grid-template-columns:min(560px, 100%) 1fr;
+    gap:32px;
+    align-items:start;
+  }
+
+  @media (max-width: 900px){
+    .play-grid{
+      grid-template-columns:1fr;
+    }
+  }
+
+  .board-wrap{
+    position:relative;
+  }
+
   .board-frame{
-    background: linear-gradient(160deg, #1e1c18, #16140f);
+    background:linear-gradient(160deg, #1e1c18, #16140f);
     border:1px solid var(--line);
     border-radius:6px;
     padding:16px;
     box-shadow:0 20px 50px -24px rgba(0,0,0,.55);
   }
+
   .board{
-    display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr);
-    width:100%; aspect-ratio:1/1;
+    display:grid;
+    grid-template-columns:repeat(8,1fr);
+    grid-template-rows:repeat(8,1fr);
+    width:100%;
+    aspect-ratio:1/1;
     border:1px solid #201d18;
-    box-shadow: inset 0 0 0 6px #171510;
+    box-shadow:inset 0 0 0 6px #171510;
   }
-  .sq{ position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; }
-  .sq.light{ background:var(--board-light); }
-  .sq.dark{ background:var(--board-dark); }
-  .sq .piece-svg{ width:86%; height:86%; transition:transform .08s; filter:drop-shadow(0 3px 3px rgba(0,0,0,.5)); position:relative; z-index:2; }
-  .sq .piece-shadow{ position:absolute; left:50%; bottom:12%; width:52%; height:14%; transform:translateX(-50%); background:radial-gradient(ellipse at center, rgba(0,0,0,.42) 0%, rgba(0,0,0,0) 72%); z-index:1; }
-  .sq.selected{ box-shadow:inset 0 0 0 3px var(--sel); }
-  .sq.lastmove{ background-image:linear-gradient(var(--lastmove),var(--lastmove)); }
-  .sq.check{ background-image:linear-gradient(var(--check),var(--check)); }
-  .sq .dot{ position:absolute; width:22%; height:22%; border-radius:50%; background:var(--move-dot); opacity:.8; }
-  .sq .ring{ position:absolute; inset:7%; border-radius:50%; border:3px solid var(--move-dot); background:transparent; }
-  .sq .coord{ position:absolute; font-size:10px; font-family:var(--sans); font-weight:600; opacity:.5; }
-  .sq .coord.file{ bottom:2px; right:4px; }
-  .sq .coord.rank{ top:2px; left:4px; }
-  .sq.light .coord{ color:#3f4a3f; }
-  .sq.dark .coord{ color:#c3bda8; }
 
-  /* ---------- Chess piece SVGs ---------- */
-  .piece-svg.white{ fill:url(#gradWhitePiece); stroke:#4a4335; stroke-width:3; stroke-linejoin:round; }
-  .piece-svg.black{ fill:url(#gradBlackPiece); stroke:#b8ae95; stroke-width:2; stroke-linejoin:round; }
+  .sq{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    user-select:none;
+  }
 
-  .status-bar{ display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding:12px 16px; background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius); font-size:13.5px; }
-  .status-bar .turn-pill{ display:flex; align-items:center; gap:8px; color:var(--text-muted); }
-  .turn-dot{ width:10px; height:10px; border-radius:50%; background:#e6d4ac; border:1px solid #00000033; }
-  .turn-dot.black{ background:#241c14; }
-  #statusMsg{ font-weight:600; color:var(--gold); }
+  .sq.light{
+    background:var(--board-light);
+  }
 
-  .panel{ display:flex; flex-direction:column; gap:18px; }
-  .card{ background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius); padding:20px; }
-  .card h3{ margin:0 0 14px; font-family:var(--serif); font-size:19px; font-weight:700; color:var(--text); }
-  .card h3 span{ color:var(--gold); }
+  .sq.dark{
+    background:var(--board-dark);
+  }
 
-  .field-label{ font-size:11.5px; color:var(--text-dim); letter-spacing:.04em; margin-bottom:8px; }
-  .diff-row{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:16px; }
-  .diff-btn{ padding:10px 6px; text-align:center; border:1px solid var(--line); background:var(--bg-elevated); color:var(--text-muted); border-radius:2px; cursor:pointer; font-size:13px; font-weight:600; }
-  .diff-btn small{ display:block; font-weight:400; font-size:10.5px; color:var(--text-dim); margin-top:2px; }
-  .diff-btn.active{ border-color:var(--gold); color:var(--gold); background:rgba(201,162,75,.08); }
-  .diff-btn.easy.active{ border-color:var(--success); color:var(--success); background:rgba(127,154,91,.08); }
-  .diff-btn.hard.active{ border-color:var(--danger); color:var(--danger); background:rgba(178,84,76,.08); }
+  .sq .piece-svg{
+    width:86%;
+    height:86%;
+    transition:transform .08s;
+    filter:drop-shadow(0 3px 3px rgba(0,0,0,.5));
+    position:relative;
+    z-index:2;
+  }
 
-  .side-row{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
-  .side-btn{ padding:10px; text-align:center; border:1px solid var(--line); background:var(--bg-elevated); color:var(--text-muted); border-radius:2px; cursor:pointer; font-size:13px; font-weight:600; }
-  .side-btn.active{ border-color:var(--gold); color:var(--gold); background:rgba(201,162,75,.08); }
+  .sq .piece-shadow{
+    position:absolute;
+    left:50%;
+    bottom:12%;
+    width:52%;
+    height:14%;
+    transform:translateX(-50%);
+    background:radial-gradient(
+      ellipse at center,
+      rgba(0,0,0,.42) 0%,
+      rgba(0,0,0,0) 72%
+    );
+    z-index:1;
+  }
 
-  .actions-row{ display:flex; gap:8px; }
-  .actions-row .btn{ flex:1; }
+  .sq.selected{
+    box-shadow:inset 0 0 0 3px var(--sel);
+  }
 
-  .history{ max-height:260px; overflow-y:auto; font-size:13px; }
-  .history table{ width:100%; border-collapse:collapse; }
-  .history td{ padding:4px 6px; color:var(--text-muted); border-bottom:1px solid var(--line); }
-  .history td.num{ color:var(--text-dim); width:28px; }
-  .history td.mv{ color:var(--text); font-family:'Inter',monospace; }
+  .sq.lastmove{
+    background-image:linear-gradient(var(--lastmove),var(--lastmove));
+  }
 
-  .elo-line{ display:flex; align-items:center; justify-content:space-between; font-size:13px; color:var(--text-muted); padding:6px 0; border-bottom:1px solid var(--line); }
-  .elo-line:last-child{ border-bottom:none; }
-  .elo-line b{ color:var(--text); }
+  .sq.check{
+    background-image:linear-gradient(var(--check),var(--check));
+  }
 
-  /* ---------- Ranking view ---------- */
-  .rank-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:18px; flex-wrap:wrap; gap:10px; }
-  .rank-head h2{ font-family:var(--serif); font-size:30px; margin:0; }
-  .rank-head p{ color:var(--text-dim); font-size:13px; margin:4px 0 0; }
-  table.ranktable{ width:100%; border-collapse:collapse; background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
-  table.ranktable th{ text-align:left; font-size:11px; letter-spacing:.05em; color:var(--text-dim); font-weight:600; padding:12px 16px; border-bottom:1px solid var(--line); background:var(--bg-elevated); }
-  table.ranktable td{ padding:13px 16px; border-bottom:1px solid var(--line); font-size:14px; color:var(--text-muted); }
-  table.ranktable tr:last-child td{ border-bottom:none; }
-  table.ranktable tr.me{ background:rgba(201,162,75,.06); }
-  .pos{ font-family:var(--serif); font-weight:700; font-size:16px; color:var(--text-dim); }
-  .pos.gold{ color:#d9b25c; } .pos.silver{ color:#c3c3c3; } .pos.bronze{ color:#c98a52; }
-  .pname{ color:var(--text); font-weight:600; }
-  .eloval{ color:var(--gold); font-weight:700; font-family:var(--serif); font-size:17px; }
-  .empty-rank{ text-align:center; padding:50px 20px; color:var(--text-dim); font-size:14px; }
+  .sq .dot{
+    position:absolute;
+    width:22%;
+    height:22%;
+    border-radius:50%;
+    background:var(--move-dot);
+    opacity:.8;
+  }
 
-  /* ---------- Auth view ---------- */
-  .auth-wrap{ max-width:400px; margin:40px auto; }
-  .auth-wrap h2{ font-family:var(--serif); font-size:28px; margin:0 0 6px; }
-  .auth-wrap p.lead{ color:var(--text-dim); font-size:13.5px; margin:0 0 26px; }
-  .field{ margin-bottom:14px; }
-  .field label{ display:block; font-size:11.5px; color:var(--text-dim); margin-bottom:6px; letter-spacing:.03em; }
+  .sq .ring{
+    position:absolute;
+    inset:7%;
+    border-radius:50%;
+    border:3px solid var(--move-dot);
+    background:transparent;
+  }
+
+  .sq .coord{
+    position:absolute;
+    font-size:10px;
+    font-family:var(--sans);
+    font-weight:600;
+    opacity:.5;
+  }
+
+  .sq .coord.file{
+    bottom:2px;
+    right:4px;
+  }
+
+  .sq .coord.rank{
+    top:2px;
+    left:4px;
+  }
+
+  .sq.light .coord{
+    color:#3f4a3f;
+  }
+
+  .sq.dark .coord{
+    color:#c3bda8;
+  }
+
+  .piece-svg.white{
+    fill:url(#gradWhitePiece);
+    stroke:#4a4335;
+    stroke-width:3;
+    stroke-linejoin:round;
+  }
+
+  .piece-svg.black{
+    fill:url(#gradBlackPiece);
+    stroke:#b8ae95;
+    stroke-width:2;
+    stroke-linejoin:round;
+  }
+
+  .status-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:14px;
+    padding:12px 16px;
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    font-size:13.5px;
+  }
+
+  .status-bar .turn-pill{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--text-muted);
+  }
+
+  .turn-dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:#e6d4ac;
+    border:1px solid #00000033;
+  }
+
+  .turn-dot.black{
+    background:#241c14;
+  }
+
+  #statusMsg{
+    font-weight:600;
+    color:var(--gold);
+  }
+
+  .panel{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+
+  .card{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+  }
+
+  .card h3{
+    margin:0 0 14px;
+    font-family:var(--serif);
+    font-size:19px;
+    font-weight:700;
+    color:var(--text);
+  }
+
+  .card h3 span{
+    color:var(--gold);
+  }
+
+  .field-label{
+    font-size:11.5px;
+    color:var(--text-dim);
+    letter-spacing:.04em;
+    margin-bottom:8px;
+  }
+
+  .diff-row{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+    margin-bottom:16px;
+  }
+
+  .diff-btn{
+    padding:10px 6px;
+    text-align:center;
+    border:1px solid var(--line);
+    background:var(--bg-elevated);
+    color:var(--text-muted);
+    border-radius:2px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:600;
+  }
+
+  .diff-btn small{
+    display:block;
+    font-weight:400;
+    font-size:10.5px;
+    color:var(--text-dim);
+    margin-top:2px;
+  }
+
+  .diff-btn.active{
+    border-color:var(--gold);
+    color:var(--gold);
+    background:rgba(201,162,75,.08);
+  }
+
+  .diff-btn.easy.active{
+    border-color:var(--success);
+    color:var(--success);
+    background:rgba(127,154,91,.08);
+  }
+
+  .diff-btn.hard.active{
+    border-color:var(--danger);
+    color:var(--danger);
+    background:rgba(178,84,76,.08);
+  }
+
+  .side-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-bottom:16px;
+  }
+
+  .side-btn{
+    padding:10px;
+    text-align:center;
+    border:1px solid var(--line);
+    background:var(--bg-elevated);
+    color:var(--text-muted);
+    border-radius:2px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:600;
+  }
+
+  .side-btn.active{
+    border-color:var(--gold);
+    color:var(--gold);
+    background:rgba(201,162,75,.08);
+  }
+
+  .actions-row{
+    display:flex;
+    gap:8px;
+  }
+
+  .actions-row .btn{
+    flex:1;
+  }
+
+  .history{
+    max-height:260px;
+    overflow-y:auto;
+    font-size:13px;
+  }
+
+  .history table{
+    width:100%;
+    border-collapse:collapse;
+  }
+
+  .history td{
+    padding:4px 6px;
+    color:var(--text-muted);
+    border-bottom:1px solid var(--line);
+  }
+
+  .history td.num{
+    color:var(--text-dim);
+    width:28px;
+  }
+
+  .history td.mv{
+    color:var(--text);
+    font-family:'Inter',monospace;
+  }
+
+  .elo-line{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:13px;
+    color:var(--text-muted);
+    padding:6px 0;
+    border-bottom:1px solid var(--line);
+  }
+
+  .elo-line:last-child{
+    border-bottom:none;
+  }
+
+  .elo-line b{
+    color:var(--text);
+  }
+
+  .rank-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  .rank-head h2{
+    font-family:var(--serif);
+    font-size:30px;
+    margin:0;
+  }
+
+  .rank-head p{
+    color:var(--text-dim);
+    font-size:13px;
+    margin:4px 0 0;
+  }
+
+  table.ranktable{
+    width:100%;
+    border-collapse:collapse;
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+
+  table.ranktable th{
+    text-align:left;
+    font-size:11px;
+    letter-spacing:.05em;
+    color:var(--text-dim);
+    font-weight:600;
+    padding:12px 16px;
+    border-bottom:1px solid var(--line);
+    background:var(--bg-elevated);
+  }
+
+  table.ranktable td{
+    padding:13px 16px;
+    border-bottom:1px solid var(--line);
+    font-size:14px;
+    color:var(--text-muted);
+  }
+
+  table.ranktable tr:last-child td{
+    border-bottom:none;
+  }
+
+  table.ranktable tr.me{
+    background:rgba(201,162,75,.06);
+  }
+
+  .pos{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:16px;
+    color:var(--text-dim);
+  }
+
+  .pos.gold{
+    color:#d9b25c;
+  }
+
+  .pos.silver{
+    color:#c3c3c3;
+  }
+
+  .pos.bronze{
+    color:#c98a52;
+  }
+
+  .pname{
+    color:var(--text);
+    font-weight:600;
+  }
+
+  .eloval{
+    color:var(--gold);
+    font-weight:700;
+    font-family:var(--serif);
+    font-size:17px;
+  }
+
+  .empty-rank{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--text-dim);
+    font-size:14px;
+  }
+
+  .auth-wrap{
+    max-width:400px;
+    margin:40px auto;
+  }
+
+  .auth-wrap h2{
+    font-family:var(--serif);
+    font-size:28px;
+    margin:0 0 6px;
+  }
+
+  .auth-wrap p.lead{
+    color:var(--text-dim);
+    font-size:13.5px;
+    margin:0 0 26px;
+  }
+
+  .field{
+    margin-bottom:14px;
+  }
+
+  .field label{
+    display:block;
+    font-size:11.5px;
+    color:var(--text-dim);
+    margin-bottom:6px;
+    letter-spacing:.03em;
+  }
+
   .field input{
-    width:100%; padding:11px 12px; background:var(--bg-elevated); border:1px solid var(--line);
-    color:var(--text); border-radius:2px; font-family:var(--sans); font-size:14px;
+    width:100%;
+    padding:11px 12px;
+    background:var(--bg-elevated);
+    border:1px solid var(--line);
+    color:var(--text);
+    border-radius:2px;
+    font-family:var(--sans);
+    font-size:14px;
   }
-  .field input:focus{ outline:none; border-color:var(--gold-soft); }
-  .auth-switch{ margin-top:16px; font-size:13px; color:var(--text-dim); text-align:center; }
-  .auth-switch a{ color:var(--gold); cursor:pointer; text-decoration:none; }
-  .auth-err{ background:rgba(178,84,76,.12); border:1px solid rgba(178,84,76,.4); color:#d99992; padding:9px 12px; border-radius:2px; font-size:12.5px; margin-bottom:14px; display:none; }
 
-  /* ---------- Profile ---------- */
-  .profile-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:24px; }
-  @media(max-width:700px){ .profile-grid{ grid-template-columns:1fr; } }
-  .stat-card{ background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; text-align:center; }
-  .stat-card .num{ font-family:var(--serif); font-size:32px; font-weight:700; color:var(--gold); }
-  .stat-card .lbl{ font-size:11.5px; color:var(--text-dim); letter-spacing:.04em; margin-top:4px; }
+  .field input:focus{
+    outline:none;
+    border-color:var(--gold-soft);
+  }
 
-  .note{ font-size:12px; color:var(--text-dim); line-height:1.6; margin-top:18px; padding:12px 14px; border:1px dashed var(--line); border-radius:2px; }
+  .auth-switch{
+    margin-top:16px;
+    font-size:13px;
+    color:var(--text-dim);
+    text-align:center;
+  }
 
-  footer{ text-align:center; padding:30px; color:var(--text-dim); font-size:12px; }
+  .auth-switch a{
+    color:var(--gold);
+    cursor:pointer;
+    text-decoration:none;
+  }
+
+  .auth-err{
+    background:rgba(178,84,76,.12);
+    border:1px solid rgba(178,84,76,.4);
+    color:#d99992;
+    padding:9px 12px;
+    border-radius:2px;
+    font-size:12.5px;
+    margin-bottom:14px;
+    display:none;
+  }
+
+  .profile-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:16px;
+    margin-bottom:24px;
+  }
+
+  @media(max-width:700px){
+    .profile-grid{
+      grid-template-columns:1fr;
+    }
+  }
+
+  .stat-card{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px;
+    text-align:center;
+  }
+
+  .stat-card .num{
+    font-family:var(--serif);
+    font-size:32px;
+    font-weight:700;
+    color:var(--gold);
+  }
+
+  .stat-card .lbl{
+    font-size:11.5px;
+    color:var(--text-dim);
+    letter-spacing:.04em;
+    margin-top:4px;
+  }
+
+  .note{
+    font-size:12px;
+    color:var(--text-dim);
+    line-height:1.6;
+    margin-top:18px;
+    padding:12px 14px;
+    border:1px dashed var(--line);
+    border-radius:2px;
+  }
+
+  footer{
+    text-align:center;
+    padding:30px;
+    color:var(--text-dim);
+    font-size:12px;
+  }
+
 </style>
 </head>
+
 <body>
 
 <svg width="0" height="0" style="position:absolute;" aria-hidden="true">
+
   <defs>
+
     <linearGradient id="gradWhitePiece" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#fbf7ea"/>
       <stop offset="45%" stop-color="#e9dfc3"/>
       <stop offset="100%" stop-color="#b7a67e"/>
     </linearGradient>
+
     <linearGradient id="gradBlackPiece" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#5c574c"/>
       <stop offset="45%" stop-color="#26231e"/>
@@ -328,641 +917,2712 @@ const analytics = getAnalytics(app);
       <rect x="46" y="10" width="8" height="18" rx="1.5"/>
       <rect x="40" y="15" width="20" height="8" rx="1.5"/>
     </symbol>
+
   </defs>
+
 </svg>
 
 <header class="topbar">
+
   <div class="brand">
     <span class="mark">♞</span>
+
     <div>
       <div class="word">Clube de Xadrez</div>
       <div class="sub">JOGUE · SUBA NO RANKING</div>
     </div>
   </div>
+
   <nav class="tabs">
     <button data-view="play" class="active">Jogar</button>
     <button data-view="ranking">Ranking</button>
     <button data-view="profile">Perfil</button>
   </nav>
+
   <div class="account" id="accountBox"></div>
+
 </header>
 
 <main>
 
   <!-- PLAY VIEW -->
+
   <section class="view active" id="view-play">
+
     <div class="play-grid">
+
       <div class="board-wrap">
+
         <div class="board-frame">
           <div class="board" id="board"></div>
         </div>
+
         <div class="status-bar">
-          <div class="turn-pill"><span class="turn-dot" id="turnDot"></span><span id="turnLabel">Vez das brancas</span></div>
+
+          <div class="turn-pill">
+            <span class="turn-dot" id="turnDot"></span>
+            <span id="turnLabel">Vez das brancas</span>
+          </div>
+
           <div id="statusMsg"></div>
+
         </div>
+
       </div>
 
       <div class="panel">
+
         <div class="card">
+
           <h3>Nova <span>partida</span></h3>
+
           <div class="field-label">Dificuldade do bot</div>
+
           <div class="diff-row">
-            <div class="diff-btn easy" data-diff="easy">Fácil<small>~1000</small></div>
-            <div class="diff-btn active" data-diff="medium">Médio<small>~1400</small></div>
-            <div class="diff-btn hard" data-diff="hard">Difícil<small>~1800</small></div>
+
+            <div class="diff-btn easy" data-diff="easy">
+              Fácil
+              <small>~1000</small>
+            </div>
+
+            <div class="diff-btn active" data-diff="medium">
+              Médio
+              <small>~1400</small>
+            </div>
+
+            <div class="diff-btn hard" data-diff="hard">
+              Difícil
+              <small>~1800</small>
+            </div>
+
           </div>
+
           <div class="field-label">Suas peças</div>
+
           <div class="side-row">
-            <div class="side-btn active" data-side="w">Brancas</div>
-            <div class="side-btn" data-side="b">Pretas</div>
+
+            <div class="side-btn active" data-side="w">
+              Brancas
+            </div>
+
+            <div class="side-btn" data-side="b">
+              Pretas
+            </div>
+
           </div>
+
           <div class="actions-row">
-            <button class="btn primary" id="btnNewGame">Iniciar partida</button>
-            <button class="btn ghost" id="btnResign" disabled>Desistir</button>
+
+            <button class="btn primary" id="btnNewGame">
+              Iniciar partida
+            </button>
+
+            <button class="btn ghost" id="btnResign" disabled>
+              Desistir
+            </button>
+
           </div>
+
         </div>
 
         <div class="card">
+
           <h3>Lance a <span>lance</span></h3>
-          <div class="history" id="historyBox"><p style="color:var(--text-dim); font-size:13px;">Nenhum lance ainda.</p></div>
+
+          <div class="history" id="historyBox">
+            <p style="color:var(--text-dim); font-size:13px;">
+              Nenhum lance ainda.
+            </p>
+          </div>
+
         </div>
+
       </div>
+
     </div>
+
   </section>
 
-  <!-- RANKING VIEW -->
+
+  <!-- RANKING -->
+
   <section class="view" id="view-ranking">
+
     <div class="rank-head">
+
       <div>
         <h2>Ranking global</h2>
         <p>Elo dos jogadores registrados no clube.</p>
       </div>
-      <button class="btn ghost" id="btnRefreshRank">Atualizar</button>
+
+      <button class="btn ghost" id="btnRefreshRank">
+        Atualizar
+      </button>
+
     </div>
+
     <div id="rankTableWrap"></div>
-    <p class="note">Dados de ranking são compartilhados entre todos os usuários deste site. Nomes de usuário são públicos.</p>
+
+    <p class="note">
+      Dados de ranking são compartilhados entre todos os usuários deste site.
+      Nomes de usuário são públicos.
+    </p>
+
   </section>
 
-  <!-- PROFILE / AUTH VIEW -->
+
+  <!-- PROFILE / AUTH -->
+
   <section class="view" id="view-profile">
+
     <div id="profileLoggedOut" class="auth-wrap" style="display:none;">
+
       <div id="loginBox">
+
         <h2>Entrar</h2>
-        <p class="lead">Entre para salvar seu Elo e aparecer no ranking.</p>
+
+        <p class="lead">
+          Entre para salvar seu Elo e aparecer no ranking.
+        </p>
+
         <div class="auth-err" id="loginErr"></div>
-        <div class="field"><label>Nome de usuário</label><input id="loginUser" autocomplete="username"></div>
-        <div class="field"><label>Senha</label><input id="loginPass" type="password" autocomplete="current-password"></div>
-        <button class="btn primary" style="width:100%;" id="btnDoLogin">Entrar</button>
-        <div class="auth-switch">Ainda não tem conta? <a id="toRegister">Registre-se</a></div>
+
+        <div class="field">
+          <label>Nome de usuário</label>
+          <input id="loginUser" autocomplete="username">
+        </div>
+
+        <div class="field">
+          <label>Senha</label>
+          <input id="loginPass" type="password" autocomplete="current-password">
+        </div>
+
+        <button class="btn primary" style="width:100%;" id="btnDoLogin">
+          Entrar
+        </button>
+
+        <div class="auth-switch">
+          Ainda não tem conta?
+          <a id="toRegister">Registre-se</a>
+        </div>
+
       </div>
+
+
       <div id="registerBox" style="display:none;">
+
         <h2>Criar conta</h2>
-        <p class="lead">Escolha um nome — ele vai aparecer no ranking.</p>
+
+        <p class="lead">
+          Escolha um nome — ele vai aparecer no ranking.
+        </p>
+
         <div class="auth-err" id="regErr"></div>
-        <div class="field"><label>Nome de usuário</label><input id="regUser" autocomplete="username"></div>
-        <div class="field"><label>Senha</label><input id="regPass" type="password" autocomplete="new-password"></div>
-        <button class="btn primary" style="width:100%;" id="btnDoRegister">Criar conta</button>
-        <div class="auth-switch">Já tem conta? <a id="toLogin">Entrar</a></div>
+
+        <div class="field">
+          <label>Nome de usuário</label>
+          <input id="regUser" autocomplete="username">
+        </div>
+
+        <div class="field">
+          <label>Senha</label>
+          <input id="regPass" type="password" autocomplete="new-password">
+        </div>
+
+        <button class="btn primary" style="width:100%;" id="btnDoRegister">
+          Criar conta
+        </button>
+
+        <div class="auth-switch">
+          Já tem conta?
+          <a id="toLogin">Entrar</a>
+        </div>
+
       </div>
+
     </div>
+
 
     <div id="profileLoggedIn" style="display:none;">
-      <h2 style="font-family:var(--serif); font-size:30px; margin:0 0 4px;" id="profileName"></h2>
-      <p style="color:var(--text-dim); font-size:13px; margin:0 0 26px;" id="profileSince"></p>
+
+      <h2
+        style="font-family:var(--serif); font-size:30px; margin:0 0 4px;"
+        id="profileName">
+      </h2>
+
+      <p
+        style="color:var(--text-dim); font-size:13px; margin:0 0 26px;"
+        id="profileSince">
+      </p>
+
       <div class="profile-grid">
-        <div class="stat-card"><div class="num" id="pElo">1200</div><div class="lbl">ELO</div></div>
-        <div class="stat-card"><div class="num" id="pWins">0</div><div class="lbl">VITÓRIAS</div></div>
-        <div class="stat-card"><div class="num" id="pLosses">0</div><div class="lbl">DERROTAS</div></div>
+
+        <div class="stat-card">
+          <div class="num" id="pElo">1200</div>
+          <div class="lbl">ELO</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="num" id="pWins">0</div>
+          <div class="lbl">VITÓRIAS</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="num" id="pLosses">0</div>
+          <div class="lbl">DERROTAS</div>
+        </div>
+
       </div>
+
       <div class="card" style="max-width:420px;">
+
         <h3>Resumo</h3>
-        <div class="elo-line"><span>Empates</span><b id="pDraws">0</b></div>
-        <div class="elo-line"><span>Partidas jogadas</span><b id="pTotal">0</b></div>
-        <div class="elo-line"><span>Posição no ranking</span><b id="pRank">—</b></div>
+
+        <div class="elo-line">
+          <span>Empates</span>
+          <b id="pDraws">0</b>
+        </div>
+
+        <div class="elo-line">
+          <span>Partidas jogadas</span>
+          <b id="pTotal">0</b>
+        </div>
+
+        <div class="elo-line">
+          <span>Posição no ranking</span>
+          <b id="pRank">—</b>
+        </div>
+
       </div>
-      <button class="btn ghost" style="margin-top:20px;" id="btnLogout">Sair da conta</button>
+
+      <button
+        class="btn ghost"
+        style="margin-top:20px;"
+        id="btnLogout">
+        Sair da conta
+      </button>
+
     </div>
 
-    <p class="note">Este é um site de demonstração. Senhas são guardadas apenas para fins do jogo, sem criptografia forte — não reutilize uma senha importante.</p>
+    <p class="note">
+      As senhas agora são protegidas pelo Firebase Authentication.
+      O site não armazena sua senha no banco de dados.
+    </p>
+
   </section>
 
 </main>
 
-<footer>Clube de Xadrez — jogue contra o bot, suba no ranking.</footer>
+<footer>
+  Clube de Xadrez — jogue contra o bot, suba no ranking.
+</footer>
+
 
 <script>
+
 (function(){
+
   "use strict";
 
-  /* ============ STORAGE HELPERS ============ */
-  async function storeGet(key, shared){ try{ const r = await window.storage.get(key, !!shared); return r ? r.value : null; }catch(e){ return null; } }
-  async function storeSet(key, value, shared){ try{ await window.storage.set(key, value, !!shared); }catch(e){ console.error(e); } }
-  async function storeList(prefix, shared){ try{ const r = await window.storage.list(prefix, !!shared); return r ? r.keys : []; }catch(e){ return []; } }
 
-  function simpleHash(str){
-    let h = 0;
-    for(let i=0;i<str.length;i++){ h = (Math.imul(31,h) + str.charCodeAt(i))|0; }
-    return 'h' + (h>>>0).toString(16);
+  /* =========================================================
+     FIREBASE
+     ========================================================= */
+
+  let firebaseReady = false;
+
+  function waitForFirebase(){
+
+    return new Promise((resolve)=>{
+
+      if(window.firebaseAuth && window.firebaseDB && window.firebaseFns){
+
+        firebaseReady = true;
+        resolve();
+        return;
+
+      }
+
+      const interval = setInterval(()=>{
+
+        if(window.firebaseAuth && window.firebaseDB && window.firebaseFns){
+
+          clearInterval(interval);
+
+          firebaseReady = true;
+
+          resolve();
+
+        }
+
+      },50);
+
+    });
+
   }
 
-  /* ============ APP STATE ============ */
-  let currentUser = null; // {username, elo, wins, losses, draws, createdAt}
+
+  /* =========================================================
+     FIREBASE DATABASE HELPERS
+     ========================================================= */
+
+  async function dbGet(path){
+
+    await waitForFirebase();
+
+    try{
+
+      const snapshot = await window.firebaseFns.get(
+        window.firebaseFns.ref(window.firebaseDB,path)
+      );
+
+      return snapshot.exists() ? snapshot.val() : null;
+
+    }catch(error){
+
+      console.error("Erro ao ler Firebase:",error);
+
+      return null;
+
+    }
+
+  }
+
+
+  async function dbSet(path,value){
+
+    await waitForFirebase();
+
+    try{
+
+      await window.firebaseFns.set(
+        window.firebaseFns.ref(window.firebaseDB,path),
+        value
+      );
+
+      return true;
+
+    }catch(error){
+
+      console.error("Erro ao salvar Firebase:",error);
+
+      throw error;
+
+    }
+
+  }
+
+
+  async function dbUpdate(path,value){
+
+    await waitForFirebase();
+
+    try{
+
+      await window.firebaseFns.update(
+        window.firebaseFns.ref(window.firebaseDB,path),
+        value
+      );
+
+      return true;
+
+    }catch(error){
+
+      console.error("Erro ao atualizar Firebase:",error);
+
+      throw error;
+
+    }
+
+  }
+
+
+  async function dbRemove(path){
+
+    await waitForFirebase();
+
+    try{
+
+      await window.firebaseFns.remove(
+        window.firebaseFns.ref(window.firebaseDB,path)
+      );
+
+      return true;
+
+    }catch(error){
+
+      console.error("Erro ao remover Firebase:",error);
+
+      throw error;
+
+    }
+
+  }
+
+
+  /* =========================================================
+     APP STATE
+     ========================================================= */
+
+  let currentUser = null;
+
+  let currentFirebaseUser = null;
+
   let game = new Chess();
+
   let playerSide = 'w';
+
   let difficulty = 'medium';
+
   let selectedSq = null;
+
   let legalTargets = [];
+
   let gameActive = false;
+
   let lastMove = null;
 
-  const DIFF_ELO = { easy: 1000, medium: 1400, hard: 1800 };
-  const DIFF_DEPTH = { easy: 1, medium: 2, hard: 3 };
 
-  const PIECE_SYMBOL = { p:'p-pawn', n:'p-knight', b:'p-bishop', r:'p-rook', q:'p-queen', k:'p-king' };
+  const DIFF_ELO = {
+    easy:1000,
+    medium:1400,
+    hard:1800
+  };
+
+
+  const DIFF_DEPTH = {
+    easy:1,
+    medium:2,
+    hard:3
+  };
+
+
+  const PIECE_SYMBOL = {
+    p:'p-pawn',
+    n:'p-knight',
+    b:'p-bishop',
+    r:'p-rook',
+    q:'p-queen',
+    k:'p-king'
+  };
+
+
   const SVG_NS = 'http://www.w3.org/2000/svg';
+
   const XLINK_NS = 'http://www.w3.org/1999/xlink';
 
-  function makePieceSVG(color, type){
-    const svg = document.createElementNS(SVG_NS,'svg');
-    svg.setAttribute('viewBox','0 0 100 100');
-    svg.classList.add('piece-svg', color==='w' ? 'white' : 'black');
-    const use = document.createElementNS(SVG_NS,'use');
-    use.setAttributeNS(XLINK_NS,'href','#'+PIECE_SYMBOL[type]);
-    use.setAttribute('href','#'+PIECE_SYMBOL[type]);
+
+  const FILES = [
+    'a','b','c','d',
+    'e','f','g','h'
+  ];
+
+
+  /* =========================================================
+     PIECES
+     ========================================================= */
+
+  function makePieceSVG(color,type){
+
+    const svg =
+      document.createElementNS(
+        SVG_NS,
+        'svg'
+      );
+
+    svg.setAttribute(
+      'viewBox',
+      '0 0 100 100'
+    );
+
+    svg.classList.add(
+      'piece-svg',
+      color==='w' ? 'white' : 'black'
+    );
+
+    const use =
+      document.createElementNS(
+        SVG_NS,
+        'use'
+      );
+
+    use.setAttributeNS(
+      XLINK_NS,
+      'href',
+      '#'+PIECE_SYMBOL[type]
+    );
+
+    use.setAttribute(
+      'href',
+      '#'+PIECE_SYMBOL[type]
+    );
+
     svg.appendChild(use);
+
     return svg;
+
   }
 
-  const FILES = ['a','b','c','d','e','f','g','h'];
 
-  /* ============ NAV ============ */
-  document.querySelectorAll('nav.tabs button').forEach(btn=>{
-    btn.addEventListener('click', ()=> switchView(btn.dataset.view));
-  });
+  /* =========================================================
+     NAVIGATION
+     ========================================================= */
+
+  document
+    .querySelectorAll('nav.tabs button')
+    .forEach(btn=>{
+
+      btn.addEventListener(
+        'click',
+        ()=>{
+          switchView(btn.dataset.view);
+        }
+      );
+
+    });
+
+
   function switchView(name){
-    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.view===name));
-    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-    document.getElementById('view-'+name).classList.add('active');
-    if(name==='ranking') renderRanking();
-    if(name==='profile') renderProfile();
+
+    document
+      .querySelectorAll('nav.tabs button')
+      .forEach(b=>{
+
+        b.classList.toggle(
+          'active',
+          b.dataset.view===name
+        );
+
+      });
+
+
+    document
+      .querySelectorAll('.view')
+      .forEach(v=>{
+        v.classList.remove('active');
+      });
+
+
+    document
+      .getElementById('view-'+name)
+      .classList.add('active');
+
+
+    if(name==='ranking'){
+      renderRanking();
+    }
+
+
+    if(name==='profile'){
+      renderProfile();
+    }
+
   }
 
-  /* ============ BOARD RENDER ============ */
-  const boardEl = document.getElementById('board');
 
-  function squareColor(f, r){ return (f + r) % 2 === 0 ? 'light' : 'dark'; }
+  /* =========================================================
+     BOARD
+     ========================================================= */
+
+  const boardEl =
+    document.getElementById('board');
+
+
+  function squareColor(f,r){
+
+    return (f+r)%2===0
+      ? 'light'
+      : 'dark';
+
+  }
+
 
   function renderBoard(){
-    boardEl.innerHTML = '';
-    const boardState = game.board(); // array[8][0..7], row0 = rank8
-    for(let row=0; row<8; row++){
-      for(let col=0; col<8; col++){
-        const file = FILES[col];
-        const rank = 8-row;
-        const sqName = file+rank;
-        const colorClass = squareColor(col,row);
-        const div = document.createElement('div');
-        div.className = 'sq ' + colorClass;
-        div.dataset.sq = sqName;
 
-        if(lastMove && (lastMove.from===sqName || lastMove.to===sqName)) div.classList.add('lastmove');
-        if(selectedSq===sqName) div.classList.add('selected');
+    boardEl.innerHTML='';
 
-        const piece = boardState[row][col];
+    const boardState =
+      game.board();
+
+
+    for(let row=0;row<8;row++){
+
+      for(let col=0;col<8;col++){
+
+        const file =
+          FILES[col];
+
+        const rank =
+          8-row;
+
+        const sqName =
+          file+rank;
+
+        const colorClass =
+          squareColor(col,row);
+
+
+        const div =
+          document.createElement('div');
+
+        div.className =
+          'sq '+colorClass;
+
+        div.dataset.sq =
+          sqName;
+
+
+        if(
+          lastMove &&
+          (
+            lastMove.from===sqName ||
+            lastMove.to===sqName
+          )
+        ){
+
+          div.classList.add(
+            'lastmove'
+          );
+
+        }
+
+
+        if(selectedSq===sqName){
+
+          div.classList.add(
+            'selected'
+          );
+
+        }
+
+
+        const piece =
+          boardState[row][col];
+
+
         if(piece){
-          const shadow = document.createElement('div');
-          shadow.className = 'piece-shadow';
-          div.appendChild(shadow);
-          div.appendChild(makePieceSVG(piece.color, piece.type));
-          if(piece.type==='k' && piece.color===game.turn() && game.in_check()){
-            div.classList.add('check');
-          }
-        }
-        if(legalTargets.includes(sqName)){
-          const marker = document.createElement('div');
-          marker.className = piece ? 'ring' : 'dot';
-          div.appendChild(marker);
-        }
-        if(col===0){ const c=document.createElement('span'); c.className='coord rank'; c.textContent=rank; div.appendChild(c); }
-        if(row===7){ const c=document.createElement('span'); c.className='coord file'; c.textContent=file; div.appendChild(c); }
 
-        div.addEventListener('click', onSquareClick);
-        boardEl.appendChild(div);
+          const shadow =
+            document.createElement('div');
+
+          shadow.className =
+            'piece-shadow';
+
+          div.appendChild(
+            shadow
+          );
+
+
+          div.appendChild(
+            makePieceSVG(
+              piece.color,
+              piece.type
+            )
+          );
+
+
+          if(
+            piece.type==='k' &&
+            piece.color===game.turn() &&
+            game.in_check()
+          ){
+
+            div.classList.add(
+              'check'
+            );
+
+          }
+
+        }
+
+
+        if(
+          legalTargets.includes(sqName)
+        ){
+
+          const marker =
+            document.createElement('div');
+
+          marker.className =
+            piece ? 'ring' : 'dot';
+
+          div.appendChild(
+            marker
+          );
+
+        }
+
+
+        if(col===0){
+
+          const c =
+            document.createElement('span');
+
+          c.className =
+            'coord rank';
+
+          c.textContent =
+            rank;
+
+          div.appendChild(c);
+
+        }
+
+
+        if(row===7){
+
+          const c =
+            document.createElement('span');
+
+          c.className =
+            'coord file';
+
+          c.textContent =
+            file;
+
+          div.appendChild(c);
+
+        }
+
+
+        div.addEventListener(
+          'click',
+          onSquareClick
+        );
+
+
+        boardEl.appendChild(
+          div
+        );
+
       }
+
     }
+
+
     updateStatusBar();
+
   }
+
 
   function onSquareClick(e){
+
     if(!gameActive) return;
-    if(game.turn() !== playerSide) return; // not player's turn
-    const sq = e.currentTarget.dataset.sq;
+
+    if(game.turn()!==playerSide) return;
+
+
+    const sq =
+      e.currentTarget.dataset.sq;
+
 
     if(selectedSq){
+
       if(legalTargets.includes(sq)){
-        makeMove(selectedSq, sq);
-        selectedSq = null; legalTargets = [];
+
+        makeMove(
+          selectedSq,
+          sq
+        );
+
+        selectedSq=null;
+
+        legalTargets=[];
+
         renderBoard();
-        setTimeout(botTurnIfNeeded, 260);
+
+        setTimeout(
+          botTurnIfNeeded,
+          260
+        );
+
         return;
+
       }
+
     }
-    const piece = game.get(sq);
-    if(piece && piece.color === playerSide){
-      selectedSq = sq;
-      legalTargets = game.moves({square:sq, verbose:true}).map(m=>m.to);
-    } else {
-      selectedSq = null; legalTargets = [];
+
+
+    const piece =
+      game.get(sq);
+
+
+    if(
+      piece &&
+      piece.color===playerSide
+    ){
+
+      selectedSq=sq;
+
+      legalTargets =
+        game
+          .moves({
+            square:sq,
+            verbose:true
+          })
+          .map(m=>m.to);
+
+    }else{
+
+      selectedSq=null;
+
+      legalTargets=[];
+
     }
+
+
     renderBoard();
+
   }
+
 
   function makeMove(from,to){
-    const moves = game.moves({square:from, verbose:true});
-    const target = moves.find(m=>m.to===to);
-    let promotion = undefined;
-    if(target && target.flags.includes('p')) promotion = 'q'; // auto-promote to queen
-    const mv = game.move({from, to, promotion});
-    if(mv){ lastMove = {from:mv.from, to:mv.to}; recordHistory(); }
+
+    const moves =
+      game.moves({
+        square:from,
+        verbose:true
+      });
+
+
+    const target =
+      moves.find(
+        m=>m.to===to
+      );
+
+
+    let promotion=undefined;
+
+
+    if(
+      target &&
+      target.flags.includes('p')
+    ){
+
+      promotion='q';
+
+    }
+
+
+    const mv =
+      game.move({
+        from,
+        to,
+        promotion
+      });
+
+
+    if(mv){
+
+      lastMove={
+        from:mv.from,
+        to:mv.to
+      };
+
+      recordHistory();
+
+    }
+
+
     checkGameEnd();
+
   }
+
 
   function updateStatusBar(){
-    const dot = document.getElementById('turnDot');
-    const label = document.getElementById('turnLabel');
-    dot.classList.toggle('black', game.turn()==='b');
-    label.textContent = (game.turn()==='w' ? 'Vez das brancas' : 'Vez das pretas');
-    const msg = document.getElementById('statusMsg');
-    if(game.in_checkmate()) msg.textContent = 'Xeque-mate';
-    else if(game.in_draw()) msg.textContent = 'Empate';
-    else if(game.in_check()) msg.textContent = 'Xeque';
-    else msg.textContent = '';
+
+    const dot =
+      document.getElementById('turnDot');
+
+
+    const label =
+      document.getElementById('turnLabel');
+
+
+    dot.classList.toggle(
+      'black',
+      game.turn()==='b'
+    );
+
+
+    label.textContent =
+      game.turn()==='w'
+        ? 'Vez das brancas'
+        : 'Vez das pretas';
+
+
+    const msg =
+      document.getElementById('statusMsg');
+
+
+    if(game.in_checkmate()){
+
+      msg.textContent =
+        'Xeque-mate';
+
+    }else if(game.in_draw()){
+
+      msg.textContent =
+        'Empate';
+
+    }else if(game.in_check()){
+
+      msg.textContent =
+        'Xeque';
+
+    }else{
+
+      msg.textContent='';
+
+    }
+
   }
+
 
   function recordHistory(){
-    const hist = game.history();
-    const box = document.getElementById('historyBox');
-    if(hist.length===0){ box.innerHTML = '<p style="color:var(--text-dim); font-size:13px;">Nenhum lance ainda.</p>'; return; }
-    let rows = '';
-    for(let i=0;i<hist.length;i+=2){
-      const num = (i/2)+1;
-      rows += `<tr><td class="num">${num}.</td><td class="mv">${hist[i]||''}</td><td class="mv">${hist[i+1]||''}</td></tr>`;
+
+    const hist =
+      game.history();
+
+
+    const box =
+      document.getElementById(
+        'historyBox'
+      );
+
+
+    if(hist.length===0){
+
+      box.innerHTML =
+        '<p style="color:var(--text-dim); font-size:13px;">Nenhum lance ainda.</p>';
+
+      return;
+
     }
-    box.innerHTML = `<table>${rows}</table>`;
-    box.scrollTop = box.scrollHeight;
+
+
+    let rows='';
+
+
+    for(
+      let i=0;
+      i<hist.length;
+      i+=2
+    ){
+
+      const num =
+        (i/2)+1;
+
+
+      rows+=`
+        <tr>
+          <td class="num">${num}.</td>
+          <td class="mv">${hist[i]||''}</td>
+          <td class="mv">${hist[i+1]||''}</td>
+        </tr>
+      `;
+
+    }
+
+
+    box.innerHTML =
+      `<table>${rows}</table>`;
+
+
+    box.scrollTop =
+      box.scrollHeight;
+
   }
 
-  /* ============ GAME LIFECYCLE ============ */
-  document.querySelectorAll('.diff-btn').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      document.querySelectorAll('.diff-btn').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active');
-      difficulty = b.dataset.diff;
-    });
-  });
-  document.querySelectorAll('.side-btn').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      document.querySelectorAll('.side-btn').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active');
-      playerSide = b.dataset.side;
-    });
-  });
 
-  document.getElementById('btnNewGame').addEventListener('click', startNewGame);
-  document.getElementById('btnResign').addEventListener('click', ()=>{
-    if(!gameActive) return;
-    endGame(playerSide==='w' ? 'b' : 'w', 'resign');
-  });
+  /* =========================================================
+     GAME
+     ========================================================= */
+
+  document
+    .querySelectorAll('.diff-btn')
+    .forEach(b=>{
+
+      b.addEventListener(
+        'click',
+        ()=>{
+
+          document
+            .querySelectorAll('.diff-btn')
+            .forEach(x=>{
+              x.classList.remove(
+                'active'
+              );
+            });
+
+
+          b.classList.add(
+            'active'
+          );
+
+
+          difficulty =
+            b.dataset.diff;
+
+        }
+      );
+
+    });
+
+
+  document
+    .querySelectorAll('.side-btn')
+    .forEach(b=>{
+
+      b.addEventListener(
+        'click',
+        ()=>{
+
+          document
+            .querySelectorAll('.side-btn')
+            .forEach(x=>{
+              x.classList.remove(
+                'active'
+              );
+            });
+
+
+          b.classList.add(
+            'active'
+          );
+
+
+          playerSide =
+            b.dataset.side;
+
+        }
+      );
+
+    });
+
+
+  document
+    .getElementById('btnNewGame')
+    .addEventListener(
+      'click',
+      startNewGame
+    );
+
+
+  document
+    .getElementById('btnResign')
+    .addEventListener(
+      'click',
+      ()=>{
+
+        if(!gameActive) return;
+
+
+        endGame(
+          playerSide==='w'
+            ? 'b'
+            : 'w',
+          'resign'
+        );
+
+      }
+    );
+
 
   function startNewGame(){
-    game = new Chess();
-    selectedSq=null; legalTargets=[]; lastMove=null; gameActive = true;
-    document.getElementById('btnResign').disabled = false;
+
+    game =
+      new Chess();
+
+
+    selectedSq=null;
+
+    legalTargets=[];
+
+    lastMove=null;
+
+    gameActive=true;
+
+
+    document
+      .getElementById('btnResign')
+      .disabled=false;
+
+
     renderBoard();
+
     recordHistory();
-    if(game.turn() !== playerSide){
-      setTimeout(botTurnIfNeeded, 300);
+
+
+    if(
+      game.turn()!==playerSide
+    ){
+
+      setTimeout(
+        botTurnIfNeeded,
+        300
+      );
+
     }
+
   }
+
 
   function checkGameEnd(){
+
     if(game.in_checkmate()){
-      const winner = game.turn()==='w' ? 'b' : 'w'; // side to move is checkmated -> loses
-      endGame(winner, 'checkmate');
-    } else if(game.in_draw() || game.in_stalemate() || game.in_threefold_repetition()){
-      endGame(null, 'draw');
+
+      const winner =
+        game.turn()==='w'
+          ? 'b'
+          : 'w';
+
+
+      endGame(
+        winner,
+        'checkmate'
+      );
+
+
+    }else if(
+      game.in_draw() ||
+      game.in_stalemate() ||
+      game.in_threefold_repetition()
+    ){
+
+      endGame(
+        null,
+        'draw'
+      );
+
     }
+
   }
 
-  function endGame(winnerColor, reason){
-    gameActive = false;
-    document.getElementById('btnResign').disabled = true;
+
+  function endGame(
+    winnerColor,
+    reason
+  ){
+
+    gameActive=false;
+
+
+    document
+      .getElementById('btnResign')
+      .disabled=true;
+
+
     renderBoard();
-    let result; // 1 win, 0.5 draw, 0 loss (for player)
-    if(winnerColor===null) result = 0.5;
-    else result = (winnerColor===playerSide) ? 1 : 0;
 
-    const statusMsg = document.getElementById('statusMsg');
-    if(reason==='checkmate') statusMsg.textContent = (result===1 ? 'Xeque-mate — você venceu!' : 'Xeque-mate — o bot venceu.');
-    else if(reason==='resign') statusMsg.textContent = 'Você desistiu da partida.';
-    else statusMsg.textContent = 'Partida empatada.';
 
-    if(currentUser){ applyEloUpdate(result); }
+    let result;
+
+
+    if(winnerColor===null){
+
+      result=0.5;
+
+    }else{
+
+      result =
+        winnerColor===playerSide
+          ? 1
+          : 0;
+
+    }
+
+
+    const statusMsg =
+      document.getElementById(
+        'statusMsg'
+      );
+
+
+    if(reason==='checkmate'){
+
+      statusMsg.textContent =
+        result===1
+          ? 'Xeque-mate — você venceu!'
+          : 'Xeque-mate — o bot venceu.';
+
+    }else if(reason==='resign'){
+
+      statusMsg.textContent =
+        'Você desistiu da partida.';
+
+    }else{
+
+      statusMsg.textContent =
+        'Partida empatada.';
+
+    }
+
+
+    if(currentUser){
+
+      applyEloUpdate(result);
+
+    }
+
   }
 
-  /* ============ BOT AI (minimax + alpha-beta) ============ */
-  const PIECE_VALUE = {p:100,n:320,b:330,r:500,q:900,k:20000};
-  // simple center-control tables to give the bot some positional sense
+
+  /* =========================================================
+     BOT
+     ========================================================= */
+
+  const PIECE_VALUE = {
+    p:100,
+    n:320,
+    b:330,
+    r:500,
+    q:900,
+    k:20000
+  };
+
+
   const PST_PAWN = [
+
     0,0,0,0,0,0,0,0,
+
     50,50,50,50,50,50,50,50,
+
     10,10,20,30,30,20,10,10,
+
     5,5,10,25,25,10,5,5,
+
     0,0,0,20,20,0,0,0,
+
     5,-5,-10,0,0,-10,-5,5,
+
     5,10,10,-20,-20,10,10,5,
+
     0,0,0,0,0,0,0,0
-  ];
-  const PST_KNIGHT = [
-    -50,-40,-30,-30,-30,-30,-40,-50,
-    -40,-20,0,0,0,0,-20,-40,
-    -30,0,10,15,15,10,0,-30,
-    -30,5,15,20,20,15,5,-30,
-    -30,0,15,20,20,15,0,-30,
-    -30,5,10,15,15,10,5,-30,
-    -40,-20,0,5,5,0,-20,-40,
-    -50,-40,-30,-30,-30,-30,-40,-50
+
   ];
 
-  function sqIndex(sq){ const f=sq.charCodeAt(0)-97; const r=8-parseInt(sq[1],10); return r*8+f; }
+
+  const PST_KNIGHT = [
+
+    -50,-40,-30,-30,-30,-30,-40,-50,
+
+    -40,-20,0,0,0,0,-20,-40,
+
+    -30,0,10,15,15,10,0,-30,
+
+    -30,5,15,20,20,15,5,-30,
+
+    -30,0,15,20,20,15,0,-30,
+
+    -30,5,10,15,15,10,5,-30,
+
+    -40,-20,0,5,5,0,-20,-40,
+
+    -50,-40,-30,-30,-30,-30,-40,-50
+
+  ];
+
 
   function evaluateBoard(g){
-    if(g.in_checkmate()) return g.turn()==='w' ? -99999 : 99999;
-    if(g.in_draw()) return 0;
-    const board = g.board();
-    let score = 0;
-    for(let row=0; row<8; row++){
-      for(let col=0; col<8; col++){
-        const p = board[row][col];
-        if(!p) continue;
-        const idx = row*8+col;
-        let val = PIECE_VALUE[p.type];
-        if(p.type==='p') val += (p.color==='w' ? PST_PAWN[idx] : PST_PAWN[63-idx]);
-        if(p.type==='n') val += (p.color==='w' ? PST_KNIGHT[idx] : PST_KNIGHT[63-idx]);
-        score += (p.color==='w') ? val : -val;
-      }
+
+    if(g.in_checkmate()){
+
+      return g.turn()==='w'
+        ? -99999
+        : 99999;
+
     }
+
+
+    if(g.in_draw()) return 0;
+
+
+    const board =
+      g.board();
+
+
+    let score=0;
+
+
+    for(
+      let row=0;
+      row<8;
+      row++
+    ){
+
+      for(
+        let col=0;
+        col<8;
+        col++
+      ){
+
+        const p =
+          board[row][col];
+
+
+        if(!p) continue;
+
+
+        const idx =
+          row*8+col;
+
+
+        let val =
+          PIECE_VALUE[p.type];
+
+
+        if(p.type==='p'){
+
+          val+=
+            p.color==='w'
+              ? PST_PAWN[idx]
+              : PST_PAWN[63-idx];
+
+        }
+
+
+        if(p.type==='n'){
+
+          val+=
+            p.color==='w'
+              ? PST_KNIGHT[idx]
+              : PST_KNIGHT[63-idx];
+
+        }
+
+
+        score +=
+          p.color==='w'
+            ? val
+            : -val;
+
+      }
+
+    }
+
+
     return score;
+
   }
+
 
   function orderedMoves(g){
-    const moves = g.moves({verbose:true});
-    moves.sort((a,b)=>{
-      const av = a.captured ? (PIECE_VALUE[a.captured]||0) : 0;
-      const bv = b.captured ? (PIECE_VALUE[b.captured]||0) : 0;
-      return bv - av;
-    });
+
+    const moves =
+      g.moves({
+        verbose:true
+      });
+
+
+    moves.sort(
+      (a,b)=>{
+
+        const av =
+          a.captured
+            ? (PIECE_VALUE[a.captured]||0)
+            : 0;
+
+
+        const bv =
+          b.captured
+            ? (PIECE_VALUE[b.captured]||0)
+            : 0;
+
+
+        return bv-av;
+
+      }
+    );
+
+
     return moves;
+
   }
 
-  function minimax(g, depth, alpha, beta, maximizing){
-    if(depth===0 || g.game_over()) return evaluateBoard(g);
-    const moves = orderedMoves(g);
-    if(maximizing){
-      let best = -Infinity;
-      for(const m of moves){
-        g.move(m);
-        best = Math.max(best, minimax(g, depth-1, alpha, beta, false));
-        g.undo();
-        alpha = Math.max(alpha, best);
-        if(beta<=alpha) break;
-      }
-      return best;
-    } else {
-      let best = Infinity;
-      for(const m of moves){
-        g.move(m);
-        best = Math.min(best, minimax(g, depth-1, alpha, beta, true));
-        g.undo();
-        beta = Math.min(beta, best);
-        if(beta<=alpha) break;
-      }
-      return best;
+
+  function minimax(
+    g,
+    depth,
+    alpha,
+    beta,
+    maximizing
+  ){
+
+    if(
+      depth===0 ||
+      g.game_over()
+    ){
+
+      return evaluateBoard(g);
+
     }
+
+
+    const moves =
+      orderedMoves(g);
+
+
+    if(maximizing){
+
+      let best=-Infinity;
+
+
+      for(const m of moves){
+
+        g.move(m);
+
+
+        best=Math.max(
+          best,
+          minimax(
+            g,
+            depth-1,
+            alpha,
+            beta,
+            false
+          )
+        );
+
+
+        g.undo();
+
+
+        alpha=Math.max(
+          alpha,
+          best
+        );
+
+
+        if(beta<=alpha) break;
+
+      }
+
+
+      return best;
+
+    }else{
+
+      let best=Infinity;
+
+
+      for(const m of moves){
+
+        g.move(m);
+
+
+        best=Math.min(
+          best,
+          minimax(
+            g,
+            depth-1,
+            alpha,
+            beta,
+            true
+          )
+        );
+
+
+        g.undo();
+
+
+        beta=Math.min(
+          beta,
+          best
+        );
+
+
+        if(beta<=alpha) break;
+
+      }
+
+
+      return best;
+
+    }
+
   }
+
 
   function botPickMove(){
-    const botColor = playerSide==='w' ? 'b' : 'w';
-    const maximizing = botColor==='w';
-    const moves = orderedMoves(game);
-    if(moves.length===0) return null;
 
-    // Easy: mostly random, occasionally a decent capture
+    const botColor =
+      playerSide==='w'
+        ? 'b'
+        : 'w';
+
+
+    const maximizing =
+      botColor==='w';
+
+
+    const moves =
+      orderedMoves(game);
+
+
+    if(moves.length===0){
+
+      return null;
+
+    }
+
+
     if(difficulty==='easy'){
-      if(Math.random() < 0.55){
-        return moves[Math.floor(Math.random()*moves.length)];
+
+      if(Math.random()<0.55){
+
+        return moves[
+          Math.floor(
+            Math.random()*moves.length
+          )
+        ];
+
       }
+
     }
 
-    const depth = DIFF_DEPTH[difficulty];
-    let bestMove = moves[0];
-    let bestScore = maximizing ? -Infinity : Infinity;
+
+    const depth =
+      DIFF_DEPTH[difficulty];
+
+
+    let bestMove =
+      moves[0];
+
+
+    let bestScore =
+      maximizing
+        ? -Infinity
+        : Infinity;
+
+
     for(const m of moves){
+
       game.move(m);
-      const score = minimax(game, depth-1, -Infinity, Infinity, !maximizing);
+
+
+      const score =
+        minimax(
+          game,
+          depth-1,
+          -Infinity,
+          Infinity,
+          !maximizing
+        );
+
+
       game.undo();
-      if(maximizing && score>bestScore){ bestScore=score; bestMove=m; }
-      if(!maximizing && score<bestScore){ bestScore=score; bestMove=m; }
+
+
+      if(
+        maximizing &&
+        score>bestScore
+      ){
+
+        bestScore=score;
+
+        bestMove=m;
+
+      }
+
+
+      if(
+        !maximizing &&
+        score<bestScore
+      ){
+
+        bestScore=score;
+
+        bestMove=m;
+
+      }
+
     }
+
+
     return bestMove;
+
   }
+
 
   function botTurnIfNeeded(){
+
     if(!gameActive) return;
+
     if(game.turn()===playerSide) return;
-    const mv = botPickMove();
-    if(!mv) { checkGameEnd(); return; }
+
+
+    const mv =
+      botPickMove();
+
+
+    if(!mv){
+
+      checkGameEnd();
+
+      return;
+
+    }
+
+
     game.move(mv);
-    lastMove = {from:mv.from, to:mv.to};
+
+
+    lastMove={
+      from:mv.from,
+      to:mv.to
+    };
+
+
     recordHistory();
+
     renderBoard();
+
     checkGameEnd();
+
   }
 
-  /* ============ AUTH ============ */
-  const loginErr = document.getElementById('loginErr');
-  const regErr = document.getElementById('regErr');
 
-  document.getElementById('toRegister').addEventListener('click', ()=>{
-    document.getElementById('loginBox').style.display='none';
-    document.getElementById('registerBox').style.display='block';
-  });
-  document.getElementById('toLogin').addEventListener('click', ()=>{
-    document.getElementById('registerBox').style.display='none';
-    document.getElementById('loginBox').style.display='block';
-  });
+  /* =========================================================
+     AUTH
+     ========================================================= */
 
-  document.getElementById('btnDoRegister').addEventListener('click', async ()=>{
-    regErr.style.display='none';
-    const uname = document.getElementById('regUser').value.trim();
-    const pass = document.getElementById('regPass').value;
-    if(uname.length<3){ return showErr(regErr,'Nome de usuário deve ter ao menos 3 caracteres.'); }
-    if(!/^[a-zA-Z0-9_]+$/.test(uname)){ return showErr(regErr,'Use apenas letras, números e "_" no nome de usuário.'); }
-    if(pass.length<4){ return showErr(regErr,'Senha deve ter ao menos 4 caracteres.'); }
-    const key = 'chess_user:'+uname.toLowerCase();
-    const existing = await storeGet(key, true);
-    if(existing){ return showErr(regErr,'Esse nome de usuário já existe.'); }
-    const user = {
-      username: uname, passHash: simpleHash(pass),
-      elo: 1200, wins:0, losses:0, draws:0,
-      createdAt: new Date().toISOString()
-    };
-    await storeSet(key, JSON.stringify(user), true);
-    await storeSet('chess_session', JSON.stringify({username:uname}), false);
-    currentUser = user;
-    document.getElementById('regUser').value=''; document.getElementById('regPass').value='';
-    afterLogin();
-  });
+  const loginErr =
+    document.getElementById(
+      'loginErr'
+    );
 
-  document.getElementById('btnDoLogin').addEventListener('click', async ()=>{
-    loginErr.style.display='none';
-    const uname = document.getElementById('loginUser').value.trim();
-    const pass = document.getElementById('loginPass').value;
-    const key = 'chess_user:'+uname.toLowerCase();
-    const raw = await storeGet(key, true);
-    if(!raw) return showErr(loginErr,'Usuário não encontrado.');
-    const user = JSON.parse(raw);
-    if(user.passHash !== simpleHash(pass)) return showErr(loginErr,'Senha incorreta.');
-    await storeSet('chess_session', JSON.stringify({username:user.username}), false);
-    currentUser = user;
-    document.getElementById('loginUser').value=''; document.getElementById('loginPass').value='';
-    afterLogin();
-  });
 
-  document.getElementById('btnLogout').addEventListener('click', async ()=>{
-    currentUser = null;
-    try{ await window.storage.delete('chess_session', false); }catch(e){}
-    renderAccountBox();
-    renderProfile();
-  });
+  const regErr =
+    document.getElementById(
+      'regErr'
+    );
 
-  function showErr(el, msg){ el.textContent = msg; el.style.display='block'; }
+
+  document
+    .getElementById('toRegister')
+    .addEventListener(
+      'click',
+      ()=>{
+
+        document
+          .getElementById('loginBox')
+          .style.display='none';
+
+
+        document
+          .getElementById('registerBox')
+          .style.display='block';
+
+      }
+    );
+
+
+  document
+    .getElementById('toLogin')
+    .addEventListener(
+      'click',
+      ()=>{
+
+        document
+          .getElementById('registerBox')
+          .style.display='none';
+
+
+        document
+          .getElementById('loginBox')
+          .style.display='block';
+
+      }
+    );
+
+
+  /*
+    Transformamos o nome de usuário em um
+    e-mail interno usado pelo Firebase Authentication.
+
+    O usuário continua vendo apenas o nome.
+  */
+
+  function usernameToEmail(username){
+
+    const normalized =
+      username
+        .trim()
+        .toLowerCase();
+
+
+    return normalized +
+      '@club-do-xadrez.firebaseapp.com';
+
+  }
+
+
+  function normalizeUsername(username){
+
+    return username
+      .trim()
+      .toLowerCase();
+
+  }
+
+
+  function firebaseErrorMessage(error){
+
+    console.error(error);
+
+
+    if(!error) return 'Ocorreu um erro.';
+
+
+    switch(error.code){
+
+      case 'auth/email-already-in-use':
+        return 'Esse nome de usuário já está cadastrado.';
+
+      case 'auth/invalid-credential':
+        return 'Usuário ou senha incorretos.';
+
+      case 'auth/invalid-login-credentials':
+        return 'Usuário ou senha incorretos.';
+
+      case 'auth/weak-password':
+        return 'A senha precisa ter pelo menos 6 caracteres.';
+
+      case 'auth/operation-not-allowed':
+        return 'O login por e-mail ainda não foi ativado no Firebase.';
+
+      case 'auth/network-request-failed':
+        return 'Falha de conexão com o Firebase.';
+
+      case 'auth/too-many-requests':
+        return 'Muitas tentativas. Aguarde um pouco e tente novamente.';
+
+      case 'PERMISSION_DENIED':
+        return 'O Firebase bloqueou o acesso ao banco de dados. Precisamos configurar as regras.';
+
+      default:
+        return 'Erro no Firebase: '+(error.message || error.code || 'desconhecido');
+
+    }
+
+  }
+
+
+  document
+    .getElementById('btnDoRegister')
+    .addEventListener(
+      'click',
+      async ()=>{
+
+        regErr.style.display='none';
+
+
+        const uname =
+          document
+            .getElementById('regUser')
+            .value
+            .trim();
+
+
+        const pass =
+          document
+            .getElementById('regPass')
+            .value;
+
+
+        if(uname.length<3){
+
+          return showErr(
+            regErr,
+            'Nome de usuário deve ter ao menos 3 caracteres.'
+          );
+
+        }
+
+
+        if(
+          !/^[a-zA-Z0-9_]+$/.test(uname)
+        ){
+
+          return showErr(
+            regErr,
+            'Use apenas letras, números e "_" no nome de usuário.'
+          );
+
+        }
+
+
+        /*
+          Firebase exige pelo menos 6 caracteres.
+        */
+
+        if(pass.length<6){
+
+          return showErr(
+            regErr,
+            'Senha deve ter ao menos 6 caracteres.'
+          );
+
+        }
+
+
+        const normalized =
+          normalizeUsername(uname);
+
+
+        try{
+
+          await waitForFirebase();
+
+
+          /*
+            Primeiro verificamos se o nome
+            já existe no nosso banco.
+          */
+
+          const existing =
+            await dbGet(
+              'usernames/'+normalized
+            );
+
+
+          if(existing){
+
+            return showErr(
+              regErr,
+              'Esse nome de usuário já existe.'
+            );
+
+          }
+
+
+          const email =
+            usernameToEmail(uname);
+
+
+          /*
+            Cria a conta segura no Firebase Auth.
+          */
+
+          const credential =
+            await window.firebaseFns
+              .createUserWithEmailAndPassword(
+                window.firebaseAuth,
+                email,
+                pass
+              );
+
+
+          const firebaseUser =
+            credential.user;
+
+
+          /*
+            Dados públicos do jogador.
+            A senha NÃO é salva aqui.
+          */
+
+          const userData = {
+
+            uid:firebaseUser.uid,
+
+            username:uname,
+
+            usernameLower:normalized,
+
+            elo:1200,
+
+            wins:0,
+
+            losses:0,
+
+            draws:0,
+
+            createdAt:new Date().toISOString()
+
+          };
+
+
+          /*
+            Salva o usuário no ranking.
+          */
+
+          await dbSet(
+            'users/'+firebaseUser.uid,
+            userData
+          );
+
+
+          /*
+            Reserva o nome de usuário.
+          */
+
+          await dbSet(
+            'usernames/'+normalized,
+            {
+              uid:firebaseUser.uid,
+              username:uname
+            }
+          );
+
+
+          currentFirebaseUser =
+            firebaseUser;
+
+
+          currentUser =
+            userData;
+
+
+          document
+            .getElementById('regUser')
+            .value='';
+
+
+          document
+            .getElementById('regPass')
+            .value='';
+
+
+          afterLogin();
+
+
+        }catch(error){
+
+          showErr(
+            regErr,
+            firebaseErrorMessage(error)
+          );
+
+        }
+
+      }
+    );
+
+
+  document
+    .getElementById('btnDoLogin')
+    .addEventListener(
+      'click',
+      async ()=>{
+
+        loginErr.style.display='none';
+
+
+        const uname =
+          document
+            .getElementById('loginUser')
+            .value
+            .trim();
+
+
+        const pass =
+          document
+            .getElementById('loginPass')
+            .value;
+
+
+        if(!uname){
+
+          return showErr(
+            loginErr,
+            'Digite seu nome de usuário.'
+          );
+
+        }
+
+
+        if(!pass){
+
+          return showErr(
+            loginErr,
+            'Digite sua senha.'
+          );
+
+        }
+
+
+        try{
+
+          await waitForFirebase();
+
+
+          const email =
+            usernameToEmail(uname);
+
+
+          const credential =
+            await window.firebaseFns
+              .signInWithEmailAndPassword(
+                window.firebaseAuth,
+                email,
+                pass
+              );
+
+
+          currentFirebaseUser =
+            credential.user;
+
+
+          const userData =
+            await dbGet(
+              'users/'+credential.user.uid
+            );
+
+
+          if(!userData){
+
+            return showErr(
+              loginErr,
+              'A conta existe, mas os dados do jogador não foram encontrados.'
+            );
+
+          }
+
+
+          currentUser =
+            userData;
+
+
+          document
+            .getElementById('loginUser')
+            .value='';
+
+
+          document
+            .getElementById('loginPass')
+            .value='';
+
+
+          afterLogin();
+
+
+        }catch(error){
+
+          showErr(
+            loginErr,
+            firebaseErrorMessage(error)
+          );
+
+        }
+
+      }
+    );
+
+
+  document
+    .getElementById('btnLogout')
+    .addEventListener(
+      'click',
+      async ()=>{
+
+        try{
+
+          await waitForFirebase();
+
+          await window.firebaseFns
+            .signOut(
+              window.firebaseAuth
+            );
+
+        }catch(error){
+
+          console.error(
+            'Erro ao sair:',
+            error
+          );
+
+        }
+
+
+        currentUser=null;
+
+        currentFirebaseUser=null;
+
+
+        renderAccountBox();
+
+        renderProfile();
+
+      }
+    );
+
+
+  function showErr(el,msg){
+
+    el.textContent=msg;
+
+    el.style.display='block';
+
+  }
+
 
   function afterLogin(){
+
     renderAccountBox();
+
     renderProfile();
+
     switchView('profile');
+
   }
+
+
+  /* =========================================================
+     ELO
+     ========================================================= */
 
   async function applyEloUpdate(result){
-    // result: 1 win / 0.5 draw / 0 loss, from the player's perspective
-    const oppElo = DIFF_ELO[difficulty];
-    const K = 32;
-    const expected = 1 / (1 + Math.pow(10, (oppElo - currentUser.elo)/400));
-    const newElo = Math.round(currentUser.elo + K*(result - expected));
-    currentUser.elo = newElo;
-    if(result===1) currentUser.wins++;
-    else if(result===0) currentUser.losses++;
-    else currentUser.draws++;
-    const key = 'chess_user:'+currentUser.username.toLowerCase();
-    await storeSet(key, JSON.stringify(currentUser), true);
-    renderAccountBox();
-    renderProfile();
-  }
 
-  /* ============ ACCOUNT BOX / PROFILE / RANKING ============ */
-  function renderAccountBox(){
-    const box = document.getElementById('accountBox');
-    if(currentUser){
-      box.innerHTML = `<span class="who">Elo <b>${currentUser.elo}</b> · ${escapeHtml(currentUser.username)}</span>`;
-    } else {
-      box.innerHTML = `<button class="btn" id="quickLoginBtn">Entrar / Registrar</button>`;
-      document.getElementById('quickLoginBtn').addEventListener('click', ()=>switchView('profile'));
+    if(!currentUser) return;
+
+
+    const oppElo =
+      DIFF_ELO[difficulty];
+
+
+    const K=32;
+
+
+    const expected =
+      1 /
+      (
+        1 +
+        Math.pow(
+          10,
+          (oppElo-currentUser.elo)/400
+        )
+      );
+
+
+    const newElo =
+      Math.round(
+        currentUser.elo +
+        K*(result-expected)
+      );
+
+
+    currentUser.elo =
+      newElo;
+
+
+    if(result===1){
+
+      currentUser.wins++;
+
+    }else if(result===0){
+
+      currentUser.losses++;
+
+    }else{
+
+      currentUser.draws++;
+
     }
+
+
+    try{
+
+      await dbUpdate(
+        'users/'+currentUser.uid,
+        {
+          elo:currentUser.elo,
+          wins:currentUser.wins,
+          losses:currentUser.losses,
+          draws:currentUser.draws
+        }
+      );
+
+
+      renderAccountBox();
+
+      renderProfile();
+
+
+    }catch(error){
+
+      console.error(
+        'Não foi possível salvar o Elo:',
+        error
+      );
+
+    }
+
   }
 
-  function escapeHtml(s){ return s.replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  /* =========================================================
+     ACCOUNT
+     ========================================================= */
+
+  function renderAccountBox(){
+
+    const box =
+      document.getElementById(
+        'accountBox'
+      );
+
+
+    if(currentUser){
+
+      box.innerHTML = `
+        <span class="who">
+          Elo <b>${currentUser.elo}</b>
+          · ${escapeHtml(currentUser.username)}
+        </span>
+      `;
+
+    }else{
+
+      box.innerHTML = `
+        <button class="btn" id="quickLoginBtn">
+          Entrar / Registrar
+        </button>
+      `;
+
+
+      document
+        .getElementById('quickLoginBtn')
+        .addEventListener(
+          'click',
+          ()=>{
+            switchView('profile');
+          }
+        );
+
+    }
+
+  }
+
+
+  function escapeHtml(s){
+
+    return String(s).replace(
+      /[&<>"']/g,
+      c=>({
+
+        '&':'&amp;',
+        '<':'&lt;',
+        '>':'&gt;',
+        '"':'&quot;',
+        "'":'&#39;'
+
+      }[c])
+    );
+
+  }
+
+
+  /* =========================================================
+     PROFILE
+     ========================================================= */
 
   async function renderProfile(){
-    const loggedOut = document.getElementById('profileLoggedOut');
-    const loggedIn = document.getElementById('profileLoggedIn');
-    if(!currentUser){
-      loggedOut.style.display='block'; loggedIn.style.display='none';
-      return;
-    }
-    loggedOut.style.display='none'; loggedIn.style.display='block';
-    document.getElementById('profileName').textContent = currentUser.username;
-    document.getElementById('profileSince').textContent = 'Membro desde ' + new Date(currentUser.createdAt).toLocaleDateString('pt-BR');
-    document.getElementById('pElo').textContent = currentUser.elo;
-    document.getElementById('pWins').textContent = currentUser.wins;
-    document.getElementById('pLosses').textContent = currentUser.losses;
-    document.getElementById('pDraws').textContent = currentUser.draws;
-    document.getElementById('pTotal').textContent = currentUser.wins+currentUser.losses+currentUser.draws;
 
-    const list = await fetchAllUsers();
-    list.sort((a,b)=>b.elo-a.elo);
-    const idx = list.findIndex(u=>u.username.toLowerCase()===currentUser.username.toLowerCase());
-    document.getElementById('pRank').textContent = idx>=0 ? ('#'+(idx+1)+' de '+list.length) : '—';
+    const loggedOut =
+      document.getElementById(
+        'profileLoggedOut'
+      );
+
+
+    const loggedIn =
+      document.getElementById(
+        'profileLoggedIn'
+      );
+
+
+    if(!currentUser){
+
+      loggedOut.style.display='block';
+
+      loggedIn.style.display='none';
+
+      return;
+
+    }
+
+
+    loggedOut.style.display='none';
+
+    loggedIn.style.display='block';
+
+
+    document
+      .getElementById('profileName')
+      .textContent =
+        currentUser.username;
+
+
+    document
+      .getElementById('profileSince')
+      .textContent =
+        'Membro desde ' +
+        new Date(
+          currentUser.createdAt
+        ).toLocaleDateString(
+          'pt-BR'
+        );
+
+
+    document
+      .getElementById('pElo')
+      .textContent =
+        currentUser.elo;
+
+
+    document
+      .getElementById('pWins')
+      .textContent =
+        currentUser.wins;
+
+
+    document
+      .getElementById('pLosses')
+      .textContent =
+        currentUser.losses;
+
+
+    document
+      .getElementById('pDraws')
+      .textContent =
+        currentUser.draws;
+
+
+    document
+      .getElementById('pTotal')
+      .textContent =
+        currentUser.wins +
+        currentUser.losses +
+        currentUser.draws;
+
+
+    const list =
+      await fetchAllUsers();
+
+
+    list.sort(
+      (a,b)=>b.elo-a.elo
+    );
+
+
+    const idx =
+      list.findIndex(
+        u=>
+          u.username.toLowerCase() ===
+          currentUser.username.toLowerCase()
+      );
+
+
+    document
+      .getElementById('pRank')
+      .textContent =
+        idx>=0
+          ? '#'+(idx+1)+' de '+list.length
+          : '—';
+
   }
+
+
+  /* =========================================================
+     FETCH USERS / RANKING
+     ========================================================= */
 
   async function fetchAllUsers(){
-    const keys = await storeList('chess_user:', true);
-    const users = [];
-    for(const k of keys){
-      const raw = await storeGet(k, true);
-      if(raw){ try{ users.push(JSON.parse(raw)); }catch(e){} }
+
+    const data =
+      await dbGet('users');
+
+
+    if(!data){
+
+      return [];
+
     }
-    return users;
+
+
+    return Object
+      .values(data)
+      .filter(
+        user=>
+          user &&
+          user.username
+      );
+
   }
+
 
   async function renderRanking(){
-    const wrap = document.getElementById('rankTableWrap');
-    wrap.innerHTML = '<p style="color:var(--text-dim); font-size:13px;">Carregando ranking...</p>';
-    const users = await fetchAllUsers();
-    if(users.length===0){
-      wrap.innerHTML = '<div class="empty-rank">Ainda não há jogadores registrados. Crie uma conta para aparecer aqui.</div>';
-      return;
-    }
-    users.sort((a,b)=>b.elo-a.elo);
-    let rows = '';
-    users.forEach((u,i)=>{
-      const posClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
-      const isMe = currentUser && u.username.toLowerCase()===currentUser.username.toLowerCase();
-      const total = u.wins+u.losses+u.draws;
-      rows += `<tr class="${isMe?'me':''}">
-        <td><span class="pos ${posClass}">${i+1}</span></td>
-        <td class="pname">${escapeHtml(u.username)}</td>
-        <td class="eloval">${u.elo}</td>
-        <td>${u.wins}</td>
-        <td>${u.losses}</td>
-        <td>${u.draws}</td>
-        <td>${total}</td>
-      </tr>`;
-    });
-    wrap.innerHTML = `<table class="ranktable">
-      <thead><tr><th>#</th><th>Jogador</th><th>Elo</th><th>V</th><th>D</th><th>E</th><th>Partidas</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
-  }
-  document.getElementById('btnRefreshRank').addEventListener('click', renderRanking);
 
-  /* ============ INIT ============ */
-  async function init(){
-    renderBoard();
-    renderAccountBox();
+    const wrap =
+      document.getElementById(
+        'rankTableWrap'
+      );
+
+
+    wrap.innerHTML =
+      '<p style="color:var(--text-dim); font-size:13px;">Carregando ranking...</p>';
+
+
     try{
-      const sess = await storeGet('chess_session', false);
-      if(sess){
-        const {username} = JSON.parse(sess);
-        const raw = await storeGet('chess_user:'+username.toLowerCase(), true);
-        if(raw){ currentUser = JSON.parse(raw); renderAccountBox(); }
+
+      const users =
+        await fetchAllUsers();
+
+
+      if(users.length===0){
+
+        wrap.innerHTML =
+          '<div class="empty-rank">Ainda não há jogadores registrados. Crie uma conta para aparecer aqui.</div>';
+
+        return;
+
       }
-    }catch(e){}
-    renderProfile();
+
+
+      users.sort(
+        (a,b)=>b.elo-a.elo
+      );
+
+
+      let rows='';
+
+
+      users.forEach(
+        (u,i)=>{
+
+          const posClass =
+            i===0
+              ? 'gold'
+              : i===1
+                ? 'silver'
+                : i===2
+                  ? 'bronze'
+                  : '';
+
+
+          const isMe =
+            currentUser &&
+            u.uid===currentUser.uid;
+
+
+          const total =
+            (u.wins||0) +
+            (u.losses||0) +
+            (u.draws||0);
+
+
+          rows += `
+
+            <tr class="${isMe?'me':''}">
+
+              <td>
+                <span class="pos ${posClass}">
+                  ${i+1}
+                </span>
+              </td>
+
+              <td class="pname">
+                ${escapeHtml(u.username)}
+              </td>
+
+              <td class="eloval">
+                ${u.elo}
+              </td>
+
+              <td>
+                ${u.wins||0}
+              </td>
+
+              <td>
+                ${u.losses||0}
+              </td>
+
+              <td>
+                ${u.draws||0}
+              </td>
+
+              <td>
+                ${total}
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      );
+
+
+      wrap.innerHTML = `
+
+        <table class="ranktable">
+
+          <thead>
+
+            <tr>
+
+              <th>#</th>
+
+              <th>Jogador</th>
+
+              <th>Elo</th>
+
+              <th>V</th>
+
+              <th>D</th>
+
+              <th>E</th>
+
+              <th>Partidas</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+            ${rows}
+          </tbody>
+
+        </table>
+
+      `;
+
+
+    }catch(error){
+
+      console.error(
+        'Erro no ranking:',
+        error
+      );
+
+
+      wrap.innerHTML =
+        '<div class="empty-rank">Não foi possível carregar o ranking.</div>';
+
+    }
+
   }
+
+
+  document
+    .getElementById('btnRefreshRank')
+    .addEventListener(
+      'click',
+      renderRanking
+    );
+
+
+  /* =========================================================
+     FIREBASE AUTH STATE
+     ========================================================= */
+
+  async function initializeAuthentication(){
+
+    await waitForFirebase();
+
+
+    window.firebaseFns
+      .onAuthStateChanged(
+        window.firebaseAuth,
+        async firebaseUser=>{
+
+          if(!firebaseUser){
+
+            currentFirebaseUser=null;
+
+            currentUser=null;
+
+            renderAccountBox();
+
+            renderProfile();
+
+            return;
+
+          }
+
+
+          currentFirebaseUser =
+            firebaseUser;
+
+
+          try{
+
+            const userData =
+              await dbGet(
+                'users/'+firebaseUser.uid
+              );
+
+
+            if(userData){
+
+              currentUser =
+                userData;
+
+            }else{
+
+              currentUser=null;
+
+            }
+
+
+          }catch(error){
+
+            console.error(
+              'Erro ao carregar usuário:',
+              error
+            );
+
+            currentUser=null;
+
+          }
+
+
+          renderAccountBox();
+
+          renderProfile();
+
+        }
+      );
+
+  }
+
+
+  /* =========================================================
+     INIT
+     ========================================================= */
+
+  async function init(){
+
+    renderBoard();
+
+    renderAccountBox();
+
+    renderProfile();
+
+
+    try{
+
+      await initializeAuthentication();
+
+    }catch(error){
+
+      console.error(
+        'Erro ao iniciar Firebase:',
+        error
+      );
+
+    }
+
+  }
+
+
   init();
 
+
 })();
+
 </script>
+
 </body>
 </html>
