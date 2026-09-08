@@ -11,6 +11,31 @@
 
   gtag('config', 'G-LPCG15LW60');
 </script>
+
+<script type="module">
+ // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAkrPkGCikrPhTKb3WfkVu524XrfNkDJP4",
+  authDomain: "club-do-xadrez.firebaseapp.com",
+  databaseURL: "https://club-do-xadrez-default-rtdb.firebaseio.com",
+  projectId: "club-do-xadrez",
+  storageBucket: "club-do-xadrez.firebasestorage.app",
+  messagingSenderId: "251324438462",
+  appId: "1:251324438462:web:500e3a0adec4600bb64bef",
+  measurementId: "G-G577QNXP8R"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+</script>
   
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
