@@ -11,7 +11,41 @@
     gtag('config', 'G-LPCG15LW60');
   </script>
 
-  <!-- FIREBASE -->
+  <!-- =========================================================
+       FIREBASE
+       ========================================================= -->
+  <script type="module">
+
+    import {
+      initializeApp
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+
+    import {
+      getDatabase,
+      ref,
+      set,
+      get,
+      update,
+      remove,
+      onValue
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+
+
+    /*
+      ==========================================================
+      COLOQUE AQUI O SEU FIREBASE CONFIG ORIGINAL
+      ==========================================================
+    */
+
+     <!-- FIREBASE -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
     import {
@@ -69,973 +103,2657 @@
   </script>
 
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Clube de Xadrez</title>
 
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
 
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+
 
 <style>
 
   :root{
-    --bg: #12100e;
-    --bg-elevated: #1b1815;
-    --bg-card: #201c18;
-    --line: #34302a;
-    --board-dark: #3f4a3f;
-    --board-light: #c3bda8;
-    --board-dark-2: #495645;
-    --sel: rgba(201,162,75,.42);
-    --move-dot: rgba(201,162,75,.75);
-    --lastmove: rgba(201,162,75,.22);
-    --check: rgba(161,69,63,.48);
-    --gold: #c9a24b;
-    --gold-soft: #a98a44;
-    --text: #efe6d6;
-    --text-muted: #a89a86;
-    --text-dim: #7c705f;
-    --danger: #b2544c;
-    --success: #7f9a5b;
-    --serif: 'Cormorant Garamond', serif;
-    --sans: 'Inter', sans-serif;
-    --radius: 3px;
+
+    --bg:#12100e;
+
+    --bg-elevated:#1b1815;
+
+    --bg-card:#201c18;
+
+    --line:#34302a;
+
+    --board-dark:#3f4a3f;
+
+    --board-light:#c3bda8;
+
+    --sel:rgba(201,162,75,.42);
+
+    --move-dot:rgba(201,162,75,.75);
+
+    --lastmove:rgba(201,162,75,.22);
+
+    --check:rgba(161,69,63,.48);
+
+    --gold:#c9a24b;
+
+    --gold-soft:#a98a44;
+
+    --text:#efe6d6;
+
+    --text-muted:#a89a86;
+
+    --text-dim:#7c705f;
+
+    --danger:#b2544c;
+
+    --success:#7f9a5b;
+
+    --blue:#6686a8;
+
+    --serif:'Cormorant Garamond',serif;
+
+    --sans:'Inter',sans-serif;
+
+    --radius:4px;
+
   }
+
 
   *{
     box-sizing:border-box;
   }
 
-  html,body{
+
+  html,
+  body{
     margin:0;
     padding:0;
   }
 
+
   body{
+
     background:
-      radial-gradient(circle at 15% -10%, #1e1a15 0%, transparent 45%),
-      radial-gradient(circle at 105% 10%, #1a1512 0%, transparent 40%),
+      radial-gradient(
+        circle at 15% -10%,
+        #1e1a15 0%,
+        transparent 45%
+      ),
+      radial-gradient(
+        circle at 105% 10%,
+        #1a1512 0%,
+        transparent 40%
+      ),
       var(--bg);
+
     color:var(--text);
+
     font-family:var(--sans);
+
     min-height:100vh;
+
   }
+
 
   ::selection{
+
     background:var(--gold);
+
     color:#12100e;
+
   }
+
+
+  button,
+  input{
+    font-family:inherit;
+  }
+
 
   header.topbar{
+
     display:flex;
+
     align-items:center;
+
     justify-content:space-between;
+
+    gap:20px;
+
     padding:18px 28px;
+
     border-bottom:1px solid var(--line);
-    background:linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255,255,255,.02),
+        transparent
+      );
+
   }
+
 
   .brand{
+
     display:flex;
+
     align-items:baseline;
+
     gap:10px;
+
+    min-width:220px;
+
   }
+
 
   .brand .mark{
+
     font-size:26px;
+
     color:var(--gold);
-    transform:translateY(1px);
+
   }
+
 
   .brand .word{
+
     font-family:var(--serif);
+
     font-weight:700;
+
     font-size:22px;
+
     letter-spacing:.3px;
+
   }
+
 
   .brand .sub{
-    font-family:var(--sans);
+
     font-size:11px;
+
     color:var(--text-dim);
+
     letter-spacing:.08em;
+
   }
+
 
   nav.tabs{
+
     display:flex;
+
     gap:4px;
+
     background:var(--bg-elevated);
+
     border:1px solid var(--line);
+
     border-radius:var(--radius);
+
     padding:4px;
+
   }
+
 
   nav.tabs button{
+
     background:transparent;
+
     border:none;
+
     color:var(--text-muted);
-    font-family:var(--sans);
+
     font-size:13.5px;
+
     font-weight:500;
+
     padding:8px 16px;
-    border-radius:2px;
+
+    border-radius:3px;
+
     cursor:pointer;
-    transition:background .15s, color .15s;
+
+    transition:.15s;
+
   }
+
 
   nav.tabs button.active{
+
     background:var(--gold);
+
     color:#1a1512;
+
     font-weight:600;
+
   }
+
 
   nav.tabs button:not(.active):hover{
+
     color:var(--text);
+
     background:rgba(255,255,255,.04);
+
   }
+
 
   .account{
+
     display:flex;
+
     align-items:center;
+
     gap:12px;
+
     font-size:13px;
+
+    min-width:220px;
+
+    justify-content:flex-end;
+
   }
+
 
   .account .who{
+
     color:var(--text-muted);
+
   }
+
 
   .account .who b{
+
     color:var(--gold);
-    font-weight:600;
+
   }
+
 
   .btn{
-    font-family:var(--sans);
+
     font-size:13px;
+
     font-weight:600;
-    padding:8px 16px;
-    border-radius:2px;
+
+    padding:9px 16px;
+
+    border-radius:3px;
+
     cursor:pointer;
+
     border:1px solid var(--gold-soft);
+
     background:transparent;
+
     color:var(--gold);
-    transition:background .15s, color .15s;
+
+    transition:.15s;
+
   }
+
 
   .btn:hover{
+
     background:var(--gold);
+
     color:#1a1512;
+
   }
+
 
   .btn.ghost{
+
     border-color:var(--line);
+
     color:var(--text-muted);
+
   }
+
 
   .btn.ghost:hover{
+
     background:var(--bg-card);
+
     color:var(--text);
+
   }
+
 
   .btn.primary{
+
     background:var(--gold);
+
     color:#1a1512;
+
   }
+
 
   .btn.primary:hover{
+
     background:#dcb662;
+
   }
+
+
+  .btn.danger{
+
+    border-color:var(--danger);
+
+    color:#d58b84;
+
+  }
+
+
+  .btn.danger:hover{
+
+    background:var(--danger);
+
+    color:white;
+
+  }
+
 
   .btn:disabled{
+
     opacity:.4;
+
     cursor:not-allowed;
+
   }
 
+
   main{
-    max-width:1180px;
+
+    max-width:1200px;
+
     margin:0 auto;
+
     padding:32px 24px 60px;
+
   }
+
 
   .view{
     display:none;
   }
 
+
   .view.active{
     display:block;
   }
 
+
+  /* =========================================================
+     JOGO
+     ========================================================= */
+
+
   .play-grid{
+
     display:grid;
-    grid-template-columns:min(560px, 100%) 1fr;
+
+    grid-template-columns:
+      minmax(420px,560px)
+      minmax(320px,1fr);
+
     gap:32px;
+
     align-items:start;
+
   }
 
-  @media (max-width: 900px){
+
+  @media(max-width:900px){
+
     .play-grid{
       grid-template-columns:1fr;
     }
+
+    header.topbar{
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+
+    .brand,
+    .account{
+      min-width:auto;
+    }
+
   }
+
 
   .board-wrap{
     position:relative;
   }
 
+
   .board-frame{
-    background:linear-gradient(160deg, #1e1c18, #16140f);
+
+    background:
+      linear-gradient(
+        160deg,
+        #1e1c18,
+        #16140f
+      );
+
     border:1px solid var(--line);
-    border-radius:6px;
+
+    border-radius:7px;
+
     padding:16px;
-    box-shadow:0 20px 50px -24px rgba(0,0,0,.55);
+
+    box-shadow:
+      0 20px 50px -24px rgba(0,0,0,.55);
+
   }
+
 
   .board{
+
     display:grid;
-    grid-template-columns:repeat(8,1fr);
-    grid-template-rows:repeat(8,1fr);
+
+    grid-template-columns:
+      repeat(8,1fr);
+
+    grid-template-rows:
+      repeat(8,1fr);
+
     width:100%;
+
     aspect-ratio:1/1;
+
     border:1px solid #201d18;
-    box-shadow:inset 0 0 0 6px #171510;
+
+    box-shadow:
+      inset 0 0 0 6px #171510;
+
   }
 
+
   .sq{
+
     position:relative;
+
     display:flex;
+
     align-items:center;
+
     justify-content:center;
+
     cursor:pointer;
+
     user-select:none;
+
+    overflow:hidden;
+
   }
+
 
   .sq.light{
     background:var(--board-light);
   }
 
+
   .sq.dark{
     background:var(--board-dark);
   }
 
-  .sq .piece-svg{
-    width:86%;
-    height:86%;
-    transition:transform .08s;
-    filter:drop-shadow(0 3px 3px rgba(0,0,0,.5));
-    position:relative;
-    z-index:2;
+
+  .sq:hover{
+    filter:brightness(1.05);
   }
+
+
+  .sq .piece-svg{
+
+    width:86%;
+
+    height:86%;
+
+    transition:
+      transform .16s ease,
+      opacity .16s ease;
+
+    filter:
+      drop-shadow(
+        0 3px 3px rgba(0,0,0,.5)
+      );
+
+    position:relative;
+
+    z-index:2;
+
+  }
+
+
+  .sq.animate-piece .piece-svg{
+
+    animation:
+      pieceMove .18s ease-out;
+
+  }
+
+
+  @keyframes pieceMove{
+
+    from{
+
+      transform:
+        scale(.88)
+        translateY(-3px);
+
+      opacity:.35;
+
+    }
+
+    to{
+
+      transform:
+        scale(1)
+        translateY(0);
+
+      opacity:1;
+
+    }
+
+  }
+
+
+  .piece-svg.white{
+
+    fill:url(#gradWhitePiece);
+
+    stroke:#4a4335;
+
+    stroke-width:3;
+
+    stroke-linejoin:round;
+
+  }
+
+
+  .piece-svg.black{
+
+    fill:url(#gradBlackPiece);
+
+    stroke:#b8ae95;
+
+    stroke-width:2;
+
+    stroke-linejoin:round;
+
+  }
+
 
   .sq .piece-shadow{
+
     position:absolute;
+
     left:50%;
+
     bottom:12%;
+
     width:52%;
+
     height:14%;
+
     transform:translateX(-50%);
-    background:radial-gradient(
-      ellipse at center,
-      rgba(0,0,0,.42) 0%,
-      rgba(0,0,0,0) 72%
-    );
+
+    background:
+      radial-gradient(
+        ellipse at center,
+        rgba(0,0,0,.42) 0%,
+        rgba(0,0,0,0) 72%
+      );
+
     z-index:1;
+
   }
+
 
   .sq.selected{
-    box-shadow:inset 0 0 0 3px var(--sel);
+
+    box-shadow:
+      inset 0 0 0 3px var(--sel);
+
   }
+
 
   .sq.lastmove{
-    background-image:linear-gradient(var(--lastmove),var(--lastmove));
+
+    background-image:
+      linear-gradient(
+        var(--lastmove),
+        var(--lastmove)
+      );
+
   }
+
 
   .sq.check{
-    background-image:linear-gradient(var(--check),var(--check));
+
+    background-image:
+      linear-gradient(
+        var(--check),
+        var(--check)
+      );
+
+    animation:
+      checkPulse .7s ease-in-out infinite alternate;
+
   }
+
+
+  @keyframes checkPulse{
+
+    from{
+      filter:brightness(1);
+    }
+
+    to{
+      filter:brightness(1.18);
+    }
+
+  }
+
 
   .sq .dot{
+
     position:absolute;
+
     width:22%;
+
     height:22%;
+
     border-radius:50%;
+
     background:var(--move-dot);
+
     opacity:.8;
+
   }
+
 
   .sq .ring{
+
     position:absolute;
+
     inset:7%;
+
     border-radius:50%;
+
     border:3px solid var(--move-dot);
+
     background:transparent;
+
   }
+
 
   .sq .coord{
+
     position:absolute;
+
     font-size:10px;
-    font-family:var(--sans);
+
     font-weight:600;
+
     opacity:.5;
+
+    z-index:3;
+
   }
+
 
   .sq .coord.file{
+
     bottom:2px;
+
     right:4px;
+
   }
 
+
   .sq .coord.rank{
+
     top:2px;
+
     left:4px;
+
   }
+
 
   .sq.light .coord{
     color:#3f4a3f;
   }
 
+
   .sq.dark .coord{
     color:#c3bda8;
   }
 
-  .piece-svg.white{
-    fill:url(#gradWhitePiece);
-    stroke:#4a4335;
-    stroke-width:3;
-    stroke-linejoin:round;
-  }
-
-  .piece-svg.black{
-    fill:url(#gradBlackPiece);
-    stroke:#b8ae95;
-    stroke-width:2;
-    stroke-linejoin:round;
-  }
 
   .status-bar{
+
     display:flex;
+
     align-items:center;
+
     justify-content:space-between;
+
+    gap:15px;
+
     margin-top:14px;
+
     padding:12px 16px;
+
     background:var(--bg-card);
+
     border:1px solid var(--line);
+
     border-radius:var(--radius);
+
     font-size:13.5px;
+
   }
 
-  .status-bar .turn-pill{
+
+  .turn-pill{
+
     display:flex;
+
     align-items:center;
+
     gap:8px;
+
     color:var(--text-muted);
+
   }
+
 
   .turn-dot{
+
     width:10px;
+
     height:10px;
+
     border-radius:50%;
+
     background:#e6d4ac;
+
     border:1px solid #00000033;
+
   }
+
 
   .turn-dot.black{
     background:#241c14;
   }
 
+
   #statusMsg{
+
     font-weight:600;
+
     color:var(--gold);
+
+    text-align:right;
+
   }
+
+
+  /* =========================================================
+     RELÓGIO
+     ========================================================= */
+
+
+  .clocks{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:10px;
+
+    margin-bottom:18px;
+
+  }
+
+
+  .clock{
+
+    background:var(--bg-card);
+
+    border:1px solid var(--line);
+
+    padding:12px 15px;
+
+    border-radius:var(--radius);
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+  }
+
+
+  .clock.active{
+
+    border-color:var(--gold);
+
+    box-shadow:
+      0 0 0 1px rgba(201,162,75,.08);
+
+  }
+
+
+  .clock-label{
+
+    font-size:11px;
+
+    color:var(--text-dim);
+
+  }
+
+
+  .clock-time{
+
+    font-family:var(--serif);
+
+    font-size:27px;
+
+    font-weight:700;
+
+    color:var(--text);
+
+  }
+
+
+  .clock.low .clock-time{
+
+    color:#d67b72;
+
+  }
+
+
+  /* =========================================================
+     CARDS
+     ========================================================= */
+
 
   .panel{
+
     display:flex;
+
     flex-direction:column;
+
     gap:18px;
+
   }
+
 
   .card{
+
     background:var(--bg-card);
+
     border:1px solid var(--line);
+
     border-radius:var(--radius);
+
     padding:20px;
+
   }
 
+
   .card h3{
+
     margin:0 0 14px;
+
     font-family:var(--serif);
+
     font-size:19px;
+
     font-weight:700;
-    color:var(--text);
+
   }
+
 
   .card h3 span{
     color:var(--gold);
   }
 
+
   .field-label{
+
     font-size:11.5px;
+
     color:var(--text-dim);
+
     letter-spacing:.04em;
+
     margin-bottom:8px;
+
   }
+
 
   .diff-row{
+
     display:grid;
-    grid-template-columns:1fr 1fr 1fr;
+
+    grid-template-columns:
+      repeat(3,1fr);
+
     gap:8px;
+
     margin-bottom:16px;
+
   }
+
 
   .diff-btn{
+
     padding:10px 6px;
+
     text-align:center;
+
     border:1px solid var(--line);
+
     background:var(--bg-elevated);
+
     color:var(--text-muted);
-    border-radius:2px;
+
+    border-radius:3px;
+
     cursor:pointer;
+
     font-size:13px;
+
     font-weight:600;
+
+    transition:.15s;
+
   }
+
+
+  .diff-btn:hover{
+
+    border-color:var(--gold-soft);
+
+  }
+
 
   .diff-btn small{
+
     display:block;
+
     font-weight:400;
+
     font-size:10.5px;
+
     color:var(--text-dim);
+
     margin-top:2px;
+
   }
+
 
   .diff-btn.active{
+
     border-color:var(--gold);
+
     color:var(--gold);
+
     background:rgba(201,162,75,.08);
+
   }
+
 
   .diff-btn.easy.active{
+
     border-color:var(--success);
+
     color:var(--success);
+
     background:rgba(127,154,91,.08);
+
   }
+
 
   .diff-btn.hard.active{
+
     border-color:var(--danger);
+
     color:var(--danger);
+
     background:rgba(178,84,76,.08);
+
   }
+
 
   .side-row{
+
     display:grid;
+
     grid-template-columns:1fr 1fr;
+
     gap:8px;
+
     margin-bottom:16px;
+
   }
+
 
   .side-btn{
+
     padding:10px;
+
     text-align:center;
+
     border:1px solid var(--line);
+
     background:var(--bg-elevated);
+
     color:var(--text-muted);
-    border-radius:2px;
+
+    border-radius:3px;
+
     cursor:pointer;
+
     font-size:13px;
+
     font-weight:600;
+
   }
+
 
   .side-btn.active{
+
     border-color:var(--gold);
+
     color:var(--gold);
+
     background:rgba(201,162,75,.08);
+
   }
 
+
   .actions-row{
+
     display:flex;
+
     gap:8px;
+
   }
+
 
   .actions-row .btn{
     flex:1;
   }
 
-  .history{
-    max-height:260px;
-    overflow-y:auto;
-    font-size:13px;
+
+  .thinking{
+
+    display:none;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin-top:13px;
+
+    color:var(--text-dim);
+
+    font-size:12px;
+
   }
+
+
+  .thinking.show{
+    display:flex;
+  }
+
+
+  .thinking-dots span{
+
+    display:inline-block;
+
+    animation:
+      thinkingDot 1.2s infinite;
+
+  }
+
+
+  .thinking-dots span:nth-child(2){
+    animation-delay:.15s;
+  }
+
+
+  .thinking-dots span:nth-child(3){
+    animation-delay:.3s;
+  }
+
+
+  @keyframes thinkingDot{
+
+    0%,60%,100%{
+      opacity:.25;
+    }
+
+    30%{
+      opacity:1;
+    }
+
+  }
+
+
+  /* =========================================================
+     HISTÓRICO DE LANCES
+     ========================================================= */
+
+
+  .history{
+
+    max-height:260px;
+
+    overflow-y:auto;
+
+    font-size:13px;
+
+  }
+
 
   .history table{
+
     width:100%;
+
     border-collapse:collapse;
+
   }
+
 
   .history td{
-    padding:4px 6px;
+
+    padding:5px 6px;
+
     color:var(--text-muted);
+
     border-bottom:1px solid var(--line);
+
   }
+
 
   .history td.num{
+
     color:var(--text-dim);
+
     width:28px;
+
   }
+
 
   .history td.mv{
+
     color:var(--text);
-    font-family:'Inter',monospace;
+
   }
 
-  .elo-line{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    font-size:13px;
-    color:var(--text-muted);
-    padding:6px 0;
-    border-bottom:1px solid var(--line);
-  }
 
-  .elo-line:last-child{
-    border-bottom:none;
-  }
+  /* =========================================================
+     RANKING
+     ========================================================= */
 
-  .elo-line b{
-    color:var(--text);
-  }
 
   .rank-head{
+
     display:flex;
+
     align-items:baseline;
+
     justify-content:space-between;
+
     margin-bottom:18px;
+
     flex-wrap:wrap;
+
     gap:10px;
+
   }
+
 
   .rank-head h2{
+
     font-family:var(--serif);
+
     font-size:30px;
+
     margin:0;
+
   }
+
 
   .rank-head p{
+
     color:var(--text-dim);
+
     font-size:13px;
+
     margin:4px 0 0;
+
   }
+
+
+  .live-dot{
+
+    display:inline-block;
+
+    width:7px;
+
+    height:7px;
+
+    border-radius:50%;
+
+    background:var(--success);
+
+    margin-right:5px;
+
+    box-shadow:
+      0 0 8px rgba(127,154,91,.6);
+
+  }
+
 
   table.ranktable{
+
     width:100%;
+
     border-collapse:collapse;
+
     background:var(--bg-card);
+
     border:1px solid var(--line);
+
     border-radius:var(--radius);
+
     overflow:hidden;
+
   }
+
 
   table.ranktable th{
+
     text-align:left;
+
     font-size:11px;
+
     letter-spacing:.05em;
+
     color:var(--text-dim);
+
     font-weight:600;
+
     padding:12px 16px;
+
     border-bottom:1px solid var(--line);
+
     background:var(--bg-elevated);
+
   }
 
+
   table.ranktable td{
+
     padding:13px 16px;
+
     border-bottom:1px solid var(--line);
+
     font-size:14px;
+
     color:var(--text-muted);
+
   }
+
 
   table.ranktable tr:last-child td{
     border-bottom:none;
   }
 
+
   table.ranktable tr.me{
-    background:rgba(201,162,75,.06);
+
+    background:
+      rgba(201,162,75,.08);
+
   }
 
+
   .pos{
+
     font-family:var(--serif);
+
     font-weight:700;
+
     font-size:16px;
+
     color:var(--text-dim);
+
   }
+
 
   .pos.gold{
     color:#d9b25c;
   }
 
+
   .pos.silver{
     color:#c3c3c3;
   }
+
 
   .pos.bronze{
     color:#c98a52;
   }
 
+
   .pname{
+
     color:var(--text);
+
     font-weight:600;
+
   }
+
 
   .eloval{
+
     color:var(--gold);
+
     font-weight:700;
+
     font-family:var(--serif);
-    font-size:17px;
+
+    font-size:18px;
+
   }
+
 
   .empty-rank{
+
     text-align:center;
+
     padding:50px 20px;
+
     color:var(--text-dim);
+
     font-size:14px;
+
+    background:var(--bg-card);
+
+    border:1px solid var(--line);
+
   }
+
+
+  /* =========================================================
+     AUTENTICAÇÃO
+     ========================================================= */
+
 
   .auth-wrap{
+
     max-width:400px;
+
     margin:40px auto;
+
   }
+
 
   .auth-wrap h2{
+
     font-family:var(--serif);
+
     font-size:28px;
+
     margin:0 0 6px;
+
   }
 
+
   .auth-wrap p.lead{
+
     color:var(--text-dim);
+
     font-size:13.5px;
+
     margin:0 0 26px;
+
   }
+
 
   .field{
     margin-bottom:14px;
   }
 
+
   .field label{
+
     display:block;
+
     font-size:11.5px;
+
     color:var(--text-dim);
+
     margin-bottom:6px;
-    letter-spacing:.03em;
+
   }
+
 
   .field input{
+
     width:100%;
+
     padding:11px 12px;
+
     background:var(--bg-elevated);
+
     border:1px solid var(--line);
+
     color:var(--text);
-    border-radius:2px;
-    font-family:var(--sans);
+
+    border-radius:3px;
+
     font-size:14px;
+
   }
+
 
   .field input:focus{
+
     outline:none;
+
     border-color:var(--gold-soft);
+
   }
+
 
   .auth-switch{
+
     margin-top:16px;
+
     font-size:13px;
+
     color:var(--text-dim);
+
     text-align:center;
+
   }
+
 
   .auth-switch a{
+
     color:var(--gold);
+
     cursor:pointer;
+
     text-decoration:none;
+
   }
+
 
   .auth-err{
+
     background:rgba(178,84,76,.12);
+
     border:1px solid rgba(178,84,76,.4);
+
     color:#d99992;
+
     padding:9px 12px;
-    border-radius:2px;
+
+    border-radius:3px;
+
     font-size:12.5px;
+
     margin-bottom:14px;
+
     display:none;
+
   }
+
+
+  /* =========================================================
+     PERFIL
+     ========================================================= */
+
 
   .profile-grid{
+
     display:grid;
-    grid-template-columns:1fr 1fr 1fr;
+
+    grid-template-columns:
+      repeat(4,1fr);
+
     gap:16px;
+
     margin-bottom:24px;
+
   }
 
-  @media(max-width:700px){
+
+  @media(max-width:800px){
+
+    .profile-grid{
+      grid-template-columns:
+        repeat(2,1fr);
+    }
+
+  }
+
+
+  @media(max-width:500px){
+
     .profile-grid{
       grid-template-columns:1fr;
     }
+
   }
+
 
   .stat-card{
+
     background:var(--bg-card);
+
     border:1px solid var(--line);
+
     border-radius:var(--radius);
+
     padding:18px;
+
     text-align:center;
+
   }
+
 
   .stat-card .num{
+
     font-family:var(--serif);
+
     font-size:32px;
+
     font-weight:700;
+
     color:var(--gold);
+
   }
+
 
   .stat-card .lbl{
-    font-size:11.5px;
+
+    font-size:11px;
+
     color:var(--text-dim);
+
     letter-spacing:.04em;
+
     margin-top:4px;
+
   }
+
+
+  .profile-two{
+
+    display:grid;
+
+    grid-template-columns:
+      1fr 1fr;
+
+    gap:18px;
+
+  }
+
+
+  @media(max-width:700px){
+
+    .profile-two{
+      grid-template-columns:1fr;
+    }
+
+  }
+
+
+  .elo-line{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    font-size:13px;
+
+    color:var(--text-muted);
+
+    padding:8px 0;
+
+    border-bottom:1px solid var(--line);
+
+  }
+
+
+  .elo-line:last-child{
+    border-bottom:none;
+  }
+
+
+  .elo-line b{
+    color:var(--text);
+  }
+
+
+  .streak{
+
+    color:var(--success) !important;
+
+  }
+
+
+  .winrate{
+
+    color:var(--gold) !important;
+
+  }
+
+
+  .game-history{
+
+    max-height:350px;
+
+    overflow-y:auto;
+
+  }
+
+
+  .game-item{
+
+    display:grid;
+
+    grid-template-columns:
+      70px 1fr 70px;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:11px 0;
+
+    border-bottom:1px solid var(--line);
+
+    font-size:12px;
+
+  }
+
+
+  .game-item:last-child{
+    border-bottom:none;
+  }
+
+
+  .result-win{
+    color:var(--success);
+    font-weight:700;
+  }
+
+
+  .result-loss{
+    color:var(--danger);
+    font-weight:700;
+  }
+
+
+  .result-draw{
+    color:var(--text-muted);
+    font-weight:700;
+  }
+
+
+  .game-meta{
+
+    color:var(--text-dim);
+
+  }
+
+
+  .elo-change{
+
+    text-align:right;
+
+    font-weight:700;
+
+  }
+
+
+  .elo-plus{
+    color:var(--success);
+  }
+
+
+  .elo-minus{
+    color:var(--danger);
+  }
+
+
+  /* =========================================================
+     MODAL FINAL
+     ========================================================= */
+
+
+  .modal{
+
+    position:fixed;
+
+    inset:0;
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:20px;
+
+    background:
+      rgba(0,0,0,.72);
+
+    backdrop-filter:blur(5px);
+
+    z-index:100;
+
+  }
+
+
+  .modal.show{
+    display:flex;
+  }
+
+
+  .result-modal{
+
+    width:min(430px,100%);
+
+    background:var(--bg-card);
+
+    border:1px solid var(--gold-soft);
+
+    border-radius:7px;
+
+    padding:32px;
+
+    text-align:center;
+
+    box-shadow:
+      0 30px 80px rgba(0,0,0,.6);
+
+    animation:
+      modalIn .22s ease-out;
+
+  }
+
+
+  @keyframes modalIn{
+
+    from{
+
+      transform:
+        translateY(15px)
+        scale(.97);
+
+      opacity:0;
+
+    }
+
+    to{
+
+      transform:
+        translateY(0)
+        scale(1);
+
+      opacity:1;
+
+    }
+
+  }
+
+
+  .result-icon{
+
+    font-size:52px;
+
+    margin-bottom:5px;
+
+  }
+
+
+  .result-title{
+
+    font-family:var(--serif);
+
+    font-size:36px;
+
+    font-weight:700;
+
+    color:var(--gold);
+
+  }
+
+
+  .result-sub{
+
+    color:var(--text-muted);
+
+    font-size:14px;
+
+    margin:6px 0 22px;
+
+  }
+
+
+  .elo-result{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:12px;
+
+    margin-bottom:24px;
+
+  }
+
+
+  .elo-result .before{
+
+    color:var(--text-dim);
+
+  }
+
+
+  .elo-result .arrow{
+    color:var(--text-dim);
+  }
+
+
+  .elo-result .after{
+
+    font-family:var(--serif);
+
+    font-size:28px;
+
+    color:var(--gold);
+
+    font-weight:700;
+
+  }
+
+
+  .elo-result .change{
+
+    font-weight:700;
+
+  }
+
+
+  .result-buttons{
+
+    display:flex;
+
+    gap:8px;
+
+  }
+
+
+  .result-buttons .btn{
+    flex:1;
+  }
+
+
+  /* =========================================================
+     NOTA / FOOTER
+     ========================================================= */
+
 
   .note{
+
     font-size:12px;
+
     color:var(--text-dim);
+
     line-height:1.6;
+
     margin-top:18px;
+
     padding:12px 14px;
+
     border:1px dashed var(--line);
-    border-radius:2px;
+
+    border-radius:3px;
+
   }
 
+
   footer{
+
     text-align:center;
+
     padding:30px;
+
     color:var(--text-dim);
+
     font-size:12px;
+
+  }
+
+
+  @media(max-width:600px){
+
+    main{
+      padding:20px 12px 40px;
+    }
+
+    .board-frame{
+      padding:8px;
+    }
+
+    .status-bar{
+      flex-direction:column;
+      align-items:flex-start;
+    }
+
+    #statusMsg{
+      text-align:left;
+    }
+
+    table.ranktable th,
+    table.ranktable td{
+      padding:10px 8px;
+    }
+
+    table.ranktable th:nth-child(n+5),
+    table.ranktable td:nth-child(n+5){
+      display:none;
+    }
+
   }
 
 </style>
+
 </head>
+
 
 <body>
 
-<svg width="0" height="0" style="position:absolute;" aria-hidden="true">
+
+<!-- =========================================================
+     SVG DAS PEÇAS
+     ========================================================= -->
+
+<svg
+  width="0"
+  height="0"
+  style="position:absolute;"
+  aria-hidden="true"
+>
 
   <defs>
 
-    <linearGradient id="gradWhitePiece" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#fbf7ea"/>
-      <stop offset="45%" stop-color="#e9dfc3"/>
-      <stop offset="100%" stop-color="#b7a67e"/>
+    <linearGradient
+      id="gradWhitePiece"
+      x1="0"
+      y1="0"
+      x2="0"
+      y2="1"
+    >
+
+      <stop
+        offset="0%"
+        stop-color="#fbf7ea"
+      />
+
+      <stop
+        offset="45%"
+        stop-color="#e9dfc3"
+      />
+
+      <stop
+        offset="100%"
+        stop-color="#b7a67e"
+      />
+
     </linearGradient>
 
-    <linearGradient id="gradBlackPiece" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#5c574c"/>
-      <stop offset="45%" stop-color="#26231e"/>
-      <stop offset="100%" stop-color="#0a0908"/>
+
+    <linearGradient
+      id="gradBlackPiece"
+      x1="0"
+      y1="0"
+      x2="0"
+      y2="1"
+    >
+
+      <stop
+        offset="0%"
+        stop-color="#5c574c"
+      />
+
+      <stop
+        offset="45%"
+        stop-color="#26231e"
+      />
+
+      <stop
+        offset="100%"
+        stop-color="#0a0908"
+      />
+
     </linearGradient>
 
-    <!-- PAWN -->
-    <symbol id="p-pawn" viewBox="0 0 100 100">
-      <ellipse cx="50" cy="88" rx="27" ry="6.5"/>
-      <path d="M27 88 L31 76 Q50 82 69 76 L73 88 Z"/>
-      <ellipse cx="50" cy="76" rx="17" ry="5"/>
-      <path d="M36 75 Q33 60 41 50 Q35 46 37 39 Q33 34 38 28 L62 28 Q67 34 63 39 Q65 46 59 50 Q67 60 64 75 Q50 80 36 75 Z"/>
-      <circle cx="50" cy="26" r="13.5"/>
+
+    <symbol
+      id="p-pawn"
+      viewBox="0 0 100 100"
+    >
+
+      <ellipse
+        cx="50"
+        cy="88"
+        rx="27"
+        ry="6.5"
+      />
+
+      <path
+        d="M27 88 L31 76 Q50 82 69 76 L73 88 Z"
+      />
+
+      <ellipse
+        cx="50"
+        cy="76"
+        rx="17"
+        ry="5"
+      />
+
+      <path
+        d="M36 75 Q33 60 41 50 Q35 46 37 39 Q33 34 38 28 L62 28 Q67 34 63 39 Q65 46 59 50 Q67 60 64 75 Q50 80 36 75 Z"
+      />
+
+      <circle
+        cx="50"
+        cy="26"
+        r="13.5"
+      />
+
     </symbol>
 
-    <!-- ROOK -->
-    <symbol id="p-rook" viewBox="0 0 100 100">
-      <ellipse cx="50" cy="88" rx="28" ry="6.5"/>
-      <path d="M26 88 L30 78 Q50 83 70 78 L74 88 Z"/>
-      <path d="M31 78 L34 40 L66 40 L69 78 Q50 82 31 78 Z"/>
-      <path d="M30 40 L30 17 L39 17 L39 24 L46 24 L46 17 L54 17 L54 24 L61 24 L61 17 L70 17 L70 40 Z"/>
-      <rect x="35" y="42" width="30" height="6" rx="1"/>
+
+    <symbol
+      id="p-rook"
+      viewBox="0 0 100 100"
+    >
+
+      <ellipse
+        cx="50"
+        cy="88"
+        rx="28"
+        ry="6.5"
+      />
+
+      <path
+        d="M26 88 L30 78 Q50 83 70 78 L74 88 Z"
+      />
+
+      <path
+        d="M31 78 L34 40 L66 40 L69 78 Q50 82 31 78 Z"
+      />
+
+      <path
+        d="M30 40 L30 17 L39 17 L39 24 L46 24 L46 17 L54 17 L54 24 L61 24 L61 17 L70 17 L70 40 Z"
+      />
+
+      <rect
+        x="35"
+        y="42"
+        width="30"
+        height="6"
+        rx="1"
+      />
+
     </symbol>
 
-    <!-- BISHOP -->
-    <symbol id="p-bishop" viewBox="0 0 100 100">
-      <ellipse cx="50" cy="88" rx="26" ry="6.5"/>
-      <path d="M28 88 L32 78 Q50 83 68 78 L72 88 Z"/>
-      <path d="M33 78 Q28 60 38 48 Q30 40 38 30 Q44 20 50 14 Q56 20 62 30 Q70 40 62 48 Q72 60 67 78 Q50 83 33 78 Z"/>
-      <path d="M40 46 L60 46" stroke-width="3" fill="none"/>
-      <circle cx="50" cy="15" r="6"/>
-      <path d="M46 6 L54 6 M50 2 L50 10" stroke-width="2.4"/>
+
+    <symbol
+      id="p-bishop"
+      viewBox="0 0 100 100"
+    >
+
+      <ellipse
+        cx="50"
+        cy="88"
+        rx="26"
+        ry="6.5"
+      />
+
+      <path
+        d="M28 88 L32 78 Q50 83 68 78 L72 88 Z"
+      />
+
+      <path
+        d="M33 78 Q28 60 38 48 Q30 40 38 30 Q44 20 50 14 Q56 20 62 30 Q70 40 62 48 Q72 60 67 78 Q50 83 33 78 Z"
+      />
+
+      <path
+        d="M40 46 L60 46"
+        stroke-width="3"
+        fill="none"
+      />
+
+      <circle
+        cx="50"
+        cy="15"
+        r="6"
+      />
+
+      <path
+        d="M46 6 L54 6 M50 2 L50 10"
+        stroke-width="2.4"
+      />
+
     </symbol>
 
-    <!-- KNIGHT -->
-    <symbol id="p-knight" viewBox="0 0 100 100">
-      <ellipse cx="50" cy="88" rx="27" ry="6.5"/>
-      <path d="M26 88 L30 77 Q50 82 70 77 L74 88 Z"/>
-      <path d="M30 77
-               Q26 62 33 52
-               Q30 44 36 38
-               Q34 30 42 24
-               Q40 18 46 13
-               Q54 8 64 12
-               Q70 15 68 21
-               Q74 23 73 29
-               Q78 32 74 37
-               Q76 42 70 43
-               Q73 48 66 49
-               L58 45
-               Q62 52 58 58
-               Q64 62 61 68
-               Q66 72 62 77
-               Q56 82 46 80
-               Q37 80 30 77 Z"/>
-      <circle cx="63" cy="20" r="2.6"/>
-      <path d="M46 15 Q50 20 47 26" stroke-width="2" fill="none"/>
+
+    <symbol
+      id="p-knight"
+      viewBox="0 0 100 100"
+    >
+
+      <ellipse
+        cx="50"
+        cy="88"
+        rx="27"
+        ry="6.5"
+      />
+
+      <path
+        d="M26 88 L30 77 Q50 82 70 77 L74 88 Z"
+      />
+
+      <path
+        d="M30 77
+        Q26 62 33 52
+        Q30 44 36 38
+        Q34 30 42 24
+        Q40 18 46 13
+        Q54 8 64 12
+        Q70 15 68 21
+        Q74 23 73 29
+        Q78 32 74 37
+        Q76 42 70 43
+        Q73 48 66 49
+        L58 45
+        Q62 52 58 58
+        Q64 62 61 68
+        Q66 72 62 77
+        Q56 82 46 80
+        Q37 80 30 77 Z"
+      />
+
+      <circle
+        cx="63"
+        cy="20"
+        r="2.6"
+      />
+
+      <path
+        d="M46 15 Q50 20 47 26"
+        stroke-width="2"
+        fill="none"
+      />
+
     </symbol>
 
-    <!-- QUEEN -->
-    <symbol id="p-queen" viewBox="0 0 100 100">
-      <ellipse cx="50" cy="88" rx="28" ry="6.5"/>
-      <path d="M26 88 L30 76 Q50 82 70 76 L74 88 Z"/>
-      <path d="M32 76 Q28 60 36 50 L64 50 Q72 60 68 76 Q50 81 32 76 Z"/>
-      <path d="M30 50 L26 27 L36 40 L40 22 L50 38 L60 22 L64 40 L74 27 L70 50 Z"/>
-      <circle cx="26" cy="24" r="4.2"/>
-      <circle cx="40" cy="19" r="4.2"/>
-      <circle cx="50" cy="15" r="4.6"/>
-      <circle cx="60" cy="19" r="4.2"/>
-      <circle cx="74" cy="24" r="4.2"/>
+
+    <symbol
+      id="p-queen"
+      viewBox="0 0 100 100"
+    >
+
+      <ellipse
+        cx="50"
+        cy="88"
+        rx="28"
+        ry="6.5"
+      />
+
+      <path
+        d="M26 88 L30 76 Q50 82 70 76 L74 88 Z"
+      />
+
+      <path
+        d="M32 76 Q28 60 36 50 L64 50 Q72 60 68 76 Q50 81 32 76 Z"
+      />
+
+      <path
+        d="M30 50 L26 27 L36 40 L40 22 L50 38 L60 22 L64 40 L74 27 L70 50 Z"
+      />
+
+      <circle
+        cx="26"
+        cy="24"
+        r="4.2"
+      />
+
+      <circle
+        cx="40"
+        cy="19"
+        r="4.2"
+      />
+
+      <circle
+        cx="50"
+        cy="15"
+        r="4.6"
+      />
+
+      <circle
+        cx="60"
+        cy="19"
+        r="4.2"
+      />
+
+      <circle
+        cx="74"
+        cy="24"
+        r="4.2"
+      />
+
     </symbol>
 
-    <!-- KING -->
-    <symbol id="p-king" viewBox="0 0 100 100">
-      <ellipse cx="50" cy="88" rx="28" ry="6.5"/>
-      <path d="M25 88 L29 76 Q50 82 71 76 L75 88 Z"/>
-      <path d="M31 76 Q27 58 37 48 L63 48 Q73 58 69 76 Q50 81 31 76 Z"/>
-      <path d="M30 48 L27 32 L38 40 L50 26 L62 40 L73 32 L70 48 Z"/>
-      <rect x="46" y="10" width="8" height="18" rx="1.5"/>
-      <rect x="40" y="15" width="20" height="8" rx="1.5"/>
+
+    <symbol
+      id="p-king"
+      viewBox="0 0 100 100"
+    >
+
+      <ellipse
+        cx="50"
+        cy="88"
+        rx="28"
+        ry="6.5"
+      />
+
+      <path
+        d="M25 88 L29 76 Q50 82 71 76 L75 88 Z"
+      />
+
+      <path
+        d="M31 76 Q27 58 37 48 L63 48 Q73 58 69 76 Q50 81 31 76 Z"
+      />
+
+      <path
+        d="M30 48 L27 32 L38 40 L50 26 L62 40 L73 32 L70 48 Z"
+      />
+
+      <rect
+        x="46"
+        y="10"
+        width="8"
+        height="18"
+        rx="1.5"
+      />
+
+      <rect
+        x="40"
+        y="15"
+        width="20"
+        height="8"
+        rx="1.5"
+      />
+
     </symbol>
 
   </defs>
 
 </svg>
 
+
+<!-- =========================================================
+     HEADER
+     ========================================================= -->
+
 <header class="topbar">
 
   <div class="brand">
+
     <span class="mark">♞</span>
 
     <div>
-      <div class="word">Clube de Xadrez</div>
-      <div class="sub">JOGUE · SUBA NO RANKING</div>
+
+      <div class="word">
+        Clube de Xadrez
+      </div>
+
+      <div class="sub">
+        JOGUE · SUBA NO RANKING
+      </div>
+
     </div>
+
   </div>
 
+
   <nav class="tabs">
-    <button data-view="play" class="active">Jogar</button>
-    <button data-view="ranking">Ranking</button>
-    <button data-view="profile">Perfil</button>
+
+    <button
+      data-view="play"
+      class="active"
+    >
+      Jogar
+    </button>
+
+    <button
+      data-view="ranking"
+    >
+      Ranking
+    </button>
+
+    <button
+      data-view="profile"
+    >
+      Perfil
+    </button>
+
   </nav>
 
-  <div class="account" id="accountBox"></div>
+
+  <div
+    class="account"
+    id="accountBox"
+  ></div>
 
 </header>
 
+
 <main>
 
-  <!-- PLAY VIEW -->
 
-  <section class="view active" id="view-play">
+  <!-- =========================================================
+       JOGAR
+       ========================================================= -->
+
+  <section
+    class="view active"
+    id="view-play"
+  >
 
     <div class="play-grid">
 
+
       <div class="board-wrap">
 
-        <div class="board-frame">
-          <div class="board" id="board"></div>
+
+        <!-- RELÓGIOS -->
+
+        <div class="clocks">
+
+          <div
+            class="clock"
+            id="botClockBox"
+          >
+
+            <span class="clock-label">
+              BOT
+            </span>
+
+            <span
+              class="clock-time"
+              id="botClock"
+            >
+              05:00
+            </span>
+
+          </div>
+
+
+          <div
+            class="clock"
+            id="playerClockBox"
+          >
+
+            <span class="clock-label">
+              VOCÊ
+            </span>
+
+            <span
+              class="clock-time"
+              id="playerClock"
+            >
+              05:00
+            </span>
+
+          </div>
+
         </div>
+
+
+        <div class="board-frame">
+
+          <div
+            class="board"
+            id="board"
+          ></div>
+
+        </div>
+
 
         <div class="status-bar">
 
           <div class="turn-pill">
-            <span class="turn-dot" id="turnDot"></span>
-            <span id="turnLabel">Vez das brancas</span>
+
+            <span
+              class="turn-dot"
+              id="turnDot"
+            ></span>
+
+            <span id="turnLabel">
+              Vez das brancas
+            </span>
+
           </div>
+
 
           <div id="statusMsg"></div>
 
         </div>
 
+
       </div>
+
+
+      <!-- PAINEL -->
 
       <div class="panel">
 
+
         <div class="card">
 
-          <h3>Nova <span>partida</span></h3>
+          <h3>
+            Nova <span>partida</span>
+          </h3>
 
-          <div class="field-label">Dificuldade do bot</div>
+
+          <div class="field-label">
+            Dificuldade do bot
+          </div>
+
 
           <div class="diff-row">
 
-            <div class="diff-btn easy" data-diff="easy">
+
+            <div
+              class="diff-btn easy"
+              data-diff="easy"
+            >
+
               Fácil
-              <small>~1000</small>
+
+              <small>
+                ~1000
+              </small>
+
             </div>
 
-            <div class="diff-btn active" data-diff="medium">
+
+            <div
+              class="diff-btn active"
+              data-diff="medium"
+            >
+
               Médio
-              <small>~1400</small>
+
+              <small>
+                ~1400
+              </small>
+
             </div>
 
-            <div class="diff-btn hard" data-diff="hard">
+
+            <div
+              class="diff-btn hard"
+              data-diff="hard"
+            >
+
               Difícil
-              <small>~1800</small>
+
+              <small>
+                ~1800
+              </small>
+
             </div>
+
 
           </div>
 
-          <div class="field-label">Suas peças</div>
+
+          <div class="field-label">
+            Suas peças
+          </div>
+
 
           <div class="side-row">
 
-            <div class="side-btn active" data-side="w">
+
+            <div
+              class="side-btn active"
+              data-side="w"
+            >
               Brancas
             </div>
 
-            <div class="side-btn" data-side="b">
+
+            <div
+              class="side-btn"
+              data-side="b"
+            >
               Pretas
             </div>
 
+
           </div>
+
 
           <div class="actions-row">
 
-            <button class="btn primary" id="btnNewGame">
+            <button
+              class="btn primary"
+              id="btnNewGame"
+            >
               Iniciar partida
             </button>
 
-            <button class="btn ghost" id="btnResign" disabled>
+
+            <button
+              class="btn danger"
+              id="btnResign"
+              disabled
+            >
               Desistir
             </button>
 
           </div>
 
+
+          <div
+            class="thinking"
+            id="thinkingBox"
+          >
+
+            <span>
+              ♟ Bot pensando
+            </span>
+
+            <span class="thinking-dots">
+              <span>•</span>
+              <span>•</span>
+              <span>•</span>
+            </span>
+
+          </div>
+
+
         </div>
+
+
+        <!-- HISTÓRICO DE LANCES -->
 
         <div class="card">
 
-          <h3>Lance a <span>lance</span></h3>
+          <h3>
+            Lance a <span>lance</span>
+          </h3>
 
-          <div class="history" id="historyBox">
-            <p style="color:var(--text-dim); font-size:13px;">
+
+          <div
+            class="history"
+            id="historyBox"
+          >
+
+            <p
+              style="
+                color:var(--text-dim);
+                font-size:13px;
+              "
+            >
               Nenhum lance ainda.
             </p>
+
           </div>
 
         </div>
+
 
       </div>
 
@@ -1044,178 +2762,560 @@
   </section>
 
 
-  <!-- RANKING -->
+  <!-- =========================================================
+       RANKING
+       ========================================================= -->
 
-  <section class="view" id="view-ranking">
+  <section
+    class="view"
+    id="view-ranking"
+  >
 
     <div class="rank-head">
 
       <div>
-        <h2>Ranking global</h2>
-        <p>Elo dos jogadores registrados no clube.</p>
+
+        <h2>
+          Ranking global
+        </h2>
+
+        <p>
+          <span class="live-dot"></span>
+          Atualização automática
+        </p>
+
       </div>
 
-      <button class="btn ghost" id="btnRefreshRank">
+
+      <button
+        class="btn ghost"
+        id="btnRefreshRank"
+      >
         Atualizar
       </button>
 
     </div>
 
+
     <div id="rankTableWrap"></div>
 
+
     <p class="note">
-      Dados de ranking são compartilhados entre todos os usuários deste site.
-      Nomes de usuário são públicos.
+
+      Os jogadores são ordenados pelo ELO.
+      O ranking é compartilhado entre todos
+      os usuários do clube.
+
     </p>
 
   </section>
 
 
-  <!-- PROFILE / AUTH -->
+  <!-- =========================================================
+       PERFIL
+       ========================================================= -->
 
-  <section class="view" id="view-profile">
+  <section
+    class="view"
+    id="view-profile"
+  >
 
-    <div id="profileLoggedOut" class="auth-wrap" style="display:none;">
+
+    <!-- LOGADO FORA -->
+
+    <div
+      id="profileLoggedOut"
+      class="auth-wrap"
+      style="display:none;"
+    >
+
 
       <div id="loginBox">
 
-        <h2>Entrar</h2>
+        <h2>
+          Entrar
+        </h2>
 
         <p class="lead">
           Entre para salvar seu Elo e aparecer no ranking.
         </p>
 
-        <div class="auth-err" id="loginErr"></div>
+
+        <div
+          class="auth-err"
+          id="loginErr"
+        ></div>
+
 
         <div class="field">
-          <label>Nome de usuário</label>
-          <input id="loginUser" autocomplete="username">
+
+          <label>
+            Nome de usuário
+          </label>
+
+          <input
+            id="loginUser"
+            autocomplete="username"
+          >
+
         </div>
+
 
         <div class="field">
-          <label>Senha</label>
-          <input id="loginPass" type="password" autocomplete="current-password">
+
+          <label>
+            Senha
+          </label>
+
+          <input
+            id="loginPass"
+            type="password"
+            autocomplete="current-password"
+          >
+
         </div>
 
-        <button class="btn primary" style="width:100%;" id="btnDoLogin">
+
+        <button
+          class="btn primary"
+          style="width:100%;"
+          id="btnDoLogin"
+        >
           Entrar
         </button>
 
+
         <div class="auth-switch">
+
           Ainda não tem conta?
-          <a id="toRegister">Registre-se</a>
+
+          <a id="toRegister">
+            Registre-se
+          </a>
+
         </div>
 
       </div>
 
 
-      <div id="registerBox" style="display:none;">
+      <!-- REGISTRO -->
 
-        <h2>Criar conta</h2>
+      <div
+        id="registerBox"
+        style="display:none;"
+      >
+
+        <h2>
+          Criar conta
+        </h2>
 
         <p class="lead">
           Escolha um nome — ele vai aparecer no ranking.
         </p>
 
-        <div class="auth-err" id="regErr"></div>
+
+        <div
+          class="auth-err"
+          id="regErr"
+        ></div>
+
 
         <div class="field">
-          <label>Nome de usuário</label>
-          <input id="regUser" autocomplete="username">
+
+          <label>
+            Nome de usuário
+          </label>
+
+          <input
+            id="regUser"
+            autocomplete="username"
+          >
+
         </div>
+
 
         <div class="field">
-          <label>Senha</label>
-          <input id="regPass" type="password" autocomplete="new-password">
+
+          <label>
+            Senha
+          </label>
+
+          <input
+            id="regPass"
+            type="password"
+            autocomplete="new-password"
+          >
+
         </div>
 
-        <button class="btn primary" style="width:100%;" id="btnDoRegister">
+
+        <button
+          class="btn primary"
+          style="width:100%;"
+          id="btnDoRegister"
+        >
           Criar conta
         </button>
 
+
         <div class="auth-switch">
+
           Já tem conta?
-          <a id="toLogin">Entrar</a>
+
+          <a id="toLogin">
+            Entrar
+          </a>
+
         </div>
 
       </div>
+
 
     </div>
 
 
-    <div id="profileLoggedIn" style="display:none;">
+    <!-- LOGADO -->
+
+    <div
+      id="profileLoggedIn"
+      style="display:none;"
+    >
+
 
       <h2
-        style="font-family:var(--serif); font-size:30px; margin:0 0 4px;"
-        id="profileName">
-      </h2>
+        style="
+          font-family:var(--serif);
+          font-size:30px;
+          margin:0 0 4px;
+        "
+        id="profileName"
+      ></h2>
+
 
       <p
-        style="color:var(--text-dim); font-size:13px; margin:0 0 26px;"
-        id="profileSince">
-      </p>
+        style="
+          color:var(--text-dim);
+          font-size:13px;
+          margin:0 0 26px;
+        "
+        id="profileSince"
+      ></p>
+
 
       <div class="profile-grid">
 
-        <div class="stat-card">
-          <div class="num" id="pElo">1200</div>
-          <div class="lbl">ELO</div>
-        </div>
 
         <div class="stat-card">
-          <div class="num" id="pWins">0</div>
-          <div class="lbl">VITÓRIAS</div>
+
+          <div
+            class="num"
+            id="pElo"
+          >
+            1200
+          </div>
+
+          <div class="lbl">
+            ELO
+          </div>
+
         </div>
 
+
         <div class="stat-card">
-          <div class="num" id="pLosses">0</div>
-          <div class="lbl">DERROTAS</div>
+
+          <div
+            class="num"
+            id="pWinRate"
+          >
+            0%
+          </div>
+
+          <div class="lbl">
+            TAXA DE VITÓRIA
+          </div>
+
         </div>
+
+
+        <div class="stat-card">
+
+          <div
+            class="num"
+            id="pTotal"
+          >
+            0
+          </div>
+
+          <div class="lbl">
+            PARTIDAS
+          </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <div
+            class="num"
+            id="pStreak"
+          >
+            0
+          </div>
+
+          <div class="lbl">
+            🔥 SEQUÊNCIA
+          </div>
+
+        </div>
+
 
       </div>
 
-      <div class="card" style="max-width:420px;">
 
-        <h3>Resumo</h3>
+      <div class="profile-two">
 
-        <div class="elo-line">
-          <span>Empates</span>
-          <b id="pDraws">0</b>
+
+        <div class="card">
+
+          <h3>
+            Estatísticas
+          </h3>
+
+
+          <div class="elo-line">
+
+            <span>
+              Vitórias
+            </span>
+
+            <b id="pWins">
+              0
+            </b>
+
+          </div>
+
+
+          <div class="elo-line">
+
+            <span>
+              Derrotas
+            </span>
+
+            <b id="pLosses">
+              0
+            </b>
+
+          </div>
+
+
+          <div class="elo-line">
+
+            <span>
+              Empates
+            </span>
+
+            <b id="pDraws">
+              0
+            </b>
+
+          </div>
+
+
+          <div class="elo-line">
+
+            <span>
+              Melhor ELO
+            </span>
+
+            <b id="pBestElo">
+              1200
+            </b>
+
+          </div>
+
+
+          <div class="elo-line">
+
+            <span>
+              Melhor sequência
+            </span>
+
+            <b
+              class="streak"
+              id="pBestStreak"
+            >
+              0
+            </b>
+
+          </div>
+
+
+          <div class="elo-line">
+
+            <span>
+              Posição
+            </span>
+
+            <b id="pRank">
+              —
+            </b>
+
+          </div>
+
+
         </div>
 
-        <div class="elo-line">
-          <span>Partidas jogadas</span>
-          <b id="pTotal">0</b>
+
+        <div class="card">
+
+          <h3>
+            Últimas <span>partidas</span>
+          </h3>
+
+
+          <div
+            class="game-history"
+            id="gameHistoryBox"
+          >
+
+            <div
+              style="
+                color:var(--text-dim);
+                font-size:13px;
+              "
+            >
+              Nenhuma partida registrada.
+            </div>
+
+          </div>
+
         </div>
 
-        <div class="elo-line">
-          <span>Posição no ranking</span>
-          <b id="pRank">—</b>
-        </div>
 
       </div>
+
 
       <button
         class="btn ghost"
         style="margin-top:20px;"
-        id="btnLogout">
+        id="btnLogout"
+      >
         Sair da conta
+      </button>
+
+
+    </div>
+
+
+    <p class="note">
+
+      As senhas são protegidas pelo Firebase Authentication.
+      O site não salva sua senha no banco de dados.
+
+    </p>
+
+
+  </section>
+
+
+</main>
+
+
+<footer>
+
+  Clube de Xadrez —
+  jogue contra o bot, suba no ranking.
+
+</footer>
+
+
+<!-- =========================================================
+     MODAL DE RESULTADO
+     ========================================================= -->
+
+<div
+  class="modal"
+  id="resultModal"
+>
+
+  <div class="result-modal">
+
+    <div
+      class="result-icon"
+      id="resultIcon"
+    >
+      ♛
+    </div>
+
+
+    <div
+      class="result-title"
+      id="resultTitle"
+    >
+      Vitória!
+    </div>
+
+
+    <div
+      class="result-sub"
+      id="resultSub"
+    >
+      Você venceu a partida.
+    </div>
+
+
+    <div class="elo-result">
+
+      <span
+        class="before"
+        id="resultBefore"
+      >
+        1200
+      </span>
+
+      <span class="arrow">
+        →
+      </span>
+
+      <span
+        class="after"
+        id="resultAfter"
+      >
+        1220
+      </span>
+
+      <span
+        class="change"
+        id="resultChange"
+      >
+        +20
+      </span>
+
+    </div>
+
+
+    <div class="result-buttons">
+
+      <button
+        class="btn primary"
+        id="btnPlayAgain"
+      >
+        Jogar novamente
+      </button>
+
+
+      <button
+        class="btn ghost"
+        id="btnCloseResult"
+      >
+        Fechar
       </button>
 
     </div>
 
-    <p class="note">
-      As senhas agora são protegidas pelo Firebase Authentication.
-      O site não armazena sua senha no banco de dados.
-    </p>
+  </div>
 
-  </section>
-
-</main>
-
-<footer>
-  Clube de Xadrez — jogue contra o bot, suba no ranking.
-</footer>
+</div>
 
 
 <script>
@@ -1229,27 +3329,40 @@
      FIREBASE
      ========================================================= */
 
-  let firebaseReady = false;
+
+  let firebaseReady=false;
+
 
   function waitForFirebase(){
 
-    return new Promise((resolve)=>{
+    return new Promise(resolve=>{
 
-      if(window.firebaseAuth && window.firebaseDB && window.firebaseFns){
+      if(
+        window.firebaseAuth &&
+        window.firebaseDB &&
+        window.firebaseFns
+      ){
 
-        firebaseReady = true;
+        firebaseReady=true;
+
         resolve();
+
         return;
 
       }
 
-      const interval = setInterval(()=>{
 
-        if(window.firebaseAuth && window.firebaseDB && window.firebaseFns){
+      const interval=setInterval(()=>{
+
+        if(
+          window.firebaseAuth &&
+          window.firebaseDB &&
+          window.firebaseFns
+        ){
 
           clearInterval(interval);
 
-          firebaseReady = true;
+          firebaseReady=true;
 
           resolve();
 
@@ -1262,25 +3375,30 @@
   }
 
 
-  /* =========================================================
-     FIREBASE DATABASE HELPERS
-     ========================================================= */
-
   async function dbGet(path){
 
     await waitForFirebase();
 
     try{
 
-      const snapshot = await window.firebaseFns.get(
-        window.firebaseFns.ref(window.firebaseDB,path)
-      );
+      const snapshot =
+        await window.firebaseFns.get(
+          window.firebaseFns.ref(
+            window.firebaseDB,
+            path
+          )
+        );
 
-      return snapshot.exists() ? snapshot.val() : null;
+      return snapshot.exists()
+        ? snapshot.val()
+        : null;
 
     }catch(error){
 
-      console.error("Erro ao ler Firebase:",error);
+      console.error(
+        "Erro ao ler Firebase:",
+        error
+      );
 
       return null;
 
@@ -1293,22 +3411,15 @@
 
     await waitForFirebase();
 
-    try{
+    await window.firebaseFns.set(
+      window.firebaseFns.ref(
+        window.firebaseDB,
+        path
+      ),
+      value
+    );
 
-      await window.firebaseFns.set(
-        window.firebaseFns.ref(window.firebaseDB,path),
-        value
-      );
-
-      return true;
-
-    }catch(error){
-
-      console.error("Erro ao salvar Firebase:",error);
-
-      throw error;
-
-    }
+    return true;
 
   }
 
@@ -1317,22 +3428,15 @@
 
     await waitForFirebase();
 
-    try{
+    await window.firebaseFns.update(
+      window.firebaseFns.ref(
+        window.firebaseDB,
+        path
+      ),
+      value
+    );
 
-      await window.firebaseFns.update(
-        window.firebaseFns.ref(window.firebaseDB,path),
-        value
-      );
-
-      return true;
-
-    }catch(error){
-
-      console.error("Erro ao atualizar Firebase:",error);
-
-      throw error;
-
-    }
+    return true;
 
   }
 
@@ -1341,110 +3445,372 @@
 
     await waitForFirebase();
 
+    await window.firebaseFns.remove(
+      window.firebaseFns.ref(
+        window.firebaseDB,
+        path
+      )
+    );
+
+    return true;
+
+  }
+
+
+  /* =========================================================
+     ESTADO
+     ========================================================= */
+
+
+  let currentUser=null;
+
+  let currentFirebaseUser=null;
+
+  let game=new Chess();
+
+  let playerSide='w';
+
+  let difficulty='medium';
+
+  let selectedSq=null;
+
+  let legalTargets=[];
+
+  let gameActive=false;
+
+  let botThinking=false;
+
+  let lastMove=null;
+
+  let gameFinished=false;
+
+  let gameStartTime=null;
+
+  let gameMoves=[];
+
+  let playerClockSeconds=300;
+
+  let botClockSeconds=300;
+
+  let clockInterval=null;
+
+  let resultAlreadySaved=false;
+
+
+  const DIFF_ELO={
+
+    easy:1000,
+
+    medium:1400,
+
+    hard:1800
+
+  };
+
+
+  const DIFF_CONFIG={
+
+    easy:{
+      depth:2,
+      thinkMin:700,
+      thinkMax:1300,
+      randomness:.42
+    },
+
+    medium:{
+      depth:3,
+      thinkMin:1200,
+      thinkMax:2200,
+      randomness:.10
+    },
+
+    hard:{
+      depth:4,
+      thinkMin:1800,
+      thinkMax:3300,
+      randomness:.025
+    }
+
+  };
+
+
+  const PIECE_VALUE={
+
+    p:100,
+
+    n:320,
+
+    b:330,
+
+    r:500,
+
+    q:900,
+
+    k:20000
+
+  };
+
+
+  const FILES=[
+    'a','b','c','d',
+    'e','f','g','h'
+  ];
+
+
+  const PIECE_SYMBOL={
+
+    p:'p-pawn',
+
+    n:'p-knight',
+
+    b:'p-bishop',
+
+    r:'p-rook',
+
+    q:'p-queen',
+
+    k:'p-king'
+
+  };
+
+
+  const SVG_NS=
+    'http://www.w3.org/2000/svg';
+
+
+  const XLINK_NS=
+    'http://www.w3.org/1999/xlink';
+
+
+  /* =========================================================
+     SOM
+     ========================================================= */
+
+
+  let audioContext=null;
+
+
+  function getAudioContext(){
+
     try{
 
-      await window.firebaseFns.remove(
-        window.firebaseFns.ref(window.firebaseDB,path)
-      );
+      if(!audioContext){
 
-      return true;
+        audioContext=
+          new (
+            window.AudioContext ||
+            window.webkitAudioContext
+          )();
+
+      }
+
+      return audioContext;
 
     }catch(error){
 
-      console.error("Erro ao remover Firebase:",error);
-
-      throw error;
+      return null;
 
     }
 
   }
 
 
+  function playTone(
+    frequency,
+    duration,
+    type='sine',
+    volume=.035
+  ){
+
+    const ctx=
+      getAudioContext();
+
+    if(!ctx) return;
+
+
+    try{
+
+      if(ctx.state==='suspended'){
+        ctx.resume();
+      }
+
+
+      const oscillator=
+        ctx.createOscillator();
+
+
+      const gain=
+        ctx.createGain();
+
+
+      oscillator.type=type;
+
+      oscillator.frequency.value=
+        frequency;
+
+
+      gain.gain.setValueAtTime(
+        volume,
+        ctx.currentTime
+      );
+
+
+      gain.gain.exponentialRampToValueAtTime(
+        .001,
+        ctx.currentTime+duration
+      );
+
+
+      oscillator.connect(gain);
+
+      gain.connect(ctx.destination);
+
+
+      oscillator.start();
+
+      oscillator.stop(
+        ctx.currentTime+duration
+      );
+
+    }catch(error){}
+
+  }
+
+
+  function playMoveSound(){
+
+    playTone(
+      520,
+      .07,
+      'triangle',
+      .035
+    );
+
+  }
+
+
+  function playCaptureSound(){
+
+    playTone(
+      240,
+      .10,
+      'square',
+      .04
+    );
+
+    setTimeout(()=>{
+
+      playTone(
+        160,
+        .08,
+        'square',
+        .025
+      );
+
+    },60);
+
+  }
+
+
+  function playCheckSound(){
+
+    playTone(
+      700,
+      .11,
+      'sine',
+      .045
+    );
+
+    setTimeout(()=>{
+
+      playTone(
+        900,
+        .12,
+        'sine',
+        .035
+      );
+
+    },100);
+
+  }
+
+
+  function playWinSound(){
+
+    playTone(523,.12,'sine',.04);
+
+    setTimeout(
+      ()=>playTone(659,.12,'sine',.04),
+      120
+    );
+
+    setTimeout(
+      ()=>playTone(784,.18,'sine',.045),
+      240
+    );
+
+  }
+
+
+  function playLossSound(){
+
+    playTone(
+      390,
+      .14,
+      'sine',
+      .035
+    );
+
+    setTimeout(
+      ()=>playTone(
+        280,
+        .2,
+        'sine',
+        .035
+      ),
+      140
+    );
+
+  }
+
+
   /* =========================================================
-     APP STATE
+     PIEÇAS
      ========================================================= */
 
-  let currentUser = null;
 
-  let currentFirebaseUser = null;
+  function makePieceSVG(
+    color,
+    type
+  ){
 
-  let game = new Chess();
-
-  let playerSide = 'w';
-
-  let difficulty = 'medium';
-
-  let selectedSq = null;
-
-  let legalTargets = [];
-
-  let gameActive = false;
-
-  let lastMove = null;
-
-
-  const DIFF_ELO = {
-    easy:1000,
-    medium:1400,
-    hard:1800
-  };
-
-
-  const DIFF_DEPTH = {
-    easy:1,
-    medium:2,
-    hard:3
-  };
-
-
-  const PIECE_SYMBOL = {
-    p:'p-pawn',
-    n:'p-knight',
-    b:'p-bishop',
-    r:'p-rook',
-    q:'p-queen',
-    k:'p-king'
-  };
-
-
-  const SVG_NS = 'http://www.w3.org/2000/svg';
-
-  const XLINK_NS = 'http://www.w3.org/1999/xlink';
-
-
-  const FILES = [
-    'a','b','c','d',
-    'e','f','g','h'
-  ];
-
-
-  /* =========================================================
-     PIECES
-     ========================================================= */
-
-  function makePieceSVG(color,type){
-
-    const svg =
+    const svg=
       document.createElementNS(
         SVG_NS,
         'svg'
       );
+
 
     svg.setAttribute(
       'viewBox',
       '0 0 100 100'
     );
 
+
     svg.classList.add(
       'piece-svg',
-      color==='w' ? 'white' : 'black'
+      color==='w'
+        ? 'white'
+        : 'black'
     );
 
-    const use =
+
+    const use=
       document.createElementNS(
         SVG_NS,
         'use'
       );
+
 
     use.setAttributeNS(
       XLINK_NS,
@@ -1452,12 +3818,15 @@
       '#'+PIECE_SYMBOL[type]
     );
 
+
     use.setAttribute(
       'href',
       '#'+PIECE_SYMBOL[type]
     );
 
+
     svg.appendChild(use);
+
 
     return svg;
 
@@ -1465,18 +3834,21 @@
 
 
   /* =========================================================
-     NAVIGATION
+     NAVEGAÇÃO
      ========================================================= */
 
+
   document
-    .querySelectorAll('nav.tabs button')
+    .querySelectorAll(
+      'nav.tabs button'
+    )
     .forEach(btn=>{
 
       btn.addEventListener(
         'click',
-        ()=>{
-          switchView(btn.dataset.view);
-        }
+        ()=>switchView(
+          btn.dataset.view
+        )
       );
 
     });
@@ -1485,12 +3857,14 @@
   function switchView(name){
 
     document
-      .querySelectorAll('nav.tabs button')
-      .forEach(b=>{
+      .querySelectorAll(
+        'nav.tabs button'
+      )
+      .forEach(button=>{
 
-        b.classList.toggle(
+        button.classList.toggle(
           'active',
-          b.dataset.view===name
+          button.dataset.view===name
         );
 
       });
@@ -1498,37 +3872,57 @@
 
     document
       .querySelectorAll('.view')
-      .forEach(v=>{
-        v.classList.remove('active');
+      .forEach(view=>{
+
+        view.classList.remove(
+          'active'
+        );
+
       });
 
 
-    document
-      .getElementById('view-'+name)
-      .classList.add('active');
+    const target=
+      document.getElementById(
+        'view-'+name
+      );
+
+
+    if(target){
+      target.classList.add('active');
+    }
 
 
     if(name==='ranking'){
+
       renderRanking();
+
     }
 
 
     if(name==='profile'){
+
       renderProfile();
+
     }
 
   }
 
 
   /* =========================================================
-     BOARD
+     TABULEIRO
      ========================================================= */
 
-  const boardEl =
-    document.getElementById('board');
+
+  const boardEl=
+    document.getElementById(
+      'board'
+    );
 
 
-  function squareColor(f,r){
+  function squareColor(
+    f,
+    r
+  ){
 
     return (f+r)%2===0
       ? 'light'
@@ -1541,34 +3935,50 @@
 
     boardEl.innerHTML='';
 
-    const boardState =
+
+    const boardState=
       game.board();
 
 
-    for(let row=0;row<8;row++){
+    for(
+      let row=0;
+      row<8;
+      row++
+    ){
 
-      for(let col=0;col<8;col++){
+      for(
+        let col=0;
+        col<8;
+        col++
+      ){
 
-        const file =
+        const file=
           FILES[col];
 
-        const rank =
+
+        const rank=
           8-row;
 
-        const sqName =
+
+        const sqName=
           file+rank;
 
-        const colorClass =
-          squareColor(col,row);
+
+        const div=
+          document.createElement(
+            'div'
+          );
 
 
-        const div =
-          document.createElement('div');
+        div.className=
+          'sq '+
+          squareColor(
+            col,
+            row
+          );
 
-        div.className =
-          'sq '+colorClass;
 
-        div.dataset.sq =
+        div.dataset.sq=
           sqName;
 
 
@@ -1587,7 +3997,9 @@
         }
 
 
-        if(selectedSq===sqName){
+        if(
+          selectedSq===sqName
+        ){
 
           div.classList.add(
             'selected'
@@ -1596,17 +4008,21 @@
         }
 
 
-        const piece =
+        const piece=
           boardState[row][col];
 
 
         if(piece){
 
-          const shadow =
-            document.createElement('div');
+          const shadow=
+            document.createElement(
+              'div'
+            );
 
-          shadow.className =
+
+          shadow.className=
             'piece-shadow';
+
 
           div.appendChild(
             shadow
@@ -1637,14 +4053,22 @@
 
 
         if(
-          legalTargets.includes(sqName)
+          legalTargets.includes(
+            sqName
+          )
         ){
 
-          const marker =
-            document.createElement('div');
+          const marker=
+            document.createElement(
+              'div'
+            );
 
-          marker.className =
-            piece ? 'ring' : 'dot';
+
+          marker.className=
+            piece
+              ? 'ring'
+              : 'dot';
+
 
           div.appendChild(
             marker
@@ -1655,32 +4079,46 @@
 
         if(col===0){
 
-          const c =
-            document.createElement('span');
+          const coord=
+            document.createElement(
+              'span'
+            );
 
-          c.className =
+
+          coord.className=
             'coord rank';
 
-          c.textContent =
+
+          coord.textContent=
             rank;
 
-          div.appendChild(c);
+
+          div.appendChild(
+            coord
+          );
 
         }
 
 
         if(row===7){
 
-          const c =
-            document.createElement('span');
+          const coord=
+            document.createElement(
+              'span'
+            );
 
-          c.className =
+
+          coord.className=
             'coord file';
 
-          c.textContent =
+
+          coord.textContent=
             file;
 
-          div.appendChild(c);
+
+          div.appendChild(
+            coord
+          );
 
         }
 
@@ -1705,35 +4143,30 @@
   }
 
 
-  function onSquareClick(e){
+  function onSquareClick(event){
 
     if(!gameActive) return;
 
-    if(game.turn()!==playerSide) return;
+    if(botThinking) return;
+
+    if(
+      game.turn()!==playerSide
+    ) return;
 
 
-    const sq =
-      e.currentTarget.dataset.sq;
+    const sq=
+      event.currentTarget.dataset.sq;
 
 
     if(selectedSq){
 
-      if(legalTargets.includes(sq)){
+      if(
+        legalTargets.includes(sq)
+      ){
 
-        makeMove(
+        makePlayerMove(
           selectedSq,
           sq
-        );
-
-        selectedSq=null;
-
-        legalTargets=[];
-
-        renderBoard();
-
-        setTimeout(
-          botTurnIfNeeded,
-          260
         );
 
         return;
@@ -1743,7 +4176,7 @@
     }
 
 
-    const piece =
+    const piece=
       game.get(sq);
 
 
@@ -1754,13 +4187,16 @@
 
       selectedSq=sq;
 
-      legalTargets =
+
+      legalTargets=
         game
           .moves({
             square:sq,
             verbose:true
           })
-          .map(m=>m.to);
+          .map(
+            move=>move.to
+          );
 
     }else{
 
@@ -1776,18 +4212,56 @@
   }
 
 
-  function makeMove(from,to){
+  function makePlayerMove(
+    from,
+    to
+  ){
 
-    const moves =
+    const move=
+      executeMove(
+        from,
+        to
+      );
+
+
+    if(!move) return;
+
+
+    selectedSq=null;
+
+    legalTargets=[];
+
+
+    renderBoard();
+
+
+    if(
+      gameActive &&
+      game.turn()!==playerSide
+    ){
+
+      scheduleBotTurn();
+
+    }
+
+  }
+
+
+  function executeMove(
+    from,
+    to
+  ){
+
+    const possibleMoves=
       game.moves({
         square:from,
         verbose:true
       });
 
 
-    const target =
-      moves.find(
-        m=>m.to===to
+    const target=
+      possibleMoves.find(
+        move=>move.to===to
       );
 
 
@@ -1796,6 +4270,7 @@
 
     if(
       target &&
+      target.flags &&
       target.flags.includes('p')
     ){
 
@@ -1804,7 +4279,7 @@
     }
 
 
-    const mv =
+    const mv=
       game.move({
         from,
         to,
@@ -1812,31 +4287,65 @@
       });
 
 
-    if(mv){
+    if(!mv) return null;
 
-      lastMove={
-        from:mv.from,
-        to:mv.to
-      };
 
-      recordHistory();
+    lastMove={
+      from:mv.from,
+      to:mv.to
+    };
+
+
+    gameMoves.push({
+      from:mv.from,
+      to:mv.to,
+      san:mv.san
+    });
+
+
+    if(mv.captured){
+
+      playCaptureSound();
+
+    }else{
+
+      playMoveSound();
 
     }
 
 
+    if(game.in_check()){
+
+      setTimeout(
+        playCheckSound,
+        90
+      );
+
+    }
+
+
+    recordHistory();
+
     checkGameEnd();
+
+
+    return mv;
 
   }
 
 
   function updateStatusBar(){
 
-    const dot =
-      document.getElementById('turnDot');
+    const dot=
+      document.getElementById(
+        'turnDot'
+      );
 
 
-    const label =
-      document.getElementById('turnLabel');
+    const label=
+      document.getElementById(
+        'turnLabel'
+      );
 
 
     dot.classList.toggle(
@@ -1845,29 +4354,35 @@
     );
 
 
-    label.textContent =
+    label.textContent=
       game.turn()==='w'
         ? 'Vez das brancas'
         : 'Vez das pretas';
 
 
-    const msg =
-      document.getElementById('statusMsg');
+    const msg=
+      document.getElementById(
+        'statusMsg'
+      );
 
 
     if(game.in_checkmate()){
 
-      msg.textContent =
+      msg.textContent=
         'Xeque-mate';
 
-    }else if(game.in_draw()){
+    }else if(
+      game.in_draw()
+    ){
 
-      msg.textContent =
+      msg.textContent=
         'Empate';
 
-    }else if(game.in_check()){
+    }else if(
+      game.in_check()
+    ){
 
-      msg.textContent =
+      msg.textContent=
         'Xeque';
 
     }else{
@@ -1876,16 +4391,19 @@
 
     }
 
+
+    updateClockVisuals();
+
   }
 
 
   function recordHistory(){
 
-    const hist =
+    const hist=
       game.history();
 
 
-    const box =
+    const box=
       document.getElementById(
         'historyBox'
       );
@@ -1893,8 +4411,8 @@
 
     if(hist.length===0){
 
-      box.innerHTML =
-        '<p style="color:var(--text-dim); font-size:13px;">Nenhum lance ainda.</p>';
+      box.innerHTML=
+        '<p style="color:var(--text-dim);font-size:13px;">Nenhum lance ainda.</p>';
 
       return;
 
@@ -1910,59 +4428,76 @@
       i+=2
     ){
 
-      const num =
-        (i/2)+1;
-
-
       rows+=`
+
         <tr>
-          <td class="num">${num}.</td>
-          <td class="mv">${hist[i]||''}</td>
-          <td class="mv">${hist[i+1]||''}</td>
+
+          <td class="num">
+            ${(i/2)+1}.
+          </td>
+
+          <td class="mv">
+            ${escapeHtml(
+              hist[i] || ''
+            )}
+          </td>
+
+          <td class="mv">
+            ${escapeHtml(
+              hist[i+1] || ''
+            )}
+          </td>
+
         </tr>
+
       `;
 
     }
 
 
-    box.innerHTML =
+    box.innerHTML=
       `<table>${rows}</table>`;
 
 
-    box.scrollTop =
+    box.scrollTop=
       box.scrollHeight;
 
   }
 
 
   /* =========================================================
-     GAME
+     CONFIGURAÇÃO DA PARTIDA
      ========================================================= */
 
-  document
-    .querySelectorAll('.diff-btn')
-    .forEach(b=>{
 
-      b.addEventListener(
+  document
+    .querySelectorAll(
+      '.diff-btn'
+    )
+    .forEach(button=>{
+
+      button.addEventListener(
         'click',
         ()=>{
 
           document
-            .querySelectorAll('.diff-btn')
-            .forEach(x=>{
-              x.classList.remove(
+            .querySelectorAll(
+              '.diff-btn'
+            )
+            .forEach(
+              b=>b.classList.remove(
                 'active'
-              );
-            });
+              )
+            );
 
 
-          b.classList.add(
+          button.classList.add(
             'active'
           );
 
 
-          difficulty =
-            b.dataset.diff;
+          difficulty=
+            button.dataset.diff;
 
         }
       );
@@ -1971,29 +4506,33 @@
 
 
   document
-    .querySelectorAll('.side-btn')
-    .forEach(b=>{
+    .querySelectorAll(
+      '.side-btn'
+    )
+    .forEach(button=>{
 
-      b.addEventListener(
+      button.addEventListener(
         'click',
         ()=>{
 
           document
-            .querySelectorAll('.side-btn')
-            .forEach(x=>{
-              x.classList.remove(
+            .querySelectorAll(
+              '.side-btn'
+            )
+            .forEach(
+              b=>b.classList.remove(
                 'active'
-              );
-            });
+              )
+            );
 
 
-          b.classList.add(
+          button.classList.add(
             'active'
           );
 
 
-          playerSide =
-            b.dataset.side;
+          playerSide=
+            button.dataset.side;
 
         }
       );
@@ -2002,7 +4541,9 @@
 
 
   document
-    .getElementById('btnNewGame')
+    .getElementById(
+      'btnNewGame'
+    )
     .addEventListener(
       'click',
       startNewGame
@@ -2010,7 +4551,9 @@
 
 
   document
-    .getElementById('btnResign')
+    .getElementById(
+      'btnResign'
+    )
     .addEventListener(
       'click',
       ()=>{
@@ -2031,7 +4574,13 @@
 
   function startNewGame(){
 
-    game =
+    closeResultModal();
+
+
+    stopClock();
+
+
+    game=
       new Chess();
 
 
@@ -2041,38 +4590,274 @@
 
     lastMove=null;
 
+    gameMoves=[];
+
     gameActive=true;
+
+    gameFinished=false;
+
+    botThinking=false;
+
+    resultAlreadySaved=false;
+
+    gameStartTime=
+      Date.now();
+
+
+    playerClockSeconds=300;
+
+    botClockSeconds=300;
 
 
     document
-      .getElementById('btnResign')
+      .getElementById(
+        'btnResign'
+      )
       .disabled=false;
+
+
+    hideThinking();
 
 
     renderBoard();
 
     recordHistory();
 
+    updateClockDisplay();
+
+
+    startClock();
+
 
     if(
       game.turn()!==playerSide
     ){
 
-      setTimeout(
-        botTurnIfNeeded,
-        300
-      );
+      scheduleBotTurn();
 
     }
 
   }
 
 
+  /* =========================================================
+     RELÓGIO
+     ========================================================= */
+
+
+  function startClock(){
+
+    stopClock();
+
+
+    clockInterval=
+      setInterval(()=>{
+
+        if(!gameActive) return;
+
+        if(botThinking) return;
+
+
+        if(game.turn()==='w'){
+
+          if(playerSide==='w'){
+
+            playerClockSeconds--;
+
+          }else{
+
+            botClockSeconds--;
+
+          }
+
+        }else{
+
+          if(playerSide==='b'){
+
+            playerClockSeconds--;
+
+          }else{
+
+            botClockSeconds--;
+
+          }
+
+        }
+
+
+        updateClockDisplay();
+
+
+        if(
+          playerClockSeconds<=0
+        ){
+
+          playerClockSeconds=0;
+
+          endGame(
+            playerSide==='w'
+              ? 'b'
+              : 'w',
+            'timeout'
+          );
+
+        }
+
+
+        if(
+          botClockSeconds<=0
+        ){
+
+          botClockSeconds=0;
+
+          endGame(
+            playerSide,
+            'timeout'
+          );
+
+        }
+
+      },1000);
+
+  }
+
+
+  function stopClock(){
+
+    if(clockInterval){
+
+      clearInterval(
+        clockInterval
+      );
+
+      clockInterval=null;
+
+    }
+
+  }
+
+
+  function formatTime(seconds){
+
+    const min=
+      Math.floor(
+        seconds/60
+      );
+
+
+    const sec=
+      seconds%60;
+
+
+    return (
+      String(min).padStart(2,'0')+
+      ':'+
+      String(sec).padStart(2,'0')
+    );
+
+  }
+
+
+  function updateClockDisplay(){
+
+    document
+      .getElementById(
+        'playerClock'
+      )
+      .textContent=
+        formatTime(
+          playerClockSeconds
+        );
+
+
+    document
+      .getElementById(
+        'botClock'
+      )
+      .textContent=
+        formatTime(
+          botClockSeconds
+        );
+
+
+    updateClockVisuals();
+
+  }
+
+
+  function updateClockVisuals(){
+
+    const playerBox=
+      document.getElementById(
+        'playerClockBox'
+      );
+
+
+    const botBox=
+      document.getElementById(
+        'botClockBox'
+      );
+
+
+    playerBox.classList.toggle(
+      'active',
+      gameActive &&
+      (
+        (
+          playerSide==='w' &&
+          game.turn()==='w'
+        ) ||
+        (
+          playerSide==='b' &&
+          game.turn()==='b'
+        )
+      )
+    );
+
+
+    botBox.classList.toggle(
+      'active',
+      gameActive &&
+      (
+        (
+          playerSide==='w' &&
+          game.turn()==='b'
+        ) ||
+        (
+          playerSide==='b' &&
+          game.turn()==='w'
+        )
+      )
+    );
+
+
+    playerBox.classList.toggle(
+      'low',
+      playerClockSeconds<=30
+    );
+
+
+    botBox.classList.toggle(
+      'low',
+      botClockSeconds<=30
+    );
+
+  }
+
+
+  /* =========================================================
+     FINAL DA PARTIDA
+     ========================================================= */
+
+
   function checkGameEnd(){
+
+    if(gameFinished) return;
+
 
     if(game.in_checkmate()){
 
-      const winner =
+      const winner=
         game.turn()==='w'
           ? 'b'
           : 'w';
@@ -2084,7 +4869,12 @@
       );
 
 
-    }else if(
+      return;
+
+    }
+
+
+    if(
       game.in_draw() ||
       game.in_stalemate() ||
       game.in_threefold_repetition()
@@ -2100,16 +4890,30 @@
   }
 
 
-  function endGame(
+  async function endGame(
     winnerColor,
     reason
   ){
 
+    if(gameFinished) return;
+
+
+    gameFinished=true;
+
     gameActive=false;
+
+    botThinking=false;
+
+
+    stopClock();
+
+    hideThinking();
 
 
     document
-      .getElementById('btnResign')
+      .getElementById(
+        'btnResign'
+      )
       .disabled=true;
 
 
@@ -2119,13 +4923,15 @@
     let result;
 
 
-    if(winnerColor===null){
+    if(
+      winnerColor===null
+    ){
 
-      result=0.5;
+      result=.5;
 
     }else{
 
-      result =
+      result=
         winnerColor===playerSide
           ? 1
           : 0;
@@ -2133,35 +4939,411 @@
     }
 
 
-    const statusMsg =
-      document.getElementById(
-        'statusMsg'
-      );
+    let title='Empate';
+
+    let icon='½';
+
+    let sub='A partida terminou empatada.';
 
 
-    if(reason==='checkmate'){
+    if(reason==='timeout'){
 
-      statusMsg.textContent =
-        result===1
-          ? 'Xeque-mate — você venceu!'
-          : 'Xeque-mate — o bot venceu.';
+      if(result===1){
+
+        title='Tempo esgotado';
+
+        icon='♛';
+
+        sub='O tempo do bot acabou. Você venceu!';
+
+      }else{
+
+        title='Tempo esgotado';
+
+        icon='♟';
+
+        sub='Seu tempo acabou. O bot venceu.';
+
+      }
 
     }else if(reason==='resign'){
 
-      statusMsg.textContent =
-        'Você desistiu da partida.';
+      title='Você desistiu';
 
-    }else{
+      icon='♟';
 
-      statusMsg.textContent =
-        'Partida empatada.';
+      sub='A partida foi encerrada.';
+
+    }else if(reason==='checkmate'){
+
+      if(result===1){
+
+        title='Você venceu!';
+
+        icon='♛';
+
+        sub='Xeque-mate! Excelente partida.';
+
+      }else{
+
+        title='Derrota';
+
+        icon='♚';
+
+        sub='Xeque-mate. O bot venceu desta vez.';
+
+      }
 
     }
 
 
+    if(result===1){
+
+      playWinSound();
+
+    }else if(result===0){
+
+      playLossSound();
+
+    }
+
+
+    let eloData=null;
+
+
     if(currentUser){
 
-      applyEloUpdate(result);
+      eloData=
+        await applyEloUpdate(
+          result,
+          reason
+        );
+
+    }
+
+
+    showResultModal(
+      title,
+      icon,
+      sub,
+      eloData
+    );
+
+  }
+
+
+  /* =========================================================
+     ELO
+     ========================================================= */
+
+
+  function calculateEloChange(
+    playerElo,
+    opponentElo,
+    result
+  ){
+
+    const expected=
+      1/
+      (
+        1+
+        Math.pow(
+          10,
+          (opponentElo-playerElo)/400
+        )
+      );
+
+
+    let k=32;
+
+
+    if(
+      playerElo>=2000
+    ){
+
+      k=24;
+
+    }
+
+
+    let change=
+      Math.round(
+        k*(result-expected)
+      );
+
+
+    if(result===1){
+
+      change=
+        Math.max(
+          change,
+          8
+        );
+
+    }
+
+
+    if(result===0){
+
+      change=
+        Math.min(
+          change,
+          -4
+        );
+
+    }
+
+
+    return change;
+
+  }
+
+
+  async function applyEloUpdate(
+    result,
+    reason
+  ){
+
+    if(
+      !currentUser ||
+      resultAlreadySaved
+    ){
+
+      return null;
+
+    }
+
+
+    resultAlreadySaved=true;
+
+
+    const eloBefore=
+      Number(
+        currentUser.elo || 1200
+      );
+
+
+    const opponentElo=
+      DIFF_ELO[difficulty];
+
+
+    let eloChange=
+      calculateEloChange(
+        eloBefore,
+        opponentElo,
+        result
+      );
+
+
+    /*
+      Desistência sempre conta como derrota.
+    */
+
+    if(
+      reason==='resign'
+    ){
+
+      eloChange=
+        Math.min(
+          eloChange,
+          -5
+        );
+
+    }
+
+
+    const eloAfter=
+      Math.max(
+        100,
+        eloBefore+eloChange
+      );
+
+
+    currentUser.elo=
+      eloAfter;
+
+
+    currentUser.wins=
+      Number(
+        currentUser.wins || 0
+      );
+
+
+    currentUser.losses=
+      Number(
+        currentUser.losses || 0
+      );
+
+
+    currentUser.draws=
+      Number(
+        currentUser.draws || 0
+      );
+
+
+    currentUser.currentStreak=
+      Number(
+        currentUser.currentStreak || 0
+      );
+
+
+    currentUser.bestStreak=
+      Number(
+        currentUser.bestStreak || 0
+      );
+
+
+    currentUser.bestElo=
+      Number(
+        currentUser.bestElo ||
+        eloBefore
+      );
+
+
+    if(result===1){
+
+      currentUser.wins++;
+
+      currentUser.currentStreak++;
+
+      currentUser.bestStreak=
+        Math.max(
+          currentUser.bestStreak,
+          currentUser.currentStreak
+        );
+
+    }else if(result===0){
+
+      currentUser.losses++;
+
+      currentUser.currentStreak=0;
+
+    }else{
+
+      currentUser.draws++;
+
+    }
+
+
+    currentUser.bestElo=
+      Math.max(
+        currentUser.bestElo,
+        eloAfter
+      );
+
+
+    currentUser.gamesPlayed=
+      currentUser.wins+
+      currentUser.losses+
+      currentUser.draws;
+
+
+    const gameId=
+      Date.now()+
+      '_' +
+      Math.random()
+        .toString(36)
+        .slice(2,8);
+
+
+    const gameData={
+
+      result:
+        result===1
+          ? 'win'
+          : result===0
+            ? 'loss'
+            : 'draw',
+
+      difficulty,
+
+      opponentElo,
+
+      playerSide,
+
+      eloBefore,
+
+      eloAfter,
+
+      eloChange,
+
+      reason,
+
+      moves:gameMoves,
+
+      playedAt:
+        new Date().toISOString()
+
+    };
+
+
+    try{
+
+      await dbUpdate(
+        'users/'+currentUser.uid,
+        {
+
+          elo:currentUser.elo,
+
+          wins:currentUser.wins,
+
+          losses:currentUser.losses,
+
+          draws:currentUser.draws,
+
+          gamesPlayed:
+            currentUser.gamesPlayed,
+
+          bestElo:
+            currentUser.bestElo,
+
+          currentStreak:
+            currentUser.currentStreak,
+
+          bestStreak:
+            currentUser.bestStreak
+
+        }
+      );
+
+
+      await dbSet(
+        'games/'+
+        currentUser.uid+
+        '/'+
+        gameId,
+        gameData
+      );
+
+
+      return {
+
+        before:eloBefore,
+
+        after:eloAfter,
+
+        change:eloChange
+
+      };
+
+
+    }catch(error){
+
+      console.error(
+        'Erro ao salvar resultado:',
+        error
+      );
+
+
+      return {
+
+        before:eloBefore,
+
+        after:eloAfter,
+
+        change:eloChange
+
+      };
 
     }
 
@@ -2172,17 +5354,8 @@
      BOT
      ========================================================= */
 
-  const PIECE_VALUE = {
-    p:100,
-    n:320,
-    b:330,
-    r:500,
-    q:900,
-    k:20000
-  };
 
-
-  const PST_PAWN = [
+  const PST_PAWN=[
 
     0,0,0,0,0,0,0,0,
 
@@ -2203,7 +5376,7 @@
   ];
 
 
-  const PST_KNIGHT = [
+  const PST_KNIGHT=[
 
     -50,-40,-30,-30,-30,-30,-40,-50,
 
@@ -2224,21 +5397,129 @@
   ];
 
 
+  const PST_BISHOP=[
+
+    -20,-10,-10,-10,-10,-10,-10,-20,
+
+    -10,0,0,0,0,0,0,-10,
+
+    -10,0,5,10,10,5,0,-10,
+
+    -10,5,5,10,10,5,5,-10,
+
+    -10,0,10,10,10,10,0,-10,
+
+    -10,10,10,10,10,10,10,-10,
+
+    -10,5,0,0,0,0,5,-10,
+
+    -20,-10,-10,-10,-10,-10,-10,-20
+
+  ];
+
+
+  const PST_ROOK=[
+
+    0,0,0,5,5,0,0,0,
+
+    -5,0,0,0,0,0,0,-5,
+
+    -5,0,0,0,0,0,0,-5,
+
+    -5,0,0,0,0,0,0,-5,
+
+    -5,0,0,0,0,0,0,-5,
+
+    -5,0,0,0,0,0,0,-5,
+
+    5,10,10,10,10,10,10,5,
+
+    0,0,0,0,0,0,0,0
+
+  ];
+
+
+  const PST_QUEEN=[
+
+    -20,-10,-10,-5,-5,-10,-10,-20,
+
+    -10,0,0,0,0,0,0,-10,
+
+    -10,0,5,5,5,5,0,-10,
+
+    -5,0,5,5,5,5,0,-5,
+
+    0,0,5,5,5,5,0,-5,
+
+    -10,5,5,5,5,5,0,-10,
+
+    -10,0,5,0,0,0,0,-10,
+
+    -20,-10,-10,-5,-5,-10,-10,-20
+
+  ];
+
+
+  const PST_KING=[
+
+    -30,-40,-40,-50,-50,-40,-40,-30,
+
+    -30,-40,-40,-50,-50,-40,-40,-30,
+
+    -30,-40,-40,-50,-50,-40,-40,-30,
+
+    -30,-40,-40,-50,-50,-40,-40,-30,
+
+    -20,-30,-30,-40,-40,-30,-30,-20,
+
+    -10,-20,-20,-20,-20,-20,-20,-10,
+
+    20,20,0,0,0,0,20,20,
+
+    20,30,10,0,0,10,30,20
+
+  ];
+
+
+  const PST={
+
+    p:PST_PAWN,
+
+    n:PST_KNIGHT,
+
+    b:PST_BISHOP,
+
+    r:PST_ROOK,
+
+    q:PST_QUEEN,
+
+    k:PST_KING
+
+  };
+
+
   function evaluateBoard(g){
 
     if(g.in_checkmate()){
 
       return g.turn()==='w'
-        ? -99999
-        : 99999;
+        ? -999999
+        : 999999;
 
     }
 
 
-    if(g.in_draw()) return 0;
+    if(
+      g.in_draw() ||
+      g.in_stalemate()
+    ){
+
+      return 0;
+
+    }
 
 
-    const board =
+    const board=
       g.board();
 
 
@@ -2257,49 +5538,85 @@
         col++
       ){
 
-        const p =
+        const piece=
           board[row][col];
 
 
-        if(!p) continue;
+        if(!piece) continue;
 
 
-        const idx =
+        const idx=
           row*8+col;
 
 
-        let val =
-          PIECE_VALUE[p.type];
+        let value=
+          PIECE_VALUE[piece.type];
 
 
-        if(p.type==='p'){
-
-          val+=
-            p.color==='w'
-              ? PST_PAWN[idx]
-              : PST_PAWN[63-idx];
-
-        }
+        const table=
+          PST[piece.type];
 
 
-        if(p.type==='n'){
+        if(table){
 
-          val+=
-            p.color==='w'
-              ? PST_KNIGHT[idx]
-              : PST_KNIGHT[63-idx];
+          value+=
+            piece.color==='w'
+              ? table[idx]
+              : table[63-idx];
 
         }
 
 
-        score +=
-          p.color==='w'
-            ? val
-            : -val;
+        score+=
+          piece.color==='w'
+            ? value
+            : -value;
 
       }
 
     }
+
+
+    /*
+      Mobilidade.
+    */
+
+    const currentTurn=
+      g.turn();
+
+
+    const mobility=
+      g.moves().length;
+
+
+    score+=
+      currentTurn==='w'
+        ? mobility*2
+        : -mobility*2;
+
+
+    /*
+      Pequeno bônus por desenvolvimento.
+    */
+
+    const whitePieces=
+      g.board()
+        .flat()
+        .filter(
+          p=>p && p.color==='w'
+        ).length;
+
+
+    const blackPieces=
+      g.board()
+        .flat()
+        .filter(
+          p=>p && p.color==='b'
+        ).length;
+
+
+    score+=
+      (whitePieces-blackPieces)*2;
 
 
     return score;
@@ -2309,34 +5626,91 @@
 
   function orderedMoves(g){
 
-    const moves =
+    const moves=
       g.moves({
         verbose:true
       });
 
 
-    moves.sort(
-      (a,b)=>{
+    moves.sort((a,b)=>{
 
-        const av =
-          a.captured
-            ? (PIECE_VALUE[a.captured]||0)
-            : 0;
+      const scoreA=
+        moveOrderingScore(a);
 
 
-        const bv =
-          b.captured
-            ? (PIECE_VALUE[b.captured]||0)
-            : 0;
+      const scoreB=
+        moveOrderingScore(b);
 
 
-        return bv-av;
+      return scoreB-scoreA;
 
-      }
-    );
+    });
 
 
     return moves;
+
+  }
+
+
+  function moveOrderingScore(move){
+
+    let score=0;
+
+
+    if(move.captured){
+
+      score+=
+        10*
+        (
+          PIECE_VALUE[
+            move.captured
+          ] || 0
+        );
+
+      score-=
+        PIECE_VALUE[
+          move.piece
+        ] || 0;
+
+    }
+
+
+    if(
+      move.promotion
+    ){
+
+      score+=
+        PIECE_VALUE[
+          move.promotion
+        ] || 0;
+
+    }
+
+
+    if(
+      move.san &&
+      (
+        move.san.includes('+') ||
+        move.san.includes('#')
+      )
+    ){
+
+      score+=800;
+
+    }
+
+
+    if(
+      move.flags &&
+      move.flags.includes('k')
+    ){
+
+      score+=30;
+
+    }
+
+
+    return score;
 
   }
 
@@ -2350,7 +5724,7 @@
   ){
 
     if(
-      depth===0 ||
+      depth<=0 ||
       g.game_over()
     ){
 
@@ -2359,8 +5733,17 @@
     }
 
 
-    const moves =
+    const moves=
       orderedMoves(g);
+
+
+    if(
+      moves.length===0
+    ){
+
+      return evaluateBoard(g);
+
+    }
 
 
     if(maximizing){
@@ -2368,71 +5751,45 @@
       let best=-Infinity;
 
 
-      for(const m of moves){
+      for(
+        const move of moves
+      ){
 
-        g.move(m);
+        g.move(move);
 
 
-        best=Math.max(
-          best,
+        const score=
           minimax(
             g,
             depth-1,
             alpha,
             beta,
             false
-          )
-        );
+          );
 
 
         g.undo();
 
 
-        alpha=Math.max(
-          alpha,
-          best
-        );
+        best=
+          Math.max(
+            best,
+            score
+          );
 
 
-        if(beta<=alpha) break;
-
-      }
-
-
-      return best;
-
-    }else{
-
-      let best=Infinity;
-
-
-      for(const m of moves){
-
-        g.move(m);
-
-
-        best=Math.min(
-          best,
-          minimax(
-            g,
-            depth-1,
+        alpha=
+          Math.max(
             alpha,
-            beta,
-            true
-          )
-        );
+            best
+          );
 
 
-        g.undo();
+        if(beta<=alpha){
 
+          break;
 
-        beta=Math.min(
-          beta,
-          best
-        );
-
-
-        if(beta<=alpha) break;
+        }
 
       }
 
@@ -2440,71 +5797,135 @@
       return best;
 
     }
+
+
+    let best=Infinity;
+
+
+    for(
+      const move of moves
+    ){
+
+      g.move(move);
+
+
+      const score=
+        minimax(
+          g,
+          depth-1,
+          alpha,
+          beta,
+          true
+        );
+
+
+      g.undo();
+
+
+      best=
+        Math.min(
+          best,
+          score
+        );
+
+
+      beta=
+        Math.min(
+          beta,
+          best
+        );
+
+
+      if(beta<=alpha){
+
+        break;
+
+      }
+
+    }
+
+
+    return best;
 
   }
 
 
   function botPickMove(){
 
-    const botColor =
+    const botColor=
       playerSide==='w'
         ? 'b'
         : 'w';
 
 
-    const maximizing =
+    const maximizing=
       botColor==='w';
 
 
-    const moves =
+    const moves=
       orderedMoves(game);
 
 
-    if(moves.length===0){
+    if(
+      moves.length===0
+    ){
 
       return null;
 
     }
 
 
-    if(difficulty==='easy'){
+    const config=
+      DIFF_CONFIG[difficulty];
 
-      if(Math.random()<0.55){
 
-        return moves[
-          Math.floor(
-            Math.random()*moves.length
-          )
-        ];
+    /*
+      Fácil:
+      escolhe ocasionalmente um lance
+      abaixo do melhor.
+    */
 
-      }
+    if(
+      difficulty==='easy' &&
+      Math.random()<config.randomness
+    ){
+
+      const top=
+        Math.min(
+          5,
+          moves.length
+        );
+
+
+      return moves[
+        Math.floor(
+          Math.random()*top
+        )
+      ];
 
     }
 
 
-    const depth =
-      DIFF_DEPTH[difficulty];
-
-
-    let bestMove =
-      moves[0];
-
-
-    let bestScore =
+    let bestScore=
       maximizing
         ? -Infinity
         : Infinity;
 
 
-    for(const m of moves){
-
-      game.move(m);
+    let bestMoves=[];
 
 
-      const score =
+    for(
+      const move of moves
+    ){
+
+      game.move(move);
+
+
+      const score=
         minimax(
           game,
-          depth-1,
+          config.depth-1,
           -Infinity,
           Infinity,
           !maximizing
@@ -2515,103 +5936,365 @@
 
 
       if(
-        maximizing &&
-        score>bestScore
+        maximizing
       ){
 
-        bestScore=score;
+        if(score>bestScore){
 
-        bestMove=m;
+          bestScore=score;
 
-      }
+          bestMoves=[move];
 
+        }else if(
+          score===bestScore
+        ){
 
-      if(
-        !maximizing &&
-        score<bestScore
-      ){
+          bestMoves.push(move);
 
-        bestScore=score;
+        }
 
-        bestMove=m;
+      }else{
+
+        if(score<bestScore){
+
+          bestScore=score;
+
+          bestMoves=[move];
+
+        }else if(
+          score===bestScore
+        ){
+
+          bestMoves.push(move);
+
+        }
 
       }
 
     }
 
 
-    return bestMove;
+    if(
+      difficulty==='medium' &&
+      Math.random()<config.randomness &&
+      moves.length>1
+    ){
+
+      return moves[
+        Math.floor(
+          Math.random()*
+          Math.min(3,moves.length)
+        )
+      ];
+
+    }
+
+
+    return bestMoves[
+      Math.floor(
+        Math.random()*
+        bestMoves.length
+      )
+    ] || moves[0];
 
   }
 
 
-  function botTurnIfNeeded(){
+  function scheduleBotTurn(){
 
     if(!gameActive) return;
 
-    if(game.turn()===playerSide) return;
+    if(botThinking) return;
+
+    if(
+      game.turn()===playerSide
+    ) return;
 
 
-    const mv =
-      botPickMove();
+    botThinking=true;
+
+    showThinking();
+
+    updateClockVisuals();
 
 
-    if(!mv){
+    const config=
+      DIFF_CONFIG[difficulty];
 
-      checkGameEnd();
 
-      return;
+    const delay=
+      config.thinkMin+
+      Math.floor(
+        Math.random()*
+        (
+          config.thinkMax-
+          config.thinkMin
+        )
+      );
+
+
+    setTimeout(()=>{
+
+      if(!gameActive){
+
+        hideThinking();
+
+        botThinking=false;
+
+        return;
+
+      }
+
+
+      const mv=
+        botPickMove();
+
+
+      if(!mv){
+
+        hideThinking();
+
+        botThinking=false;
+
+        checkGameEnd();
+
+        return;
+
+      }
+
+
+      executeMove(
+        mv.from,
+        mv.to
+      );
+
+
+      hideThinking();
+
+      botThinking=false;
+
+
+      renderBoard();
+
+
+    },delay);
+
+  }
+
+
+  function showThinking(){
+
+    document
+      .getElementById(
+        'thinkingBox'
+      )
+      .classList.add(
+        'show'
+      );
+
+  }
+
+
+  function hideThinking(){
+
+    document
+      .getElementById(
+        'thinkingBox'
+      )
+      .classList.remove(
+        'show'
+      );
+
+  }
+
+
+  /* =========================================================
+     MODAL
+     ========================================================= */
+
+
+  function showResultModal(
+    title,
+    icon,
+    sub,
+    eloData
+  ){
+
+    document
+      .getElementById(
+        'resultTitle'
+      )
+      .textContent=title;
+
+
+    document
+      .getElementById(
+        'resultIcon'
+      )
+      .textContent=icon;
+
+
+    document
+      .getElementById(
+        'resultSub'
+      )
+      .textContent=sub;
+
+
+    const before=
+      document.getElementById(
+        'resultBefore'
+      );
+
+
+    const after=
+      document.getElementById(
+        'resultAfter'
+      );
+
+
+    const change=
+      document.getElementById(
+        'resultChange'
+      );
+
+
+    if(eloData){
+
+      before.textContent=
+        eloData.before;
+
+
+      after.textContent=
+        eloData.after;
+
+
+      change.textContent=
+        eloData.change>0
+          ? '+'+eloData.change
+          : eloData.change;
+
+
+      change.className=
+        'change '+
+        (
+          eloData.change>0
+            ? 'elo-plus'
+            : eloData.change<0
+              ? 'elo-minus'
+              : ''
+        );
+
+    }else{
+
+      before.textContent=
+        currentUser
+          ? currentUser.elo
+          : '—';
+
+
+      after.textContent=
+        currentUser
+          ? currentUser.elo
+          : '—';
+
+
+      change.textContent=
+        'Faça login para salvar o ELO.';
+
+
+      change.className=
+        'change';
 
     }
 
 
-    game.move(mv);
-
-
-    lastMove={
-      from:mv.from,
-      to:mv.to
-    };
-
-
-    recordHistory();
-
-    renderBoard();
-
-    checkGameEnd();
+    document
+      .getElementById(
+        'resultModal'
+      )
+      .classList.add(
+        'show'
+      );
 
   }
+
+
+  function closeResultModal(){
+
+    document
+      .getElementById(
+        'resultModal'
+      )
+      .classList.remove(
+        'show'
+      );
+
+  }
+
+
+  document
+    .getElementById(
+      'btnPlayAgain'
+    )
+    .addEventListener(
+      'click',
+      ()=>{
+
+        closeResultModal();
+
+        startNewGame();
+
+      }
+    );
+
+
+  document
+    .getElementById(
+      'btnCloseResult'
+    )
+    .addEventListener(
+      'click',
+      closeResultModal
+    );
 
 
   /* =========================================================
      AUTH
      ========================================================= */
 
-  const loginErr =
+
+  const loginErr=
     document.getElementById(
       'loginErr'
     );
 
 
-  const regErr =
+  const regErr=
     document.getElementById(
       'regErr'
     );
 
 
   document
-    .getElementById('toRegister')
+    .getElementById(
+      'toRegister'
+    )
     .addEventListener(
       'click',
       ()=>{
 
         document
-          .getElementById('loginBox')
+          .getElementById(
+            'loginBox'
+          )
           .style.display='none';
 
 
         document
-          .getElementById('registerBox')
+          .getElementById(
+            'registerBox'
+          )
           .style.display='block';
 
       }
@@ -2619,46 +6302,51 @@
 
 
   document
-    .getElementById('toLogin')
+    .getElementById(
+      'toLogin'
+    )
     .addEventListener(
       'click',
       ()=>{
 
         document
-          .getElementById('registerBox')
+          .getElementById(
+            'registerBox'
+          )
           .style.display='none';
 
 
         document
-          .getElementById('loginBox')
+          .getElementById(
+            'loginBox'
+          )
           .style.display='block';
 
       }
     );
 
 
-  /*
-    Transformamos o nome de usuário em um
-    e-mail interno usado pelo Firebase Authentication.
+  function usernameToEmail(
+    username
+  ){
 
-    O usuário continua vendo apenas o nome.
-  */
-
-  function usernameToEmail(username){
-
-    const normalized =
+    const normalized=
       username
         .trim()
         .toLowerCase();
 
 
-    return normalized +
-      '@club-do-xadrez.firebaseapp.com';
+    return (
+      normalized+
+      '@club-do-xadrez.firebaseapp.com'
+    );
 
   }
 
 
-  function normalizeUsername(username){
+  function normalizeUsername(
+    username
+  ){
 
     return username
       .trim()
@@ -2667,42 +6355,72 @@
   }
 
 
-  function firebaseErrorMessage(error){
+  function firebaseErrorMessage(
+    error
+  ){
 
     console.error(error);
 
 
-    if(!error) return 'Ocorreu um erro.';
+    if(!error){
+
+      return 'Ocorreu um erro.';
+
+    }
 
 
     switch(error.code){
 
       case 'auth/email-already-in-use':
+
         return 'Esse nome de usuário já está cadastrado.';
 
+
       case 'auth/invalid-credential':
+
         return 'Usuário ou senha incorretos.';
+
 
       case 'auth/invalid-login-credentials':
+
         return 'Usuário ou senha incorretos.';
 
+
       case 'auth/weak-password':
+
         return 'A senha precisa ter pelo menos 6 caracteres.';
 
+
       case 'auth/operation-not-allowed':
+
         return 'O login por e-mail ainda não foi ativado no Firebase.';
 
+
       case 'auth/network-request-failed':
+
         return 'Falha de conexão com o Firebase.';
 
+
       case 'auth/too-many-requests':
+
         return 'Muitas tentativas. Aguarde um pouco e tente novamente.';
 
+
       case 'PERMISSION_DENIED':
-        return 'O Firebase bloqueou o acesso ao banco de dados. Precisamos configurar as regras.';
+
+        return 'O Firebase bloqueou o acesso ao banco de dados.';
+
 
       default:
-        return 'Erro no Firebase: '+(error.message || error.code || 'desconhecido');
+
+        return (
+          'Erro no Firebase: '+
+          (
+            error.message ||
+            error.code ||
+            'desconhecido'
+          )
+        );
 
     }
 
@@ -2710,7 +6428,9 @@
 
 
   document
-    .getElementById('btnDoRegister')
+    .getElementById(
+      'btnDoRegister'
+    )
     .addEventListener(
       'click',
       async ()=>{
@@ -2718,16 +6438,20 @@
         regErr.style.display='none';
 
 
-        const uname =
+        const uname=
           document
-            .getElementById('regUser')
+            .getElementById(
+              'regUser'
+            )
             .value
             .trim();
 
 
-        const pass =
+        const pass=
           document
-            .getElementById('regPass')
+            .getElementById(
+              'regPass'
+            )
             .value;
 
 
@@ -2742,7 +6466,9 @@
 
 
         if(
-          !/^[a-zA-Z0-9_]+$/.test(uname)
+          !/^[a-zA-Z0-9_]+$/.test(
+            uname
+          )
         ){
 
           return showErr(
@@ -2752,10 +6478,6 @@
 
         }
 
-
-        /*
-          Firebase exige pelo menos 6 caracteres.
-        */
 
         if(pass.length<6){
 
@@ -2767,8 +6489,10 @@
         }
 
 
-        const normalized =
-          normalizeUsername(uname);
+        const normalized=
+          normalizeUsername(
+            uname
+          );
 
 
         try{
@@ -2776,14 +6500,10 @@
           await waitForFirebase();
 
 
-          /*
-            Primeiro verificamos se o nome
-            já existe no nosso banco.
-          */
-
-          const existing =
+          const existing=
             await dbGet(
-              'usernames/'+normalized
+              'usernames/'+
+              normalized
             );
 
 
@@ -2797,15 +6517,13 @@
           }
 
 
-          const email =
-            usernameToEmail(uname);
+          const email=
+            usernameToEmail(
+              uname
+            );
 
 
-          /*
-            Cria a conta segura no Firebase Auth.
-          */
-
-          const credential =
+          const credential=
             await window.firebaseFns
               .createUserWithEmailAndPassword(
                 window.firebaseAuth,
@@ -2814,24 +6532,24 @@
               );
 
 
-          const firebaseUser =
+          const firebaseUser=
             credential.user;
 
 
-          /*
-            Dados públicos do jogador.
-            A senha NÃO é salva aqui.
-          */
+          const userData={
 
-          const userData = {
+            uid:
+              firebaseUser.uid,
 
-            uid:firebaseUser.uid,
+            username:
+              uname,
 
-            username:uname,
-
-            usernameLower:normalized,
+            usernameLower:
+              normalized,
 
             elo:1200,
+
+            bestElo:1200,
 
             wins:0,
 
@@ -2839,49 +6557,59 @@
 
             draws:0,
 
-            createdAt:new Date().toISOString()
+            gamesPlayed:0,
+
+            currentStreak:0,
+
+            bestStreak:0,
+
+            createdAt:
+              new Date().toISOString()
 
           };
 
 
-          /*
-            Salva o usuário no ranking.
-          */
-
           await dbSet(
-            'users/'+firebaseUser.uid,
+            'users/'+
+            firebaseUser.uid,
             userData
           );
 
 
-          /*
-            Reserva o nome de usuário.
-          */
-
           await dbSet(
-            'usernames/'+normalized,
+            'usernames/'+
+            normalized,
             {
-              uid:firebaseUser.uid,
-              username:uname
+
+              uid:
+                firebaseUser.uid,
+
+              username:
+                uname
+
             }
           );
 
 
-          currentFirebaseUser =
+          currentFirebaseUser=
             firebaseUser;
 
 
-          currentUser =
+          currentUser=
             userData;
 
 
           document
-            .getElementById('regUser')
+            .getElementById(
+              'regUser'
+            )
             .value='';
 
 
           document
-            .getElementById('regPass')
+            .getElementById(
+              'regPass'
+            )
             .value='';
 
 
@@ -2892,7 +6620,9 @@
 
           showErr(
             regErr,
-            firebaseErrorMessage(error)
+            firebaseErrorMessage(
+              error
+            )
           );
 
         }
@@ -2902,7 +6632,9 @@
 
 
   document
-    .getElementById('btnDoLogin')
+    .getElementById(
+      'btnDoLogin'
+    )
     .addEventListener(
       'click',
       async ()=>{
@@ -2910,16 +6642,20 @@
         loginErr.style.display='none';
 
 
-        const uname =
+        const uname=
           document
-            .getElementById('loginUser')
+            .getElementById(
+              'loginUser'
+            )
             .value
             .trim();
 
 
-        const pass =
+        const pass=
           document
-            .getElementById('loginPass')
+            .getElementById(
+              'loginPass'
+            )
             .value;
 
 
@@ -2948,11 +6684,13 @@
           await waitForFirebase();
 
 
-          const email =
-            usernameToEmail(uname);
+          const email=
+            usernameToEmail(
+              uname
+            );
 
 
-          const credential =
+          const credential=
             await window.firebaseFns
               .signInWithEmailAndPassword(
                 window.firebaseAuth,
@@ -2961,13 +6699,14 @@
               );
 
 
-          currentFirebaseUser =
+          currentFirebaseUser=
             credential.user;
 
 
-          const userData =
+          const userData=
             await dbGet(
-              'users/'+credential.user.uid
+              'users/'+
+              credential.user.uid
             );
 
 
@@ -2981,17 +6720,49 @@
           }
 
 
-          currentUser =
-            userData;
+          /*
+            Compatibilidade com contas antigas.
+          */
+
+          currentUser={
+
+            ...userData,
+
+            bestElo:
+              userData.bestElo ??
+              userData.elo ??
+              1200,
+
+            gamesPlayed:
+              userData.gamesPlayed ??
+              (
+                (userData.wins||0)+
+                (userData.losses||0)+
+                (userData.draws||0)
+              ),
+
+            currentStreak:
+              userData.currentStreak ??
+              0,
+
+            bestStreak:
+              userData.bestStreak ??
+              0
+
+          };
 
 
           document
-            .getElementById('loginUser')
+            .getElementById(
+              'loginUser'
+            )
             .value='';
 
 
           document
-            .getElementById('loginPass')
+            .getElementById(
+              'loginPass'
+            )
             .value='';
 
 
@@ -3002,7 +6773,9 @@
 
           showErr(
             loginErr,
-            firebaseErrorMessage(error)
+            firebaseErrorMessage(
+              error
+            )
           );
 
         }
@@ -3012,7 +6785,9 @@
 
 
   document
-    .getElementById('btnLogout')
+    .getElementById(
+      'btnLogout'
+    )
     .addEventListener(
       'click',
       async ()=>{
@@ -3029,7 +6804,6 @@
         }catch(error){
 
           console.error(
-            'Erro ao sair:',
             error
           );
 
@@ -3049,11 +6823,16 @@
     );
 
 
-  function showErr(el,msg){
+  function showErr(
+    element,
+    message
+  ){
 
-    el.textContent=msg;
+    element.textContent=
+      message;
 
-    el.style.display='block';
+    element.style.display=
+      'block';
 
   }
 
@@ -3070,95 +6849,13 @@
 
 
   /* =========================================================
-     ELO
+     CONTA
      ========================================================= */
 
-  async function applyEloUpdate(result){
-
-    if(!currentUser) return;
-
-
-    const oppElo =
-      DIFF_ELO[difficulty];
-
-
-    const K=32;
-
-
-    const expected =
-      1 /
-      (
-        1 +
-        Math.pow(
-          10,
-          (oppElo-currentUser.elo)/400
-        )
-      );
-
-
-    const newElo =
-      Math.round(
-        currentUser.elo +
-        K*(result-expected)
-      );
-
-
-    currentUser.elo =
-      newElo;
-
-
-    if(result===1){
-
-      currentUser.wins++;
-
-    }else if(result===0){
-
-      currentUser.losses++;
-
-    }else{
-
-      currentUser.draws++;
-
-    }
-
-
-    try{
-
-      await dbUpdate(
-        'users/'+currentUser.uid,
-        {
-          elo:currentUser.elo,
-          wins:currentUser.wins,
-          losses:currentUser.losses,
-          draws:currentUser.draws
-        }
-      );
-
-
-      renderAccountBox();
-
-      renderProfile();
-
-
-    }catch(error){
-
-      console.error(
-        'Não foi possível salvar o Elo:',
-        error
-      );
-
-    }
-
-  }
-
-
-  /* =========================================================
-     ACCOUNT
-     ========================================================= */
 
   function renderAccountBox(){
 
-    const box =
+    const box=
       document.getElementById(
         'accountBox'
       );
@@ -3166,24 +6863,43 @@
 
     if(currentUser){
 
-      box.innerHTML = `
+      box.innerHTML=`
+
         <span class="who">
-          Elo <b>${currentUser.elo}</b>
-          · ${escapeHtml(currentUser.username)}
+
+          Elo
+          <b>
+            ${currentUser.elo}
+          </b>
+
+          ·
+
+          ${escapeHtml(
+            currentUser.username
+          )}
+
         </span>
+
       `;
 
     }else{
 
-      box.innerHTML = `
-        <button class="btn" id="quickLoginBtn">
+      box.innerHTML=`
+
+        <button
+          class="btn"
+          id="quickLoginBtn"
+        >
           Entrar / Registrar
         </button>
+
       `;
 
 
       document
-        .getElementById('quickLoginBtn')
+        .getElementById(
+          'quickLoginBtn'
+        )
         .addEventListener(
           'click',
           ()=>{
@@ -3203,9 +6919,13 @@
       c=>({
 
         '&':'&amp;',
+
         '<':'&lt;',
+
         '>':'&gt;',
+
         '"':'&quot;',
+
         "'":'&#39;'
 
       }[c])
@@ -3215,18 +6935,19 @@
 
 
   /* =========================================================
-     PROFILE
+     PERFIL
      ========================================================= */
+
 
   async function renderProfile(){
 
-    const loggedOut =
+    const loggedOut=
       document.getElementById(
         'profileLoggedOut'
       );
 
 
-    const loggedIn =
+    const loggedIn=
       document.getElementById(
         'profileLoggedIn'
       );
@@ -3234,30 +6955,73 @@
 
     if(!currentUser){
 
-      loggedOut.style.display='block';
+      loggedOut.style.display=
+        'block';
 
-      loggedIn.style.display='none';
+      loggedIn.style.display=
+        'none';
 
       return;
 
     }
 
 
-    loggedOut.style.display='none';
+    loggedOut.style.display=
+      'none';
 
-    loggedIn.style.display='block';
+
+    loggedIn.style.display=
+      'block';
+
+
+    const wins=
+      Number(
+        currentUser.wins || 0
+      );
+
+
+    const losses=
+      Number(
+        currentUser.losses || 0
+      );
+
+
+    const draws=
+      Number(
+        currentUser.draws || 0
+      );
+
+
+    const total=
+      wins+
+      losses+
+      draws;
+
+
+    const winRate=
+      total>0
+        ? Math.round(
+            (
+              wins/total
+            )*100
+          )
+        : 0;
 
 
     document
-      .getElementById('profileName')
-      .textContent =
+      .getElementById(
+        'profileName'
+      )
+      .textContent=
         currentUser.username;
 
 
     document
-      .getElementById('profileSince')
-      .textContent =
-        'Membro desde ' +
+      .getElementById(
+        'profileSince'
+      )
+      .textContent=
+        'Membro desde '+
         new Date(
           currentUser.createdAt
         ).toLocaleDateString(
@@ -3266,71 +7030,274 @@
 
 
     document
-      .getElementById('pElo')
-      .textContent =
+      .getElementById(
+        'pElo'
+      )
+      .textContent=
         currentUser.elo;
 
 
     document
-      .getElementById('pWins')
-      .textContent =
-        currentUser.wins;
+      .getElementById(
+        'pWinRate'
+      )
+      .textContent=
+        winRate+'%';
 
 
     document
-      .getElementById('pLosses')
-      .textContent =
-        currentUser.losses;
+      .getElementById(
+        'pTotal'
+      )
+      .textContent=
+        total;
 
 
     document
-      .getElementById('pDraws')
-      .textContent =
-        currentUser.draws;
+      .getElementById(
+        'pStreak'
+      )
+      .textContent=
+        currentUser.currentStreak || 0;
 
 
     document
-      .getElementById('pTotal')
-      .textContent =
-        currentUser.wins +
-        currentUser.losses +
-        currentUser.draws;
+      .getElementById(
+        'pWins'
+      )
+      .textContent=
+        wins;
 
 
-    const list =
+    document
+      .getElementById(
+        'pLosses'
+      )
+      .textContent=
+        losses;
+
+
+    document
+      .getElementById(
+        'pDraws'
+      )
+      .textContent=
+        draws;
+
+
+    document
+      .getElementById(
+        'pBestElo'
+      )
+      .textContent=
+        currentUser.bestElo ||
+        currentUser.elo;
+
+
+    document
+      .getElementById(
+        'pBestStreak'
+      )
+      .textContent=
+        currentUser.bestStreak || 0;
+
+
+    const users=
       await fetchAllUsers();
 
 
-    list.sort(
-      (a,b)=>b.elo-a.elo
+    users.sort(
+      (a,b)=>
+        Number(b.elo||0)-
+        Number(a.elo||0)
     );
 
 
-    const idx =
-      list.findIndex(
-        u=>
-          u.username.toLowerCase() ===
-          currentUser.username.toLowerCase()
+    const index=
+      users.findIndex(
+        user=>
+          user.uid===
+          currentUser.uid
       );
 
 
     document
-      .getElementById('pRank')
-      .textContent =
-        idx>=0
-          ? '#'+(idx+1)+' de '+list.length
+      .getElementById(
+        'pRank'
+      )
+      .textContent=
+        index>=0
+          ? '#'+(index+1)+
+            ' de '+
+            users.length
           : '—';
+
+
+    await renderGameHistory();
+
+  }
+
+
+  async function renderGameHistory(){
+
+    const box=
+      document.getElementById(
+        'gameHistoryBox'
+      );
+
+
+    const data=
+      await dbGet(
+        'games/'+
+        currentUser.uid
+      );
+
+
+    if(!data){
+
+      box.innerHTML=
+
+        '<div style="color:var(--text-dim);font-size:13px;">Nenhuma partida registrada.</div>';
+
+      return;
+
+    }
+
+
+    const games=
+      Object.entries(data)
+        .map(
+          ([id,value])=>({
+            id,
+            ...value
+          })
+        )
+        .sort(
+          (a,b)=>
+            new Date(
+              b.playedAt
+            )-
+            new Date(
+              a.playedAt
+            )
+        )
+        .slice(0,20);
+
+
+    if(games.length===0){
+
+      box.innerHTML=
+        '<div style="color:var(--text-dim);font-size:13px;">Nenhuma partida registrada.</div>';
+
+      return;
+
+    }
+
+
+    box.innerHTML=
+      games.map(gameData=>{
+
+        const resultClass=
+          gameData.result==='win'
+            ? 'result-win'
+            : gameData.result==='loss'
+              ? 'result-loss'
+              : 'result-draw';
+
+
+        const resultText=
+          gameData.result==='win'
+            ? 'Vitória'
+            : gameData.result==='loss'
+              ? 'Derrota'
+              : 'Empate';
+
+
+        const change=
+          Number(
+            gameData.eloChange || 0
+          );
+
+
+        const changeClass=
+          change>0
+            ? 'elo-plus'
+            : change<0
+              ? 'elo-minus'
+              : '';
+
+
+        const changeText=
+          change>0
+            ? '+'+change
+            : change;
+
+
+        const date=
+          gameData.playedAt
+            ? new Date(
+                gameData.playedAt
+              ).toLocaleDateString(
+                'pt-BR'
+              )
+            : '';
+
+
+        const difficultyName=
+          gameData.difficulty==='easy'
+            ? 'Fácil'
+            : gameData.difficulty==='hard'
+              ? 'Difícil'
+              : 'Médio';
+
+
+        return `
+
+          <div class="game-item">
+
+            <div class="${resultClass}">
+              ${resultText}
+            </div>
+
+            <div class="game-meta">
+
+              <strong>
+                ${difficultyName}
+              </strong>
+
+              · ${date}
+
+              <br>
+
+              ELO ${gameData.eloBefore}
+              →
+              ${gameData.eloAfter}
+
+            </div>
+
+            <div
+              class="elo-change ${changeClass}"
+            >
+              ${changeText}
+            </div>
+
+          </div>
+
+        `;
+
+      }).join('');
 
   }
 
 
   /* =========================================================
-     FETCH USERS / RANKING
+     RANKING
      ========================================================= */
+
 
   async function fetchAllUsers(){
 
-    const data =
+    const data=
       await dbGet('users');
 
 
@@ -3354,25 +7321,34 @@
 
   async function renderRanking(){
 
-    const wrap =
+    const wrap=
       document.getElementById(
         'rankTableWrap'
       );
 
 
-    wrap.innerHTML =
-      '<p style="color:var(--text-dim); font-size:13px;">Carregando ranking...</p>';
+    wrap.innerHTML=
+
+      '<p style="color:var(--text-dim);font-size:13px;">Carregando ranking...</p>';
 
 
     try{
 
-      const users =
+      const users=
         await fetchAllUsers();
+
+
+      users.sort(
+        (a,b)=>
+          Number(b.elo||0)-
+          Number(a.elo||0)
+      );
 
 
       if(users.length===0){
 
-        wrap.innerHTML =
+        wrap.innerHTML=
+
           '<div class="empty-rank">Ainda não há jogadores registrados. Crie uma conta para aparecer aqui.</div>';
 
         return;
@@ -3380,81 +7356,164 @@
       }
 
 
-      users.sort(
-        (a,b)=>b.elo-a.elo
-      );
-
-
       let rows='';
 
 
-      users.forEach(
-        (u,i)=>{
+      users
+        .slice(0,10)
+        .forEach(
+          (u,i)=>{
 
-          const posClass =
-            i===0
-              ? 'gold'
-              : i===1
-                ? 'silver'
-                : i===2
-                  ? 'bronze'
-                  : '';
-
-
-          const isMe =
-            currentUser &&
-            u.uid===currentUser.uid;
+            const posClass=
+              i===0
+                ? 'gold'
+                : i===1
+                  ? 'silver'
+                  : i===2
+                    ? 'bronze'
+                    : '';
 
 
-          const total =
-            (u.wins||0) +
-            (u.losses||0) +
-            (u.draws||0);
+            const isMe=
+              currentUser &&
+              u.uid===
+              currentUser.uid;
 
 
-          rows += `
+            const total=
+              Number(u.wins||0)+
+              Number(u.losses||0)+
+              Number(u.draws||0);
 
-            <tr class="${isMe?'me':''}">
 
-              <td>
-                <span class="pos ${posClass}">
-                  ${i+1}
-                </span>
-              </td>
+            rows+=`
 
-              <td class="pname">
-                ${escapeHtml(u.username)}
-              </td>
+              <tr
+                class="${isMe?'me':''}"
+              >
 
-              <td class="eloval">
+                <td>
+
+                  <span
+                    class="pos ${posClass}"
+                  >
+                    ${i+1}
+                  </span>
+
+                </td>
+
+                <td class="pname">
+
+                  ${escapeHtml(
+                    u.username
+                  )}
+
+                  ${
+                    isMe
+                      ? '<small style="color:var(--gold);margin-left:6px;">VOCÊ</small>'
+                      : ''
+                  }
+
+                </td>
+
+                <td class="eloval">
+                  ${u.elo||1200}
+                </td>
+
+                <td>
+                  ${u.wins||0}
+                </td>
+
+                <td>
+                  ${u.losses||0}
+                </td>
+
+                <td>
+                  ${u.draws||0}
+                </td>
+
+                <td>
+                  ${total}
+                </td>
+
+              </tr>
+
+            `;
+
+          }
+        );
+
+
+      /*
+        Se o jogador estiver fora do Top 10,
+        adicionamos sua posição abaixo.
+      */
+
+
+      let outside='';
+
+
+      if(
+        currentUser
+      ){
+
+        const myIndex=
+          users.findIndex(
+            u=>
+              u.uid===
+              currentUser.uid
+          );
+
+
+        if(
+          myIndex>=10
+        ){
+
+          const u=
+            users[myIndex];
+
+
+          outside=`
+
+            <div
+              style="
+                margin-top:12px;
+                padding:13px 16px;
+                background:rgba(201,162,75,.06);
+                border:1px solid var(--line);
+                font-size:13px;
+              "
+            >
+
+              Sua posição:
+              <strong
+                style="color:var(--gold);"
+              >
+                #${myIndex+1}
+              </strong>
+
+              ·
+
+              ${escapeHtml(
+                u.username
+              )}
+
+              ·
+
+              <strong>
                 ${u.elo}
-              </td>
+              </strong>
 
-              <td>
-                ${u.wins||0}
-              </td>
-
-              <td>
-                ${u.losses||0}
-              </td>
-
-              <td>
-                ${u.draws||0}
-              </td>
-
-              <td>
-                ${total}
-              </td>
-
-            </tr>
+            </div>
 
           `;
 
         }
-      );
+
+      }
 
 
-      wrap.innerHTML = `
+      wrap.innerHTML=`
 
         <table class="ranktable">
 
@@ -3481,10 +7540,14 @@
           </thead>
 
           <tbody>
+
             ${rows}
+
           </tbody>
 
         </table>
+
+        ${outside}
 
       `;
 
@@ -3497,7 +7560,8 @@
       );
 
 
-      wrap.innerHTML =
+      wrap.innerHTML=
+
         '<div class="empty-rank">Não foi possível carregar o ranking.</div>';
 
     }
@@ -3506,7 +7570,9 @@
 
 
   document
-    .getElementById('btnRefreshRank')
+    .getElementById(
+      'btnRefreshRank'
+    )
     .addEventListener(
       'click',
       renderRanking
@@ -3514,8 +7580,93 @@
 
 
   /* =========================================================
-     FIREBASE AUTH STATE
+     RANKING EM TEMPO REAL
      ========================================================= */
+
+
+  async function startRealtimeRanking(){
+
+    try{
+
+      await waitForFirebase();
+
+
+      const usersRef=
+        window.firebaseFns.ref(
+          window.firebaseDB,
+          'users'
+        );
+
+
+      window.firebaseFns.onValue(
+        usersRef,
+        snapshot=>{
+
+          if(
+            document
+              .getElementById(
+                'view-ranking'
+              )
+              .classList.contains(
+                'active'
+              )
+          ){
+
+            renderRanking();
+
+          }
+
+
+          if(currentUser){
+
+            const myData=
+              snapshot.val() &&
+              snapshot.val()[
+                currentUser.uid
+              ];
+
+
+            if(myData){
+
+              currentUser={
+
+                ...currentUser,
+
+                ...myData
+
+              };
+
+
+              renderAccountBox();
+
+            }
+
+          }
+
+        },
+        error=>{
+
+          console.error(
+            'Erro no ranking em tempo real:',
+            error
+          );
+
+        }
+      );
+
+    }catch(error){
+
+      console.error(error);
+
+    }
+
+  }
+
+
+  /* =========================================================
+     AUTH STATE
+     ========================================================= */
+
 
   async function initializeAuthentication(){
 
@@ -3542,29 +7693,53 @@
           }
 
 
-          currentFirebaseUser =
+          currentFirebaseUser=
             firebaseUser;
 
 
           try{
 
-            const userData =
+            const userData=
               await dbGet(
-                'users/'+firebaseUser.uid
+                'users/'+
+                firebaseUser.uid
               );
 
 
             if(userData){
 
-              currentUser =
-                userData;
+              currentUser={
+
+                ...userData,
+
+                bestElo:
+                  userData.bestElo ??
+                  userData.elo ??
+                  1200,
+
+                gamesPlayed:
+                  userData.gamesPlayed ??
+                  (
+                    (userData.wins||0)+
+                    (userData.losses||0)+
+                    (userData.draws||0)
+                  ),
+
+                currentStreak:
+                  userData.currentStreak ??
+                  0,
+
+                bestStreak:
+                  userData.bestStreak ??
+                  0
+
+              };
 
             }else{
 
               currentUser=null;
 
             }
-
 
           }catch(error){
 
@@ -3592,6 +7767,7 @@
      INIT
      ========================================================= */
 
+
   async function init(){
 
     renderBoard();
@@ -3600,10 +7776,14 @@
 
     renderProfile();
 
+    updateClockDisplay();
+
 
     try{
 
       await initializeAuthentication();
+
+      await startRealtimeRanking();
 
     }catch(error){
 
