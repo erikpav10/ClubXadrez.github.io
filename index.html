@@ -352,6 +352,135 @@
   }
 
 
+  .avatar-badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex-shrink:0;
+
+    border-radius:50%;
+
+    overflow:hidden;
+
+    line-height:0;
+
+    box-shadow:0 0 0 1px var(--line);
+
+  }
+
+
+  .account .avatar-badge{
+
+    width:26px;
+
+    height:26px;
+
+  }
+
+
+  .profile-avatar-row{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:16px;
+
+    margin-bottom:18px;
+
+  }
+
+
+  .profile-avatar-row .avatar-badge{
+
+    width:64px;
+
+    height:64px;
+
+    box-shadow:0 0 0 2px var(--gold);
+
+  }
+
+
+  .avatar-picker{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:14px;
+
+    margin-top:10px;
+
+  }
+
+
+  .avatar-option{
+
+    background:none;
+
+    border:2px solid transparent;
+
+    border-radius:50%;
+
+    padding:3px;
+
+    cursor:pointer;
+
+    line-height:0;
+
+    transition:border-color .15s ease,transform .15s ease;
+
+  }
+
+
+  .avatar-option .avatar-badge{
+
+    width:52px;
+
+    height:52px;
+
+  }
+
+
+  .avatar-option:hover{
+
+    transform:translateY(-2px);
+
+  }
+
+
+  .avatar-option.selected{
+
+    border-color:var(--gold);
+
+  }
+
+
+  .rank-avatar{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+  }
+
+
+  .rank-avatar .avatar-badge{
+
+    width:26px;
+
+    height:26px;
+
+  }
+
+
   .btn{
 
     font-size:13px;
@@ -2979,24 +3108,51 @@
     >
 
 
-      <h2
-        style="
-          font-family:var(--serif);
-          font-size:30px;
-          margin:0 0 4px;
-        "
-        id="profileName"
-      ></h2>
+      <div class="profile-avatar-row">
+
+        <span
+          class="avatar-badge"
+          id="profileAvatarBadge"
+        ></span>
+
+        <div>
+
+          <h2
+            style="
+              font-family:var(--serif);
+              font-size:30px;
+              margin:0 0 4px;
+            "
+            id="profileName"
+          ></h2>
 
 
-      <p
-        style="
-          color:var(--text-dim);
-          font-size:13px;
-          margin:0 0 26px;
-        "
-        id="profileSince"
-      ></p>
+          <p
+            style="
+              color:var(--text-dim);
+              font-size:13px;
+              margin:0;
+            "
+            id="profileSince"
+          ></p>
+
+        </div>
+
+      </div>
+
+
+      <div style="margin:0 0 26px;">
+
+        <p style="color:var(--text-dim);font-size:12px;margin:0 0 4px;text-transform:uppercase;letter-spacing:.05em;">
+          Escolha seu avatar
+        </p>
+
+        <div
+          class="avatar-picker"
+          id="avatarPicker"
+        ></div>
+
+      </div>
 
 
       <div class="profile-grid">
@@ -3253,11 +3409,11 @@
   </section>
 
   <section class="view" id="view-championship">
-    <div class="champ-head"><div><h2>Campeonato <span style="color:var(--gold);">contra Bot</span></h2><p style="color:var(--text-dim);margin:0;">Competição exclusiva para jogadores com Elo de 1500 ou superior.</p></div><div class="champ-status" id="champStatus">Elo mínimo: 1500</div></div>
+    <div class="champ-head"><div><h2>Campeonato <span style="color:var(--gold);">contra Bot</span></h2><p style="color:var(--text-dim);margin:0;">Competição exclusiva para jogadores com Elo de 1200 ou superior.</p></div><div class="champ-status" id="champStatus">Elo mínimo: 1200</div></div>
     <div class="champ-box">
       <h3 style="font-family:var(--serif);font-size:25px;margin:0 0 8px;">Inscrição — Campeonato Bot</h3>
       <p style="color:var(--text-dim);font-size:13.5px;line-height:1.6;">A inscrição ficará vinculada à sua conta. O torneio poderá usar seu Elo atual como critério de elegibilidade.</p>
-      <div class="champ-rules"><div class="champ-rule"><strong>1500+</strong><small>Elo mínimo</small></div><div class="champ-rule"><strong>8</strong><small>rodadas</small></div><div class="champ-rule"><strong>5+0</strong><small>ritmo sugerido</small></div></div>
+      <div class="champ-rules"><div class="champ-rule"><strong>1200+</strong><small>Elo mínimo</small></div><div class="champ-rule"><strong>8</strong><small>rodadas</small></div><div class="champ-rule"><strong>5+0</strong><small>ritmo sugerido</small></div></div>
       <div id="champLoggedOut" class="auth-err" style="display:none;"></div><div id="champLocked" class="auth-err" style="display:none;"></div>
       <div id="champForm" style="display:none;"><div class="field"><label>Jogador</label><input id="champUsername" type="text" readonly></div><div class="field"><label>Elo atual</label><input id="champElo" type="text" readonly></div><button class="btn primary" id="btnChampRegister">Inscrever no campeonato</button></div>
       <div id="champMessage" class="champ-message"></div>
@@ -3544,6 +3700,8 @@
 
   let resultAlreadySaved=false;
 
+  let gameSessionId=0;
+
 
   const DIFF_ELO={
 
@@ -3628,6 +3786,57 @@
 
   const XLINK_NS=
     'http://www.w3.org/1999/xlink';
+
+
+  /* =========================================================
+     AVATARES
+     ========================================================= */
+
+
+  const AVATARS={
+
+    avatar1:{glyph:'♔',bg:'#c9a24b',fg:'#141210'},
+
+    avatar2:{glyph:'♕',bg:'#a1453f',fg:'#f5efe4'},
+
+    avatar3:{glyph:'♗',bg:'#4a6fa5',fg:'#f5efe4'},
+
+    avatar4:{glyph:'♘',bg:'#4a7a5a',fg:'#f5efe4'},
+
+    avatar5:{glyph:'♖',bg:'#7a5a9a',fg:'#f5efe4'}
+
+  };
+
+
+  const DEFAULT_AVATAR='avatar1';
+
+
+  function avatarSvgMarkup(avatarId){
+
+    const def=
+      AVATARS[avatarId] ||
+      AVATARS[DEFAULT_AVATAR];
+
+
+    return (
+      '<svg viewBox="0 0 100 100" xmlns="'+SVG_NS+'" width="100%" height="100%" role="img" aria-label="Avatar">'+
+        '<circle cx="50" cy="50" r="50" fill="'+def.bg+'"></circle>'+
+        '<text x="50" y="58" text-anchor="middle" font-size="52" font-family="Georgia, serif" fill="'+def.fg+'">'+def.glyph+'</text>'+
+      '</svg>'
+    );
+
+  }
+
+
+  function getUserAvatarId(user){
+
+    return (
+      (user && user.avatar && AVATARS[user.avatar])
+        ? user.avatar
+        : DEFAULT_AVATAR
+    );
+
+  }
 
 
   /* =========================================================
@@ -4638,6 +4847,9 @@
     stopClock();
 
 
+    gameSessionId++;
+
+
     game=
       new Chess();
 
@@ -4727,16 +4939,22 @@
       return true;
     }
 
-    const elapsedSeconds=Math.floor(
-      (now-lastClockUpdateAt)/1000
-    );
+    /*
+      Tempo decorrido real (fracionado), em vez de
+      arredondar para blocos inteiros de 1 segundo.
+      Isso deixa o relógio mais preciso e evita que
+      ele "trave" por até 1s antes de começar a descer.
+    */
+
+    const elapsedSeconds=
+      (now-lastClockUpdateAt)/1000;
+
+    lastClockUpdateAt=now;
 
     if(elapsedSeconds<=0){
       updateClockDisplay();
       return true;
     }
-
-    lastClockUpdateAt+=elapsedSeconds*1000;
 
     if(getClockOwner()==='player'){
       playerClockSeconds=Math.max(
@@ -4784,7 +5002,7 @@
       setInterval(()=>{
         if(!gameActive) return;
         syncClock();
-      },250);
+      },100);
 
   }
 
@@ -4808,14 +5026,20 @@
 
   function formatTime(seconds){
 
+    const wholeSeconds=
+      Math.max(
+        0,
+        Math.ceil(seconds)
+      );
+
     const min=
       Math.floor(
-        seconds/60
+        wholeSeconds/60
       );
 
 
     const sec=
-      seconds%60;
+      wholeSeconds%60;
 
 
     return (
@@ -4825,6 +5049,7 @@
     );
 
   }
+
 
 
   function updateClockDisplay(){
@@ -6069,6 +6294,239 @@
   }
 
 
+  /* =========================================================
+     BOT — WEB WORKER
+     ========================================================= */
+
+  /*
+    O cálculo do Bot (minimax) roda dentro de um Web Worker,
+    em uma thread separada da interface. Assim o relógio e o
+    restante da página continuam respondendo normalmente
+    enquanto o Bot está pensando.
+
+    Mantemos também o cálculo antigo (botPickMoveAsync, mais
+    abaixo) como plano B, caso o navegador não possa criar
+    o Worker por algum motivo.
+  */
+
+  const BOT_WORKER_SRC=[
+    '"use strict";',
+    'importScripts("https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js");',
+    '',
+    'var PIECE_VALUE={p:100,n:320,b:330,r:500,q:900,k:20000};',
+    '',
+    'var PST_PAWN=[0,0,0,0,0,0,0,0,50,50,50,50,50,50,50,50,10,10,20,30,30,20,10,10,5,5,10,25,25,10,5,5,0,0,0,20,20,0,0,0,5,-5,-10,0,0,-10,-5,5,5,10,10,-20,-20,10,10,5,0,0,0,0,0,0,0,0];',
+    'var PST_KNIGHT=[-50,-40,-30,-30,-30,-30,-40,-50,-40,-20,0,0,0,0,-20,-40,-30,0,10,15,15,10,0,-30,-30,5,15,20,20,15,5,-30,-30,0,15,20,20,15,0,-30,-30,5,10,15,15,10,5,-30,-40,-20,0,5,5,0,-20,-40,-50,-40,-30,-30,-30,-30,-40,-50];',
+    'var PST_BISHOP=[-20,-10,-10,-10,-10,-10,-10,-20,-10,0,0,0,0,0,0,-10,-10,0,5,10,10,5,0,-10,-10,5,5,10,10,5,5,-10,-10,0,10,10,10,10,0,-10,-10,10,10,10,10,10,10,-10,-10,5,0,0,0,0,5,-10,-20,-10,-10,-10,-10,-10,-10,-20];',
+    'var PST_ROOK=[0,0,0,5,5,0,0,0,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,5,10,10,10,10,10,10,5,0,0,0,0,0,0,0,0];',
+    'var PST_QUEEN=[-20,-10,-10,-5,-5,-10,-10,-20,-10,0,0,0,0,0,0,-10,-10,0,5,5,5,5,0,-10,-5,0,5,5,5,5,0,-5,0,0,5,5,5,5,0,-5,-10,5,5,5,5,5,0,-10,-10,0,5,0,0,0,0,-10,-20,-10,-10,-5,-5,-10,-10,-20];',
+    'var PST_KING=[-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-20,-30,-30,-40,-40,-30,-30,-20,-10,-20,-20,-20,-20,-20,-20,-10,20,20,0,0,0,0,20,20,20,30,10,0,0,10,30,20];',
+    'var PST={p:PST_PAWN,n:PST_KNIGHT,b:PST_BISHOP,r:PST_ROOK,q:PST_QUEEN,k:PST_KING};',
+    '',
+    'var DIFF_CONFIG={easy:{depth:2,randomness:.42},medium:{depth:3,randomness:.10},hard:{depth:4,randomness:.025}};',
+    '',
+    'function evaluateBoard(g){',
+    '  if(g.in_checkmate()) return g.turn()==="w" ? -999999 : 999999;',
+    '  if(g.in_draw()||g.in_stalemate()) return 0;',
+    '  var board=g.board();',
+    '  var score=0;',
+    '  for(var row=0;row<8;row++){',
+    '    for(var col=0;col<8;col++){',
+    '      var piece=board[row][col];',
+    '      if(!piece) continue;',
+    '      var idx=row*8+col;',
+    '      var value=PIECE_VALUE[piece.type];',
+    '      var table=PST[piece.type];',
+    '      if(table) value+=piece.color==="w" ? table[idx] : table[63-idx];',
+    '      score+=piece.color==="w" ? value : -value;',
+    '    }',
+    '  }',
+    '  var currentTurn=g.turn();',
+    '  var mobility=g.moves().length;',
+    '  score+=currentTurn==="w" ? mobility*2 : -mobility*2;',
+    '  var whitePieces=g.board().flat().filter(function(p){return p&&p.color==="w";}).length;',
+    '  var blackPieces=g.board().flat().filter(function(p){return p&&p.color==="b";}).length;',
+    '  score+=(whitePieces-blackPieces)*2;',
+    '  return score;',
+    '}',
+    '',
+    'function moveOrderingScore(move){',
+    '  var score=0;',
+    '  if(move.captured){',
+    '    score+=10*(PIECE_VALUE[move.captured]||0);',
+    '    score-=PIECE_VALUE[move.piece]||0;',
+    '  }',
+    '  if(move.promotion) score+=PIECE_VALUE[move.promotion]||0;',
+    '  if(move.san&&(move.san.includes("+")||move.san.includes("#"))) score+=800;',
+    '  if(move.flags&&move.flags.includes("k")) score+=30;',
+    '  return score;',
+    '}',
+    '',
+    'function orderedMoves(g){',
+    '  var moves=g.moves({verbose:true});',
+    '  moves.sort(function(a,b){return moveOrderingScore(b)-moveOrderingScore(a);});',
+    '  return moves;',
+    '}',
+    '',
+    'function minimax(g,depth,alpha,beta,maximizing){',
+    '  if(depth<=0||g.game_over()) return evaluateBoard(g);',
+    '  var moves=orderedMoves(g);',
+    '  if(moves.length===0) return evaluateBoard(g);',
+    '  if(maximizing){',
+    '    var best=-Infinity;',
+    '    for(var i=0;i<moves.length;i++){',
+    '      g.move(moves[i]);',
+    '      var score=minimax(g,depth-1,alpha,beta,false);',
+    '      g.undo();',
+    '      best=Math.max(best,score);',
+    '      alpha=Math.max(alpha,best);',
+    '      if(beta<=alpha) break;',
+    '    }',
+    '    return best;',
+    '  }',
+    '  var worst=Infinity;',
+    '  for(var j=0;j<moves.length;j++){',
+    '    g.move(moves[j]);',
+    '    var score2=minimax(g,depth-1,alpha,beta,true);',
+    '    g.undo();',
+    '    worst=Math.min(worst,score2);',
+    '    beta=Math.min(beta,worst);',
+    '    if(beta<=alpha) break;',
+    '  }',
+    '  return worst;',
+    '}',
+    '',
+    'function pickMove(game,difficulty,playerSide){',
+    '  var botColor=playerSide==="w" ? "b" : "w";',
+    '  var maximizing=botColor==="w";',
+    '  var moves=orderedMoves(game);',
+    '  if(!moves.length) return null;',
+    '  var config=DIFF_CONFIG[difficulty]||DIFF_CONFIG.medium;',
+    '  if(difficulty==="easy"&&Math.random()<config.randomness){',
+    '    var top=Math.min(5,moves.length);',
+    '    return moves[Math.floor(Math.random()*top)];',
+    '  }',
+    '  var bestScore=maximizing ? -Infinity : Infinity;',
+    '  var bestMoves=[];',
+    '  for(var i=0;i<moves.length;i++){',
+    '    var move=moves[i];',
+    '    game.move(move);',
+    '    var score=minimax(game,config.depth-1,-Infinity,Infinity,!maximizing);',
+    '    game.undo();',
+    '    if(maximizing){',
+    '      if(score>bestScore){bestScore=score;bestMoves=[move];}',
+    '      else if(score===bestScore) bestMoves.push(move);',
+    '    }else{',
+    '      if(score<bestScore){bestScore=score;bestMoves=[move];}',
+    '      else if(score===bestScore) bestMoves.push(move);',
+    '    }',
+    '  }',
+    '  if(difficulty==="medium"&&Math.random()<config.randomness&&moves.length>1){',
+    '    return moves[Math.floor(Math.random()*Math.min(3,moves.length))];',
+    '  }',
+    '  return bestMoves[Math.floor(Math.random()*bestMoves.length)]||moves[0];',
+    '}',
+    '',
+    'self.onmessage=function(e){',
+    '  var data=e.data||{};',
+    '  try{',
+    '    var game=new Chess(data.fen);',
+    '    var move=pickMove(game,data.difficulty,data.playerSide);',
+    '    self.postMessage({ok:true,requestId:data.requestId,move:move?{from:move.from,to:move.to}:null});',
+    '  }catch(err){',
+    '    self.postMessage({ok:false,requestId:data.requestId,error:String((err&&err.message)||err)});',
+    '  }',
+    '};'
+  ].join('\n');
+
+
+  let botWorker=null;
+
+  let botWorkerRequestId=0;
+
+
+  function getBotWorker(){
+
+    if(botWorker) return botWorker;
+
+    try{
+
+      const blob=
+        new Blob(
+          [BOT_WORKER_SRC],
+          {type:'application/javascript'}
+        );
+
+      botWorker=
+        new Worker(
+          URL.createObjectURL(blob)
+        );
+
+    }catch(error){
+
+      console.error(
+        'Não foi possível iniciar o Web Worker do Bot:',
+        error
+      );
+
+      botWorker=null;
+
+    }
+
+    return botWorker;
+
+  }
+
+
+  function requestBotMoveFromWorker(fen,diff,side){
+
+    return new Promise((resolve,reject)=>{
+
+      const worker=getBotWorker();
+
+      if(!worker){
+        reject(new Error('Worker indisponível'));
+        return;
+      }
+
+      const requestId=++botWorkerRequestId;
+
+      const handleMessage=e=>{
+
+        if(!e.data || e.data.requestId!==requestId) return;
+
+        worker.removeEventListener('message',handleMessage);
+        worker.removeEventListener('error',handleError);
+
+        if(e.data.ok) resolve(e.data.move);
+        else reject(new Error(e.data.error||'Erro no worker do Bot'));
+
+      };
+
+      const handleError=err=>{
+
+        worker.removeEventListener('message',handleMessage);
+        worker.removeEventListener('error',handleError);
+
+        reject(err);
+
+      };
+
+      worker.addEventListener('message',handleMessage);
+      worker.addEventListener('error',handleError);
+
+      worker.postMessage({
+        requestId,
+        fen,
+        difficulty:diff,
+        playerSide:side
+      });
+
+    });
+
+  }
+
+
   async function botPickMoveAsync(){
     const botColor=playerSide==='w'?'b':'w';
     const maximizing=botColor==='w';
@@ -6101,14 +6559,37 @@
   }
 
   async function scheduleBotTurn(){
+
     if(!gameActive||botThinking||game.turn()===playerSide)return;
+
+    const sessionAtStart=gameSessionId;
+
     botThinking=true;showThinking();updateClockVisuals();syncClock();
-    if(!gameActive){botThinking=false;hideThinking();return;}
-    const mv=await botPickMoveAsync();
-    if(!gameActive){botThinking=false;hideThinking();return;}
+
+    if(!gameActive||gameSessionId!==sessionAtStart){botThinking=false;hideThinking();return;}
+
+    const fen=game.fen();
+
+    let mv=null;
+
+    try{
+
+      mv=await requestBotMoveFromWorker(fen,difficulty,playerSide);
+
+    }catch(error){
+
+      console.error('Worker do Bot falhou, usando cálculo local:',error);
+
+      if(gameSessionId===sessionAtStart && gameActive){
+        mv=await botPickMoveAsync();
+      }
+
+    }
+
+    if(gameSessionId!==sessionAtStart||!gameActive){botThinking=false;hideThinking();return;}
     if(!mv){hideThinking();botThinking=false;checkGameEnd();return;}
     syncClock();
-    if(!gameActive){botThinking=false;hideThinking();return;}
+    if(gameSessionId!==sessionAtStart||!gameActive){botThinking=false;hideThinking();return;}
     executeMove(mv.from,mv.to);
     hideThinking();botThinking=false;renderBoard();
   }
@@ -6594,6 +7075,8 @@
 
             bestStreak:0,
 
+            avatar:DEFAULT_AVATAR,
+
             createdAt:
               new Date().toISOString()
 
@@ -6778,7 +7261,11 @@
 
             bestStreak:
               userData.bestStreak ??
-              0
+              0,
+
+            avatar:
+              userData.avatar ??
+              DEFAULT_AVATAR
 
           };
 
@@ -6898,6 +7385,8 @@
 
       box.innerHTML=`
 
+        <span class="avatar-badge">${avatarSvgMarkup(getUserAvatarId(currentUser))}</span>
+
         <span class="who">
 
           Elo
@@ -6970,6 +7459,99 @@
   /* =========================================================
      PERFIL
      ========================================================= */
+
+
+  function renderAvatarPicker(){
+
+    if(!currentUser) return;
+
+
+    const selected=
+      getUserAvatarId(currentUser);
+
+
+    document
+      .getElementById(
+        'profileAvatarBadge'
+      )
+      .innerHTML=
+        avatarSvgMarkup(selected);
+
+
+    const picker=
+      document.getElementById(
+        'avatarPicker'
+      );
+
+
+    picker.innerHTML=
+      Object.keys(AVATARS)
+        .map(id=>
+          '<button type="button" class="avatar-option'+
+          (id===selected?' selected':'')+
+          '" data-avatar-id="'+id+'" aria-label="'+id+'">'+
+          '<span class="avatar-badge">'+
+          avatarSvgMarkup(id)+
+          '</span></button>'
+        )
+        .join('');
+
+
+    picker
+      .querySelectorAll('.avatar-option')
+      .forEach(btn=>{
+
+        btn.addEventListener(
+          'click',
+          ()=>selectAvatar(
+            btn.dataset.avatarId
+          )
+        );
+
+      });
+
+  }
+
+
+  async function selectAvatar(avatarId){
+
+    if(
+      !currentUser ||
+      !currentFirebaseUser ||
+      !AVATARS[avatarId] ||
+      avatarId===getUserAvatarId(currentUser)
+    ) return;
+
+
+    currentUser={
+      ...currentUser,
+      avatar:avatarId
+    };
+
+
+    renderAvatarPicker();
+
+    renderAccountBox();
+
+
+    try{
+
+      await dbUpdate(
+        'users/'+
+        currentFirebaseUser.uid,
+        {avatar:avatarId}
+      );
+
+    }catch(error){
+
+      console.error(
+        'Erro ao salvar avatar:',
+        error
+      );
+
+    }
+
+  }
 
 
   async function renderProfile(){
@@ -7060,6 +7642,9 @@
         ).toLocaleDateString(
           'pt-BR'
         );
+
+
+    renderAvatarPicker();
 
 
     document
@@ -7437,15 +8022,25 @@
 
                 <td class="pname">
 
-                  ${escapeHtml(
-                    u.username
-                  )}
+                  <span class="rank-avatar">
 
-                  ${
-                    isMe
-                      ? '<small style="color:var(--gold);margin-left:6px;">VOCÊ</small>'
-                      : ''
-                  }
+                    <span class="avatar-badge">${avatarSvgMarkup(getUserAvatarId(u))}</span>
+
+                    <span>
+
+                      ${escapeHtml(
+                        u.username
+                      )}
+
+                      ${
+                        isMe
+                          ? '<small style="color:var(--gold);margin-left:6px;">VOCÊ</small>'
+                          : ''
+                      }
+
+                    </span>
+
+                  </span>
 
                 </td>
 
@@ -7765,7 +8360,11 @@
 
                 bestStreak:
                   userData.bestStreak ??
-                  0
+                  0,
+
+                avatar:
+                  userData.avatar ??
+                  DEFAULT_AVATAR
 
               };
 
@@ -7811,14 +8410,14 @@
     loggedOut.style.display='none';locked.style.display='none';form.style.display='none';message.classList.remove('show');
     if(!currentUser){loggedOut.textContent='Entre na sua conta para verificar sua elegibilidade e se inscrever.';loggedOut.style.display='block';status.textContent='Faça login para participar';return;}
     const elo=Number(currentUser.elo||0);document.getElementById('champUsername').value=currentUser.username||'';document.getElementById('champElo').value=String(elo);
-    if(elo<1500){locked.textContent='Seu Elo atual é '+elo+'. É necessário ter Elo 1500 ou superior para se inscrever.';locked.style.display='block';status.textContent='Bloqueado até Elo 1500';return;}
+    if(elo<1200){locked.textContent='Seu Elo atual é '+elo+'. É necessário ter Elo 1200 ou superior para se inscrever.';locked.style.display='block';status.textContent='Bloqueado até Elo 1200';return;}
     status.textContent='Elegível • Elo '+elo;form.style.display='block';
     try{const reg=await dbGet('tournaments/bot2026/participants/'+currentUser.uid);const btn=document.getElementById('btnChampRegister');if(reg){btn.disabled=true;btn.textContent='Inscrição confirmada';message.textContent='Você já está inscrito no Campeonato Bot.';message.classList.add('show');}else{btn.disabled=false;btn.textContent='Inscrever no campeonato';}}catch(e){console.error('Erro ao verificar inscrição:',e);}
   }
 
   document.getElementById('btnChampRegister').addEventListener('click',async()=>{
     if(!currentUser)return;const btn=document.getElementById('btnChampRegister'),message=document.getElementById('champMessage'),elo=Number(currentUser.elo||0);
-    if(elo<1500){message.textContent='Inscrição disponível somente para jogadores com Elo 1500 ou superior.';message.classList.add('show');return;}
+    if(elo<1200){message.textContent='Inscrição disponível somente para jogadores com Elo 1200 ou superior.';message.classList.add('show');return;}
     btn.disabled=true;btn.textContent='Inscrevendo...';
     try{await dbSet('tournaments/bot2026/participants/'+currentUser.uid,{uid:currentUser.uid,username:currentUser.username||'',elo,registeredAt:new Date().toISOString(),status:'registered'});message.textContent='Inscrição realizada com sucesso! Você está registrado no Campeonato Bot.';message.classList.add('show');btn.textContent='Inscrição confirmada';}
     catch(e){console.error('Erro ao registrar campeonato:',e);message.textContent='Não foi possível concluir a inscrição. Verifique as regras do Realtime Database.';message.classList.add('show');btn.disabled=false;btn.textContent='Inscrever no campeonato';}
