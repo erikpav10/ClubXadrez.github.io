@@ -11,112 +11,64 @@
     gtag('config', 'G-LPCG15LW60');
   </script>
 
- <!-- =========================================================
-     FIREBASE
-     ========================================================= -->
+  <!-- =========================================================
+       FIREBASE
+       ========================================================= -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
-<script type="module">
+    import {
+      getDatabase,
+      ref,
+      set,
+      get,
+      update,
+      remove
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
-  import { initializeApp }
-    from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkrPkGCikrPhTKb3WfkVu524XrfNkDJP4",
+      authDomain: "club-do-xadrez.firebaseapp.com",
+      databaseURL: "https://club-do-xadrez-default-rtdb.firebaseio.com",
+      projectId: "club-do-xadrez",
+      storageBucket: "club-do-xadrez.firebasestorage.app",
+      messagingSenderId: "251324438462",
+      appId: "1:251324438462:web:500e3a0adec4600bb64bef",
+      measurementId: "G-G577QNXP8R"
+    };
 
-  import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    signOut,
-    onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+    const app = initializeApp(firebaseConfig);
 
-  import {
-    getDatabase,
-    ref,
-    set,
-    get,
-    update,
-    remove,
-    onValue
-  } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+    const auth = getAuth(app);
+    const database = getDatabase(app);
 
+    /*
+      Deixamos o Firebase disponível para o restante do site.
+    */
+    window.firebaseAuth = auth;
+    window.firebaseDB = database;
 
-  const firebaseConfig = {
+    window.firebaseFns = {
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged,
+      ref,
+      set,
+      get,
+      update,
+      remove
+    };
 
-    apiKey: "AIzaSyAkrPkGCikrPhTKb3WfkVu524XrfNkDJP4",
-
-    authDomain:
-      "club-do-xadrez.firebaseapp.com",
-
-    databaseURL:
-      "https://club-do-xadrez-default-rtdb.firebaseio.com",
-
-    projectId:
-      "club-do-xadrez",
-
-    storageBucket:
-      "club-do-xadrez.firebasestorage.app",
-
-    messagingSenderId:
-      "251324438462",
-
-    appId:
-      "1:251324438462:web:500e3a0adec4600bb64bef",
-
-    measurementId:
-      "G-G577QNXP8R"
-
-  };
-
-
-  const app =
-    initializeApp(firebaseConfig);
-
-
-  const auth =
-    getAuth(app);
-
-
-  const database =
-    getDatabase(app);
-
-
-  window.firebaseAuth =
-    auth;
-
-
-  window.firebaseDB =
-    database;
-
-
-  window.firebaseFns = {
-
-    createUserWithEmailAndPassword,
-
-    signInWithEmailAndPassword,
-
-    signOut,
-
-    onAuthStateChanged,
-
-    ref,
-
-    set,
-
-    get,
-
-    update,
-
-    remove,
-
-    onValue
-
-  };
-
-
-  console.log(
-    "Firebase conectado com sucesso."
-  );
-
-</script>
+    console.log("Firebase conectado com sucesso.");
+  </script>
 
   <meta charset="UTF-8">
 
@@ -3510,6 +3462,8 @@
 
   let clockInterval=null;
 
+  let lastClockUpdateAt=null;
+
   let resultAlreadySaved=false;
 
 
@@ -3535,15 +3489,15 @@
 
     medium:{
       depth:3,
-      thinkMin:1200,
-      thinkMax:2200,
+      thinkMin:0,
+      thinkMax:0,
       randomness:.10
     },
 
     hard:{
       depth:4,
-      thinkMin:1800,
-      thinkMax:3300,
+      thinkMin:0,
+      thinkMax:0,
       randomness:.025
     }
 
@@ -4268,6 +4222,8 @@
     to
   ){
 
+    if(!syncClock()) return null;
+
     const possibleMoves=
       game.moves({
         square:from,
@@ -4304,6 +4260,8 @@
 
 
     if(!mv) return null;
+
+    lastClockUpdateAt=Date.now();
 
 
     lastMove={
@@ -4624,6 +4582,8 @@
 
     botClockSeconds=300;
 
+    lastClockUpdateAt=Date.now();
+
 
     document
       .getElementById(
@@ -4661,79 +4621,86 @@
      ========================================================= */
 
 
+  function getClockOwner(){
+
+    if(!gameActive) return null;
+
+    return game.turn()===playerSide
+      ? 'player'
+      : 'bot';
+
+  }
+
+
+  function syncClock(){
+
+    if(!gameActive) return true;
+
+    const now=Date.now();
+
+    if(lastClockUpdateAt===null){
+      lastClockUpdateAt=now;
+      return true;
+    }
+
+    const elapsedSeconds=Math.floor(
+      (now-lastClockUpdateAt)/1000
+    );
+
+    if(elapsedSeconds<=0){
+      updateClockDisplay();
+      return true;
+    }
+
+    lastClockUpdateAt+=elapsedSeconds*1000;
+
+    if(getClockOwner()==='player'){
+      playerClockSeconds=Math.max(
+        0,
+        playerClockSeconds-elapsedSeconds
+      );
+    }else if(getClockOwner()==='bot'){
+      botClockSeconds=Math.max(
+        0,
+        botClockSeconds-elapsedSeconds
+      );
+    }
+
+    updateClockDisplay();
+
+    if(playerClockSeconds<=0){
+      playerClockSeconds=0;
+      endGame(
+        playerSide==='w' ? 'b' : 'w',
+        'timeout'
+      );
+      return false;
+    }
+
+    if(botClockSeconds<=0){
+      botClockSeconds=0;
+      endGame(
+        playerSide,
+        'timeout'
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+
   function startClock(){
 
     stopClock();
 
+    lastClockUpdateAt=Date.now();
 
     clockInterval=
       setInterval(()=>{
-
         if(!gameActive) return;
-
-        if(botThinking) return;
-
-
-        if(game.turn()==='w'){
-
-          if(playerSide==='w'){
-
-            playerClockSeconds--;
-
-          }else{
-
-            botClockSeconds--;
-
-          }
-
-        }else{
-
-          if(playerSide==='b'){
-
-            playerClockSeconds--;
-
-          }else{
-
-            botClockSeconds--;
-
-          }
-
-        }
-
-
-        updateClockDisplay();
-
-
-        if(
-          playerClockSeconds<=0
-        ){
-
-          playerClockSeconds=0;
-
-          endGame(
-            playerSide==='w'
-              ? 'b'
-              : 'w',
-            'timeout'
-          );
-
-        }
-
-
-        if(
-          botClockSeconds<=0
-        ){
-
-          botClockSeconds=0;
-
-          endGame(
-            playerSide,
-            'timeout'
-          );
-
-        }
-
-      },1000);
+        syncClock();
+      },250);
 
   }
 
@@ -4749,6 +4716,8 @@
       clockInterval=null;
 
     }
+
+    lastClockUpdateAt=null;
 
   }
 
@@ -6022,9 +5991,7 @@
 
     if(botThinking) return;
 
-    if(
-      game.turn()===playerSide
-    ) return;
+    if(game.turn()===playerSide) return;
 
 
     botThinking=true;
@@ -6033,67 +6000,43 @@
 
     updateClockVisuals();
 
+    syncClock();
 
-    const config=
-      DIFF_CONFIG[difficulty];
+    if(!gameActive){
+      botThinking=false;
+      hideThinking();
+      return;
+    }
 
-
-    const delay=
-      config.thinkMin+
-      Math.floor(
-        Math.random()*
-        (
-          config.thinkMax-
-          config.thinkMin
-        )
-      );
-
-
-    setTimeout(()=>{
+    // Deixa o navegador pintar o estado "Bot pensando" antes do cálculo.
+    requestAnimationFrame(()=>{
 
       if(!gameActive){
-
-        hideThinking();
-
         botThinking=false;
-
+        hideThinking();
         return;
-
       }
 
-
-      const mv=
-        botPickMove();
-
+      const mv=botPickMove();
 
       if(!mv){
-
         hideThinking();
-
         botThinking=false;
-
         checkGameEnd();
-
         return;
-
       }
-
 
       executeMove(
         mv.from,
         mv.to
       );
 
-
       hideThinking();
-
       botThinking=false;
-
 
       renderBoard();
 
-
-    },delay);
+    });
 
   }
 
