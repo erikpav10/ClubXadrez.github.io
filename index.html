@@ -30,7 +30,8 @@
       set,
       get,
       update,
-      remove
+      remove,
+      onValue
     } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -317,6 +318,154 @@
     color:var(--text);
 
     background:rgba(255,255,255,.04);
+
+  }
+
+
+  .rank-tabs{
+
+    display:inline-flex;
+
+    gap:4px;
+
+    background:var(--bg-elevated);
+
+    border:1px solid var(--line);
+
+    border-radius:var(--radius);
+
+    padding:4px;
+
+    margin:0 0 18px;
+
+    flex-wrap:wrap;
+
+  }
+
+
+  .rank-tabs button{
+
+    background:transparent;
+
+    border:none;
+
+    color:var(--text-muted);
+
+    font-size:13px;
+
+    font-weight:500;
+
+    padding:7px 14px;
+
+    border-radius:3px;
+
+    cursor:pointer;
+
+    transition:.15s;
+
+  }
+
+
+  .rank-tabs button.active{
+
+    background:var(--gold);
+
+    color:#1a1512;
+
+    font-weight:600;
+
+  }
+
+
+  .rank-tabs button:not(.active):hover{
+
+    color:var(--text);
+
+    background:rgba(255,255,255,.04);
+
+  }
+
+
+  .room-code-box{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+    background:var(--bg-elevated);
+
+    border:1px solid var(--line);
+
+    border-radius:var(--radius);
+
+    padding:12px 16px;
+
+  }
+
+
+  .room-code-box span{
+
+    font-family:var(--serif);
+
+    font-size:22px;
+
+    font-weight:700;
+
+    letter-spacing:.14em;
+
+    color:var(--gold);
+
+  }
+
+
+  .online-opponent{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin:0 0 16px;
+
+    padding:10px 12px;
+
+    background:var(--bg-elevated);
+
+    border:1px solid var(--line);
+
+    border-radius:var(--radius);
+
+  }
+
+
+  .online-opponent .avatar-badge{
+
+    width:34px;
+
+    height:34px;
+
+  }
+
+
+  .online-opponent .name{
+
+    font-weight:600;
+
+    font-size:13.5px;
+
+  }
+
+
+  .online-opponent .elo{
+
+    color:var(--text-dim);
+
+    font-size:12px;
 
   }
 
@@ -2597,6 +2746,12 @@
     </button>
 
     <button
+      data-view="online"
+    >
+      Online
+    </button>
+
+    <button
       data-view="ranking"
     >
       Ranking
@@ -2889,6 +3044,258 @@
 
 
   <!-- =========================================================
+       ONLINE (PVP)
+       ========================================================= -->
+
+  <section
+    class="view"
+    id="view-online"
+  >
+
+    <div class="play-grid">
+
+
+      <div class="board-wrap">
+
+        <div class="board-frame">
+
+          <div
+            class="board"
+            id="onlineBoard"
+          ></div>
+
+        </div>
+
+
+        <div class="status-bar">
+
+          <div class="turn-pill">
+
+            <span
+              class="turn-dot"
+              id="onlineTurnDot"
+            ></span>
+
+            <span id="onlineTurnLabel">
+              Nenhuma partida online
+            </span>
+
+          </div>
+
+
+          <div id="onlineStatusMsg"></div>
+
+        </div>
+
+      </div>
+
+
+      <!-- PAINEL -->
+      <div class="panel">
+
+
+        <div
+          class="card"
+          id="onlineLoggedOutCard"
+        >
+
+          <h3>
+            Entre para jogar <span>online</span>
+          </h3>
+
+          <p style="color:var(--text-dim);font-size:13px;margin:0;">
+            Você precisa estar logado para criar ou entrar em uma sala.
+          </p>
+
+        </div>
+
+
+        <div
+          id="onlineLoggedInArea"
+          style="display:none;"
+        >
+
+
+          <!-- LOBBY -->
+          <div id="onlineLobby">
+
+            <div class="card">
+
+              <h3>
+                Criar <span>sala</span>
+              </h3>
+
+              <p style="color:var(--text-dim);font-size:13px;margin:0 0 14px;">
+                Gere um código e mande para a pessoa que vai jogar com você.
+              </p>
+
+              <button
+                class="btn primary"
+                id="btnCreateRoom"
+              >
+                Criar sala
+              </button>
+
+
+              <div
+                id="createdRoomBox"
+                style="display:none;margin-top:16px;"
+              >
+
+                <div class="field-label">
+                  Código da sala
+                </div>
+
+                <div class="room-code-box">
+
+                  <span id="createdRoomCode"></span>
+
+                  <button
+                    class="btn ghost"
+                    id="btnCopyRoomCode"
+                  >
+                    Copiar
+                  </button>
+
+                </div>
+
+                <p
+                  id="waitingHostMsg"
+                  style="color:var(--text-dim);font-size:12.5px;margin:10px 0 0;"
+                >
+                  Aguardando o outro jogador entrar...
+                </p>
+
+                <button
+                  class="btn danger"
+                  id="btnCancelRoom"
+                  style="margin-top:12px;width:100%;"
+                >
+                  Cancelar sala
+                </button>
+
+              </div>
+
+            </div>
+
+
+            <div class="card">
+
+              <h3>
+                Entrar em <span>uma sala</span>
+              </h3>
+
+              <div class="field">
+
+                <label>
+                  Código da sala
+                </label>
+
+                <input
+                  id="joinRoomInput"
+                  maxlength="6"
+                  autocomplete="off"
+                  style="text-transform:uppercase;letter-spacing:.1em;"
+                >
+
+              </div>
+
+
+              <div
+                class="auth-err"
+                id="joinRoomErr"
+              ></div>
+
+
+              <button
+                class="btn primary"
+                id="btnJoinRoom"
+              >
+                Entrar na sala
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <!-- ÁREA DE JOGO -->
+          <div
+            id="onlineGameArea"
+            style="display:none;"
+          >
+
+            <div class="card">
+
+              <h3>
+                Partida <span>online</span>
+              </h3>
+
+
+              <div
+                class="online-opponent"
+                id="onlineOpponentInfo"
+              ></div>
+
+
+              <div class="actions-row">
+
+                <button
+                  class="btn danger"
+                  id="btnResignOnline"
+                >
+                  Desistir
+                </button>
+
+
+                <button
+                  class="btn ghost"
+                  id="btnLeaveOnline"
+                >
+                  Sair da sala
+                </button>
+
+              </div>
+
+            </div>
+
+
+            <div
+              class="card"
+              id="onlineResultCard"
+              style="display:none;"
+            >
+
+              <h3 id="onlineResultTitle"></h3>
+
+              <p
+                id="onlineResultSub"
+                style="color:var(--text-dim);font-size:13px;margin:0 0 14px;"
+              ></p>
+
+              <button
+                class="btn primary"
+                id="btnOnlineNewRoom"
+                style="width:100%;"
+              >
+                Jogar outra partida
+              </button>
+
+            </div>
+
+          </div>
+
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================================
        RANKING
        ========================================================= -->
 
@@ -2901,7 +3308,7 @@
 
       <div>
 
-        <h2>
+        <h2 id="rankTitle">
           Ranking global
         </h2>
 
@@ -2918,6 +3325,37 @@
         id="btnRefreshRank"
       >
         Atualizar
+      </button>
+
+    </div>
+
+
+    <div
+      class="rank-tabs"
+      id="rankTabs"
+    >
+
+      <button
+        class="active"
+        data-rank-mode="overall"
+      >
+        Geral
+      </button>
+
+      <button data-rank-mode="easy">
+        Fácil
+      </button>
+
+      <button data-rank-mode="medium">
+        Médio
+      </button>
+
+      <button data-rank-mode="hard">
+        Difícil
+      </button>
+
+      <button data-rank-mode="pvp">
+        Online
       </button>
 
     </div>
@@ -3409,11 +3847,11 @@
   </section>
 
   <section class="view" id="view-championship">
-    <div class="champ-head"><div><h2>Campeonato <span style="color:var(--gold);">contra Bot</span></h2><p style="color:var(--text-dim);margin:0;">Competição exclusiva para jogadores com Elo de 1200 ou superior.</p></div><div class="champ-status" id="champStatus">Elo mínimo: 1200</div></div>
+    <div class="champ-head"><div><h2>Campeonato <span style="color:var(--gold);">contra Bot</span></h2><p style="color:var(--text-dim);margin:0;">Competição exclusiva para jogadores com Elo de 1500 ou superior.</p></div><div class="champ-status" id="champStatus">Elo mínimo: 1500</div></div>
     <div class="champ-box">
       <h3 style="font-family:var(--serif);font-size:25px;margin:0 0 8px;">Inscrição — Campeonato Bot</h3>
       <p style="color:var(--text-dim);font-size:13.5px;line-height:1.6;">A inscrição ficará vinculada à sua conta. O torneio poderá usar seu Elo atual como critério de elegibilidade.</p>
-      <div class="champ-rules"><div class="champ-rule"><strong>1200+</strong><small>Elo mínimo</small></div><div class="champ-rule"><strong>8</strong><small>rodadas</small></div><div class="champ-rule"><strong>5+0</strong><small>ritmo sugerido</small></div></div>
+      <div class="champ-rules"><div class="champ-rule"><strong>1500+</strong><small>Elo mínimo</small></div><div class="champ-rule"><strong>8</strong><small>rodadas</small></div><div class="champ-rule"><strong>5+0</strong><small>ritmo sugerido</small></div></div>
       <div id="champLoggedOut" class="auth-err" style="display:none;"></div><div id="champLocked" class="auth-err" style="display:none;"></div>
       <div id="champForm" style="display:none;"><div class="field"><label>Jogador</label><input id="champUsername" type="text" readonly></div><div class="field"><label>Elo atual</label><input id="champElo" type="text" readonly></div><button class="btn primary" id="btnChampRegister">Inscrever no campeonato</button></div>
       <div id="champMessage" class="champ-message"></div>
@@ -3702,6 +4140,8 @@
 
   let gameSessionId=0;
 
+  let rankingMode='overall';
+
 
   const DIFF_ELO={
 
@@ -3710,6 +4150,58 @@
     medium:1400,
 
     hard:1800
+
+  };
+
+
+  /*
+    Metadados dos 4 modos de ranking:
+    'overall' usa os campos gerais (elo, wins, losses, draws).
+    Os outros 3 usam os campos específicos por dificuldade,
+    para medir o desempenho do jogador contra cada nível de Bot.
+  */
+
+  const RANK_MODES={
+
+    overall:{
+      label:'Ranking global',
+      eloField:'elo',
+      winsField:'wins',
+      lossesField:'losses',
+      drawsField:'draws'
+    },
+
+    easy:{
+      label:'Ranking · Fácil',
+      eloField:'eloEasy',
+      winsField:'winsEasy',
+      lossesField:'lossesEasy',
+      drawsField:'drawsEasy'
+    },
+
+    medium:{
+      label:'Ranking · Médio',
+      eloField:'eloMedium',
+      winsField:'winsMedium',
+      lossesField:'lossesMedium',
+      drawsField:'drawsMedium'
+    },
+
+    hard:{
+      label:'Ranking · Difícil',
+      eloField:'eloHard',
+      winsField:'winsHard',
+      lossesField:'lossesHard',
+      drawsField:'drawsHard'
+    },
+
+    pvp:{
+      label:'Ranking · Online',
+      eloField:'eloPvp',
+      winsField:'winsPvp',
+      lossesField:'lossesPvp',
+      drawsField:'drawsPvp'
+    }
 
   };
 
@@ -5532,6 +6024,86 @@
       currentUser.draws;
 
 
+    /*
+      Ranking por dificuldade: cada nível de Bot
+      (fácil / médio / difícil) tem seu próprio Elo,
+      calculado apenas com os jogos disputados naquele
+      nível. Isso é separado do Elo geral acima.
+    */
+
+    const diffMeta=
+      RANK_MODES[difficulty];
+
+
+    const eloDiffBefore=
+      Number(
+        currentUser[diffMeta.eloField] || 1200
+      );
+
+
+    let eloDiffChange=
+      calculateEloChange(
+        eloDiffBefore,
+        opponentElo,
+        result
+      );
+
+
+    if(reason==='resign'){
+
+      eloDiffChange=
+        Math.min(
+          eloDiffChange,
+          -5
+        );
+
+    }
+
+
+    const eloDiffAfter=
+      Math.max(
+        100,
+        eloDiffBefore+eloDiffChange
+      );
+
+
+    currentUser[diffMeta.eloField]=
+      eloDiffAfter;
+
+
+    currentUser[diffMeta.winsField]=
+      Number(
+        currentUser[diffMeta.winsField] || 0
+      );
+
+
+    currentUser[diffMeta.lossesField]=
+      Number(
+        currentUser[diffMeta.lossesField] || 0
+      );
+
+
+    currentUser[diffMeta.drawsField]=
+      Number(
+        currentUser[diffMeta.drawsField] || 0
+      );
+
+
+    if(result===1){
+
+      currentUser[diffMeta.winsField]++;
+
+    }else if(result===0){
+
+      currentUser[diffMeta.lossesField]++;
+
+    }else{
+
+      currentUser[diffMeta.drawsField]++;
+
+    }
+
+
     const gameId=
       Date.now()+
       '_' +
@@ -5560,6 +6132,12 @@
       eloAfter,
 
       eloChange,
+
+      eloDiffBefore,
+
+      eloDiffAfter,
+
+      eloDiffChange,
 
       reason,
 
@@ -5595,7 +6173,19 @@
             currentUser.currentStreak,
 
           bestStreak:
-            currentUser.bestStreak
+            currentUser.bestStreak,
+
+          [diffMeta.eloField]:
+            currentUser[diffMeta.eloField],
+
+          [diffMeta.winsField]:
+            currentUser[diffMeta.winsField],
+
+          [diffMeta.lossesField]:
+            currentUser[diffMeta.lossesField],
+
+          [diffMeta.drawsField]:
+            currentUser[diffMeta.drawsField]
 
         }
       );
@@ -7945,6 +8535,19 @@
       );
 
 
+    const meta=
+      RANK_MODES[rankingMode] ||
+      RANK_MODES.overall;
+
+
+    document
+      .getElementById(
+        'rankTitle'
+      )
+      .textContent=
+        meta.label;
+
+
     wrap.innerHTML=
 
       '<p style="color:var(--text-dim);font-size:13px;">Carregando ranking...</p>';
@@ -7952,14 +8555,37 @@
 
     try{
 
-      const users=
+      let users=
         await fetchAllUsers();
+
+
+      /*
+        Nos rankings por dificuldade, só faz sentido
+        mostrar quem já jogou pelo menos uma partida
+        naquele nível — senão todo mundo apareceria
+        empatado em 1200 sem ter jogado nada.
+      */
+
+      if(rankingMode!=='overall'){
+
+        users=
+          users.filter(u=>
+
+            (
+              Number(u[meta.winsField]||0)+
+              Number(u[meta.lossesField]||0)+
+              Number(u[meta.drawsField]||0)
+            )>0
+
+          );
+
+      }
 
 
       users.sort(
         (a,b)=>
-          Number(b.elo||0)-
-          Number(a.elo||0)
+          Number(b[meta.eloField]||0)-
+          Number(a[meta.eloField]||0)
       );
 
 
@@ -7967,7 +8593,9 @@
 
         wrap.innerHTML=
 
-          '<div class="empty-rank">Ainda não há jogadores registrados. Crie uma conta para aparecer aqui.</div>';
+          rankingMode==='overall'
+            ? '<div class="empty-rank">Ainda não há jogadores registrados. Crie uma conta para aparecer aqui.</div>'
+            : '<div class="empty-rank">Ainda ninguém jogou contra o Bot nesse nível de dificuldade.</div>';
 
         return;
 
@@ -7998,10 +8626,17 @@
               currentUser.uid;
 
 
+            const wins=
+              Number(u[meta.winsField]||0);
+
+            const losses=
+              Number(u[meta.lossesField]||0);
+
+            const draws=
+              Number(u[meta.drawsField]||0);
+
             const total=
-              Number(u.wins||0)+
-              Number(u.losses||0)+
-              Number(u.draws||0);
+              wins+losses+draws;
 
 
             rows+=`
@@ -8045,19 +8680,19 @@
                 </td>
 
                 <td class="eloval">
-                  ${u.elo||1200}
+                  ${u[meta.eloField]||1200}
                 </td>
 
                 <td>
-                  ${u.wins||0}
+                  ${wins}
                 </td>
 
                 <td>
-                  ${u.losses||0}
+                  ${losses}
                 </td>
 
                 <td>
-                  ${u.draws||0}
+                  ${draws}
                 </td>
 
                 <td>
@@ -8129,7 +8764,7 @@
               ·
 
               <strong>
-                ${u.elo}
+                ${u[meta.eloField]||1200}
               </strong>
 
             </div>
@@ -8205,6 +8840,46 @@
       'click',
       renderRanking
     );
+
+
+  document
+    .querySelectorAll(
+      '#rankTabs button'
+    )
+    .forEach(btn=>{
+
+      btn.addEventListener(
+        'click',
+        ()=>{
+
+          if(
+            btn.dataset.rankMode===
+            rankingMode
+          ) return;
+
+
+          rankingMode=
+            btn.dataset.rankMode;
+
+
+          document
+            .querySelectorAll(
+              '#rankTabs button'
+            )
+            .forEach(b=>
+              b.classList.toggle(
+                'active',
+                b===btn
+              )
+            );
+
+
+          renderRanking();
+
+        }
+      );
+
+    });
 
 
   /* =========================================================
@@ -8410,14 +9085,14 @@
     loggedOut.style.display='none';locked.style.display='none';form.style.display='none';message.classList.remove('show');
     if(!currentUser){loggedOut.textContent='Entre na sua conta para verificar sua elegibilidade e se inscrever.';loggedOut.style.display='block';status.textContent='Faça login para participar';return;}
     const elo=Number(currentUser.elo||0);document.getElementById('champUsername').value=currentUser.username||'';document.getElementById('champElo').value=String(elo);
-    if(elo<1200){locked.textContent='Seu Elo atual é '+elo+'. É necessário ter Elo 1200 ou superior para se inscrever.';locked.style.display='block';status.textContent='Bloqueado até Elo 1200';return;}
+    if(elo<1500){locked.textContent='Seu Elo atual é '+elo+'. É necessário ter Elo 1500 ou superior para se inscrever.';locked.style.display='block';status.textContent='Bloqueado até Elo 1500';return;}
     status.textContent='Elegível • Elo '+elo;form.style.display='block';
     try{const reg=await dbGet('tournaments/bot2026/participants/'+currentUser.uid);const btn=document.getElementById('btnChampRegister');if(reg){btn.disabled=true;btn.textContent='Inscrição confirmada';message.textContent='Você já está inscrito no Campeonato Bot.';message.classList.add('show');}else{btn.disabled=false;btn.textContent='Inscrever no campeonato';}}catch(e){console.error('Erro ao verificar inscrição:',e);}
   }
 
   document.getElementById('btnChampRegister').addEventListener('click',async()=>{
     if(!currentUser)return;const btn=document.getElementById('btnChampRegister'),message=document.getElementById('champMessage'),elo=Number(currentUser.elo||0);
-    if(elo<1200){message.textContent='Inscrição disponível somente para jogadores com Elo 1200 ou superior.';message.classList.add('show');return;}
+    if(elo<1500){message.textContent='Inscrição disponível somente para jogadores com Elo 1500 ou superior.';message.classList.add('show');return;}
     btn.disabled=true;btn.textContent='Inscrevendo...';
     try{await dbSet('tournaments/bot2026/participants/'+currentUser.uid,{uid:currentUser.uid,username:currentUser.username||'',elo,registeredAt:new Date().toISOString(),status:'registered'});message.textContent='Inscrição realizada com sucesso! Você está registrado no Campeonato Bot.';message.classList.add('show');btn.textContent='Inscrição confirmada';}
     catch(e){console.error('Erro ao registrar campeonato:',e);message.textContent='Não foi possível concluir a inscrição. Verifique as regras do Realtime Database.';message.classList.add('show');btn.disabled=false;btn.textContent='Inscrever no campeonato';}
