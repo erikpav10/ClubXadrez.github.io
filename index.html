@@ -2069,6 +2069,31 @@
 
   }
 
+
+  /* HISTÓRIA / CAMPEONATO */
+  .info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;}
+  .info-card{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;}
+  .info-card h3{font-family:var(--serif);font-size:24px;margin:0 0 10px;}
+  .info-card h3 span{color:var(--gold);}
+  .info-card p,.info-card li{color:var(--text-dim);font-size:13.5px;line-height:1.7;}
+  .history-timeline{display:grid;gap:12px;margin-top:16px;}
+  .history-item{border-left:2px solid var(--gold);padding:12px 14px;background:rgba(201,162,75,.045);}
+  .history-item strong{color:var(--text);}
+  .move-badge{display:inline-block;margin-top:7px;padding:5px 8px;border:1px solid var(--line);border-radius:4px;color:var(--gold);font-family:var(--serif);font-weight:700;}
+  .players-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px;}
+  .player-chip{padding:13px;border:1px solid var(--line);background:var(--bg-elevated);border-radius:5px;}
+  .player-chip strong{display:block;margin-bottom:4px;} .player-chip small{color:var(--text-dim);}
+  .champ-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:20px;}
+  .champ-head h2{margin:0 0 6px;font-family:var(--serif);font-size:30px;}
+  .champ-status{padding:8px 12px;border:1px solid var(--line);border-radius:5px;color:var(--gold);font-size:12px;white-space:nowrap;}
+  .champ-box{max-width:760px;margin:0 auto;background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius);padding:26px;}
+  .champ-rules{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0;}
+  .champ-rule{padding:14px;border:1px solid var(--line);background:var(--bg-elevated);border-radius:5px;text-align:center;}
+  .champ-rule strong{display:block;color:var(--gold);font-size:20px;font-family:var(--serif);} .champ-rule small{color:var(--text-dim);font-size:11px;}
+  .champ-message{margin-top:14px;padding:11px 13px;border:1px solid var(--line);color:var(--text-dim);font-size:13px;display:none;} .champ-message.show{display:block;}
+  @media(max-width:800px){.info-grid{grid-template-columns:1fr;}.players-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.champ-rules{grid-template-columns:1fr;}.champ-head{display:block;}.champ-status{display:inline-block;margin-top:10px;}}
+  @media(max-width:500px){.players-grid{grid-template-columns:1fr;}}
+
 </style>
 
 </head>
@@ -2453,6 +2478,10 @@
     >
       Perfil
     </button>
+
+    <button data-view="history">História</button>
+
+    <button data-view="championship">Campeonato</button>
 
   </nav>
 
@@ -3186,6 +3215,55 @@
   </section>
 
 
+
+  <section class="view" id="view-history">
+    <div class="rank-head"><div><h2>História do <span style="color:var(--gold);">Xadrez</span></h2><p>Partidas, jogadas e jogadores que marcaram o jogo.</p></div></div>
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>Uma breve <span>história</span></h3>
+        <p>O xadrez moderno nasceu da evolução de jogos de estratégia praticados na Índia e na Pérsia. Ao longo dos séculos, suas regras foram se transformando até chegar ao formato internacional conhecido atualmente. No século XIX surgiram grandes torneios e a organização competitiva moderna.</p>
+        <div class="history-timeline">
+          <div class="history-item"><strong>c. século VI</strong><br>Antecedentes do xadrez aparecem no subcontinente indiano.</div>
+          <div class="history-item"><strong>séculos XV–XVI</strong><br>As regras da dama e do bispo tornam o jogo muito mais dinâmico.</div>
+          <div class="history-item"><strong>1851</strong><br>O torneio de Londres ajuda a consolidar a era moderna dos grandes mestres.</div>
+          <div class="history-item"><strong>1886</strong><br>Steinitz enfrenta Zukertort no primeiro match reconhecido como disputa pelo título mundial.</div>
+          <div class="history-item"><strong>século XXI</strong><br>Computadores, bases de partidas e plataformas online transformam a preparação e a prática do xadrez.</div>
+        </div>
+      </div>
+      <div class="info-card">
+        <h3>Jogadas e partidas <span>famosas</span></h3>
+        <div class="history-timeline">
+          <div class="history-item"><strong>Partida Imortal — Anderssen x Kieseritzky, 1851</strong><p>Uma das partidas de ataque mais conhecidas da história.</p><span class="move-badge">1. e4 e5 2. f4 exf4 3. Bc4 Qh4+</span></div>
+          <div class="history-item"><strong>Partida da Ópera — Morphy x Duque de Brunswick / Conde Isouard, 1858</strong><p>Exemplo clássico de desenvolvimento rápido, iniciativa e ataque ao rei.</p><span class="move-badge">1. e4 e5 2. Nf3 d6 3. d4 Bg4</span></div>
+          <div class="history-item"><strong>Kasparov x Topalov, 1999</strong><p>Uma das partidas modernas mais celebradas, marcada por uma combinação tática extraordinária.</p><span class="move-badge">Combinação com sacrifício de torre</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="info-card" style="margin-top:18px;"><h3>Grandes nomes do <span>xadrez</span></h3><div class="players-grid">
+      <div class="player-chip"><strong>Paul Morphy</strong><small>Gênio do xadrez romântico do século XIX.</small></div>
+      <div class="player-chip"><strong>José Raúl Capablanca</strong><small>Campeão mundial famoso pela técnica e pelos finais.</small></div>
+      <div class="player-chip"><strong>Alexander Alekhine</strong><small>Campeão mundial conhecido pelo estilo agressivo e criativo.</small></div>
+      <div class="player-chip"><strong>Bobby Fischer</strong><small>Campeão mundial e um dos maiores talentos dos Estados Unidos.</small></div>
+      <div class="player-chip"><strong>Garry Kasparov</strong><small>Campeão mundial e uma das figuras mais dominantes da era moderna.</small></div>
+      <div class="player-chip"><strong>Anatoly Karpov</strong><small>Campeão mundial conhecido pela precisão posicional.</small></div>
+      <div class="player-chip"><strong>Viswanathan Anand</strong><small>Campeão mundial e um dos grandes nomes da Índia.</small></div>
+      <div class="player-chip"><strong>Judit Polgár</strong><small>Uma das maiores enxadristas de todos os tempos.</small></div>
+      <div class="player-chip"><strong>Magnus Carlsen</strong><small>Campeão mundial e recordista de rating clássico em seu auge.</small></div>
+    </div></div>
+  </section>
+
+  <section class="view" id="view-championship">
+    <div class="champ-head"><div><h2>Campeonato <span style="color:var(--gold);">contra Bot</span></h2><p style="color:var(--text-dim);margin:0;">Competição exclusiva para jogadores com Elo de 1500 ou superior.</p></div><div class="champ-status" id="champStatus">Elo mínimo: 1500</div></div>
+    <div class="champ-box">
+      <h3 style="font-family:var(--serif);font-size:25px;margin:0 0 8px;">Inscrição — Campeonato Bot</h3>
+      <p style="color:var(--text-dim);font-size:13.5px;line-height:1.6;">A inscrição ficará vinculada à sua conta. O torneio poderá usar seu Elo atual como critério de elegibilidade.</p>
+      <div class="champ-rules"><div class="champ-rule"><strong>1500+</strong><small>Elo mínimo</small></div><div class="champ-rule"><strong>8</strong><small>rodadas</small></div><div class="champ-rule"><strong>5+0</strong><small>ritmo sugerido</small></div></div>
+      <div id="champLoggedOut" class="auth-err" style="display:none;"></div><div id="champLocked" class="auth-err" style="display:none;"></div>
+      <div id="champForm" style="display:none;"><div class="field"><label>Jogador</label><input id="champUsername" type="text" readonly></div><div class="field"><label>Elo atual</label><input id="champElo" type="text" readonly></div><button class="btn primary" id="btnChampRegister">Inscrever no campeonato</button></div>
+      <div id="champMessage" class="champ-message"></div>
+    </div>
+  </section>
+
 </main>
 
 
@@ -3872,6 +3950,12 @@
     if(name==='profile'){
 
       renderProfile();
+
+    }
+
+    if(name==='championship'){
+
+      renderChampionship();
 
     }
 
@@ -5985,61 +6069,49 @@
   }
 
 
-  function scheduleBotTurn(){
-
-    if(!gameActive) return;
-
-    if(botThinking) return;
-
-    if(game.turn()===playerSide) return;
-
-
-    botThinking=true;
-
-    showThinking();
-
-    updateClockVisuals();
-
-    syncClock();
-
-    if(!gameActive){
-      botThinking=false;
-      hideThinking();
-      return;
+  async function botPickMoveAsync(){
+    const botColor=playerSide==='w'?'b':'w';
+    const maximizing=botColor==='w';
+    const moves=orderedMoves(game);
+    if(!moves.length) return null;
+    const config=DIFF_CONFIG[difficulty];
+    if(difficulty==='easy' && Math.random()<config.randomness){
+      const top=Math.min(5,moves.length);
+      return moves[Math.floor(Math.random()*top)];
     }
-
-    // Deixa o navegador pintar o estado "Bot pensando" antes do cálculo.
-    requestAnimationFrame(()=>{
-
-      if(!gameActive){
-        botThinking=false;
-        hideThinking();
-        return;
-      }
-
-      const mv=botPickMove();
-
-      if(!mv){
-        hideThinking();
-        botThinking=false;
-        checkGameEnd();
-        return;
-      }
-
-      executeMove(
-        mv.from,
-        mv.to
-      );
-
-      hideThinking();
-      botThinking=false;
-
-      renderBoard();
-
+    let bestScore=maximizing?-Infinity:Infinity,bestMoves=[],index=0;
+    return await new Promise(resolve=>{
+      const next=()=>{
+        if(!gameActive || game.turn()===playerSide){resolve(null);return;}
+        if(index>=moves.length){
+          if(difficulty==='medium'&&Math.random()<config.randomness&&moves.length>1) resolve(moves[Math.floor(Math.random()*Math.min(3,moves.length))]);
+          else resolve(bestMoves[Math.floor(Math.random()*bestMoves.length)]||moves[0]);
+          return;
+        }
+        const move=moves[index++];
+        game.move(move);
+        const score=minimax(game,config.depth-1,-Infinity,Infinity,!maximizing);
+        game.undo();
+        if(maximizing){if(score>bestScore){bestScore=score;bestMoves=[move];}else if(score===bestScore)bestMoves.push(move);}
+        else{if(score<bestScore){bestScore=score;bestMoves=[move];}else if(score===bestScore)bestMoves.push(move);}
+        setTimeout(next,0);
+      };
+      next();
     });
-
   }
 
+  async function scheduleBotTurn(){
+    if(!gameActive||botThinking||game.turn()===playerSide)return;
+    botThinking=true;showThinking();updateClockVisuals();syncClock();
+    if(!gameActive){botThinking=false;hideThinking();return;}
+    const mv=await botPickMoveAsync();
+    if(!gameActive){botThinking=false;hideThinking();return;}
+    if(!mv){hideThinking();botThinking=false;checkGameEnd();return;}
+    syncClock();
+    if(!gameActive){botThinking=false;hideThinking();return;}
+    executeMove(mv.from,mv.to);
+    hideThinking();botThinking=false;renderBoard();
+  }
 
   function showThinking(){
 
@@ -6801,6 +6873,8 @@
     renderAccountBox();
 
     renderProfile();
+
+    renderChampionship();
 
     switchView('profile');
 
@@ -7646,6 +7720,7 @@
             renderAccountBox();
 
             renderProfile();
+            renderChampionship();
 
             return;
 
@@ -7715,6 +7790,7 @@
           renderAccountBox();
 
           renderProfile();
+          renderChampionship();
 
         }
       );
@@ -7725,6 +7801,28 @@
   /* =========================================================
      INIT
      ========================================================= */
+
+
+
+
+  /* CAMPEONATO CONTRA BOT */
+  async function renderChampionship(){
+    const loggedOut=document.getElementById('champLoggedOut'),locked=document.getElementById('champLocked'),form=document.getElementById('champForm'),message=document.getElementById('champMessage'),status=document.getElementById('champStatus');
+    loggedOut.style.display='none';locked.style.display='none';form.style.display='none';message.classList.remove('show');
+    if(!currentUser){loggedOut.textContent='Entre na sua conta para verificar sua elegibilidade e se inscrever.';loggedOut.style.display='block';status.textContent='Faça login para participar';return;}
+    const elo=Number(currentUser.elo||0);document.getElementById('champUsername').value=currentUser.username||'';document.getElementById('champElo').value=String(elo);
+    if(elo<1500){locked.textContent='Seu Elo atual é '+elo+'. É necessário ter Elo 1500 ou superior para se inscrever.';locked.style.display='block';status.textContent='Bloqueado até Elo 1500';return;}
+    status.textContent='Elegível • Elo '+elo;form.style.display='block';
+    try{const reg=await dbGet('tournaments/bot2026/participants/'+currentUser.uid);const btn=document.getElementById('btnChampRegister');if(reg){btn.disabled=true;btn.textContent='Inscrição confirmada';message.textContent='Você já está inscrito no Campeonato Bot.';message.classList.add('show');}else{btn.disabled=false;btn.textContent='Inscrever no campeonato';}}catch(e){console.error('Erro ao verificar inscrição:',e);}
+  }
+
+  document.getElementById('btnChampRegister').addEventListener('click',async()=>{
+    if(!currentUser)return;const btn=document.getElementById('btnChampRegister'),message=document.getElementById('champMessage'),elo=Number(currentUser.elo||0);
+    if(elo<1500){message.textContent='Inscrição disponível somente para jogadores com Elo 1500 ou superior.';message.classList.add('show');return;}
+    btn.disabled=true;btn.textContent='Inscrevendo...';
+    try{await dbSet('tournaments/bot2026/participants/'+currentUser.uid,{uid:currentUser.uid,username:currentUser.username||'',elo,registeredAt:new Date().toISOString(),status:'registered'});message.textContent='Inscrição realizada com sucesso! Você está registrado no Campeonato Bot.';message.classList.add('show');btn.textContent='Inscrição confirmada';}
+    catch(e){console.error('Erro ao registrar campeonato:',e);message.textContent='Não foi possível concluir a inscrição. Verifique as regras do Realtime Database.';message.classList.add('show');btn.disabled=false;btn.textContent='Inscrever no campeonato';}
+  });
 
 
   async function init(){
