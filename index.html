@@ -65,7 +65,8 @@
       set,
       get,
       update,
-      remove
+      remove,
+      onValue
     };
 
     console.log("Firebase conectado com sucesso.");
@@ -7965,6 +7966,9 @@
 
   function renderAccountBox(){
 
+    updateOnlineAuthVisibility();
+
+
     const box=
       document.getElementById(
         'accountBox'
@@ -8880,6 +8884,1467 @@
       );
 
     });
+
+
+  /* =========================================================
+     ONLINE (PVP) — SALA COM CÓDIGO
+     ========================================================= */
+
+  /*
+    Modo à parte do jogo contra o Bot: dois jogadores logados,
+    em máquinas diferentes, se conectam através de um código de
+    sala salvo no Firebase Realtime Database. Cada lance é
+    escrito no Firebase e o outro navegador escuta (onValue) e
+    atualiza o tabuleiro. Sem relógio neste modo.
+  */
+
+  const ROOM_CODE_CHARS=
+    'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+
+  let onlineGame=new Chess();
+
+  let onlineRoomCode=null;
+
+  let onlineRoomData=null;
+
+  let onlineRole=null;
+
+  let onlineMySide=null;
+
+  let onlineSelectedSq=null;
+
+  let onlineLegalTargets=[];
+
+  let onlineUnsub=null;
+
+  let onlineEloAppliedFor=null;
+
+
+  const onlineBoardEl=
+    document.getElementById(
+      'onlineBoard'
+    );
+
+
+  function generateRoomCode(){
+
+    let code='';
+
+    for(let i=0;i<5;i++){
+
+      code+=
+        ROOM_CODE_CHARS.charAt(
+          Math.floor(
+            Math.random()*
+            ROOM_CODE_CHARS.length
+          )
+        );
+
+    }
+
+    return code;
+
+  }
+
+
+  function updateOnlineAuthVisibility(){
+
+    const loggedOut=
+      document.getElementById(
+        'onlineLoggedOutCard'
+      );
+
+    const loggedIn=
+      document.getElementById(
+        'onlineLoggedInArea'
+      );
+
+    if(!loggedOut||!loggedIn) return;
+
+    if(currentUser){
+
+      loggedOut.style.display='none';
+      loggedIn.style.display='block';
+
+    }else{
+
+      loggedOut.style.display='block';
+      loggedIn.style.display='none';
+
+    }
+
+  }
+
+
+  function showOnlineLobby(){
+
+    document
+      .getElementById('onlineLobby')
+      .style.display='block';
+
+    document
+      .getElementById('onlineGameArea')
+      .style.display='none';
+
+    document
+      .getElementById('createdRoomBox')
+      .style.display='none';
+
+    document
+      .getElementById('onlineResultCard')
+      .style.display='none';
+
+    document
+      .getElementById('joinRoomInput')
+      .value='';
+
+    document
+      .getElementById('joinRoomErr')
+      .style.display='none';
+
+    onlineBoardEl.innerHTML='';
+
+    document
+      .getElementById('onlineTurnLabel')
+      .textContent=
+        'Nenhuma partida online';
+
+    document
+      .getElementById('onlineStatusMsg')
+      .textContent='';
+
+  }
+
+
+  function showOnlineGameArea(){
+
+    document
+      .getElementById('onlineLobby')
+      .style.display='none';
+
+    document
+      .getElementById('onlineGameArea')
+      .style.display='block';
+
+  }
+
+
+  async function createOnlineRoom(){
+
+    if(!currentUser) return;
+
+
+    const btn=
+      document.getElementById(
+        'btnCreateRoom'
+      );
+
+    btn.disabled=true;
+
+
+    try{
+
+      let code=null;
+
+
+      for(let attempt=0;attempt<6;attempt++){
+
+        const candidate=
+          generateRoomCode();
+
+        const existing=
+          await dbGet('rooms/'+candidate);
+
+        if(!existing){
+          code=candidate;
+          break;
+        }
+
+      }
+
+
+      if(!code){
+
+        alert(
+          'Não foi possível gerar um código de sala. Tente novamente.'
+        );
+
+        return;
+
+      }
+
+
+      const hostSide=
+        Math.random()<0.5 ? 'w' : 'b';
+
+
+      const room={
+
+        code,
+
+        hostUid:currentUser.uid,
+        hostUsername:currentUser.username,
+        hostAvatar:getUserAvatarId(currentUser),
+        hostEloAtStart:
+          Number(currentUser.eloPvp||1200),
+
+        guestUid:null,
+        guestUsername:null,
+        guestAvatar:null,
+        guestEloAtStart:null,
+
+        hostSide,
+
+        status:'waiting',
+
+        fen:new Chess().fen(),
+
+        lastMove:null,
+
+        result:null,
+        resultReason:null,
+
+        hostEloApplied:false,
+        guestEloApplied:false,
+
+        createdAt:Date.now(),
+        updatedAt:Date.now()
+
+      };
+
+
+      await dbSet('rooms/'+code,room);
+
+
+      onlineRoomCode=code;
+
+      onlineRole='host';
+
+      onlineEloAppliedFor=null;
+
+
+      document
+        .getElementById('createdRoomCode')
+        .textContent=code;
+
+      document
+        .getElementById('createdRoomBox')
+        .style.display='block';
+
+
+      subscribeOnlineRoom(code);
+
+
+    }catch(error){
+
+      console.error(
+        'Erro ao criar sala:',
+        error
+      );
+
+      alert(
+        'Não foi possível criar a sala. Tente novamente.'
+      );
+
+    }finally{
+
+      btn.disabled=false;
+
+    }
+
+  }
+
+
+  async function joinOnlineRoom(){
+
+    if(!currentUser) return;
+
+
+    const input=
+      document.getElementById(
+        'joinRoomInput'
+      );
+
+    const errBox=
+      document.getElementById(
+        'joinRoomErr'
+      );
+
+    errBox.style.display='none';
+
+
+    const code=
+      input.value
+        .trim()
+        .toUpperCase();
+
+
+    if(!code){
+
+      errBox.textContent=
+        'Digite o código da sala.';
+
+      errBox.style.display='block';
+
+      return;
+
+    }
+
+
+    const btn=
+      document.getElementById(
+        'btnJoinRoom'
+      );
+
+    btn.disabled=true;
+
+
+    try{
+
+      const room=
+        await dbGet('rooms/'+code);
+
+
+      if(!room){
+
+        errBox.textContent=
+          'Sala não encontrada. Confira o código.';
+
+        errBox.style.display='block';
+
+        return;
+
+      }
+
+
+      if(
+        room.hostUid===currentUser.uid
+      ){
+
+        errBox.textContent=
+          'Você não pode entrar na sua própria sala.';
+
+        errBox.style.display='block';
+
+        return;
+
+      }
+
+
+      if(
+        room.status!=='waiting' ||
+        room.guestUid
+      ){
+
+        errBox.textContent=
+          'Essa sala já está em andamento ou foi encerrada.';
+
+        errBox.style.display='block';
+
+        return;
+
+      }
+
+
+      await dbUpdate(
+        'rooms/'+code,
+        {
+
+          guestUid:currentUser.uid,
+          guestUsername:currentUser.username,
+          guestAvatar:getUserAvatarId(currentUser),
+          guestEloAtStart:
+            Number(currentUser.eloPvp||1200),
+
+          status:'active',
+
+          updatedAt:Date.now()
+
+        }
+      );
+
+
+      onlineRoomCode=code;
+
+      onlineRole='guest';
+
+      onlineEloAppliedFor=null;
+
+
+      subscribeOnlineRoom(code);
+
+
+    }catch(error){
+
+      console.error(
+        'Erro ao entrar na sala:',
+        error
+      );
+
+      errBox.textContent=
+        'Não foi possível entrar na sala. Tente novamente.';
+
+      errBox.style.display='block';
+
+    }finally{
+
+      btn.disabled=false;
+
+    }
+
+  }
+
+
+  function subscribeOnlineRoom(code){
+
+    if(onlineUnsub){
+
+      try{
+        onlineUnsub();
+      }catch(e){}
+
+      onlineUnsub=null;
+
+    }
+
+
+    const roomRef=
+      window.firebaseFns.ref(
+        window.firebaseDB,
+        'rooms/'+code
+      );
+
+
+    onlineUnsub=
+      window.firebaseFns.onValue(
+        roomRef,
+        snapshot=>{
+
+          handleOnlineRoomUpdate(
+            snapshot.val()
+          );
+
+        },
+        error=>{
+
+          console.error(
+            'Erro na sala online:',
+            error
+          );
+
+        }
+      );
+
+  }
+
+
+  function detachOnlineRoom(){
+
+    if(onlineUnsub){
+
+      try{
+        onlineUnsub();
+      }catch(e){}
+
+      onlineUnsub=null;
+
+    }
+
+
+    onlineRoomCode=null;
+
+    onlineRoomData=null;
+
+    onlineRole=null;
+
+    onlineMySide=null;
+
+    onlineSelectedSq=null;
+
+    onlineLegalTargets=[];
+
+    onlineEloAppliedFor=null;
+
+  }
+
+
+  function handleOnlineRoomUpdate(room){
+
+    if(!room){
+
+      /*
+        A sala foi removida (host cancelou, ou
+        já não existe mais). Voltamos ao lobby.
+      */
+
+      if(onlineRoomCode){
+
+        detachOnlineRoom();
+
+        showOnlineLobby();
+
+      }
+
+      return;
+
+    }
+
+
+    onlineRoomData=room;
+
+
+    onlineRole=
+      currentUser &&
+      room.hostUid===currentUser.uid
+        ? 'host'
+        : 'guest';
+
+
+    onlineMySide=
+      onlineRole==='host'
+        ? room.hostSide
+        : (
+          room.hostSide==='w'
+            ? 'b'
+            : 'w'
+        );
+
+
+    if(room.status==='waiting'){
+
+      showOnlineLobby();
+
+      document
+        .getElementById('createdRoomCode')
+        .textContent=room.code;
+
+      document
+        .getElementById('createdRoomBox')
+        .style.display='block';
+
+      return;
+
+    }
+
+
+    /* status: 'active' ou 'finished' */
+
+    showOnlineGameArea();
+
+
+    onlineGame=
+      new Chess(
+        room.fen ||
+        new Chess().fen()
+      );
+
+
+    renderOnlineBoard();
+
+    renderOnlineOpponentInfo(room);
+
+    updateOnlineStatusBar(room);
+
+
+    if(
+      room.status==='finished' &&
+      room.result
+    ){
+
+      handleOnlineGameFinished(room);
+
+    }else{
+
+      document
+        .getElementById('onlineResultCard')
+        .style.display='none';
+
+    }
+
+  }
+
+
+  function renderOnlineOpponentInfo(room){
+
+    const box=
+      document.getElementById(
+        'onlineOpponentInfo'
+      );
+
+    if(!box) return;
+
+
+    const isHost=
+      onlineRole==='host';
+
+
+    const oppName=
+      isHost
+        ? (room.guestUsername||'Aguardando...')
+        : room.hostUsername;
+
+    const oppAvatar=
+      isHost
+        ? (room.guestAvatar||'avatar1')
+        : (room.hostAvatar||'avatar1');
+
+    const oppElo=
+      isHost
+        ? (room.guestEloAtStart||1200)
+        : (room.hostEloAtStart||1200);
+
+
+    box.innerHTML=`
+
+      <span class="avatar-badge">${avatarSvgMarkup(oppAvatar)}</span>
+
+      <div>
+
+        <div class="name">
+          ${escapeHtml(oppName)}
+        </div>
+
+        <div class="elo">
+          Elo online: ${oppElo}
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+
+  function updateOnlineStatusBar(room){
+
+    const dot=
+      document.getElementById(
+        'onlineTurnDot'
+      );
+
+    const label=
+      document.getElementById(
+        'onlineTurnLabel'
+      );
+
+    const msg=
+      document.getElementById(
+        'onlineStatusMsg'
+      );
+
+    if(!label) return;
+
+
+    if(
+      room.status==='finished'
+    ){
+
+      label.textContent=
+        'Partida encerrada';
+
+      msg.textContent='';
+
+      return;
+
+    }
+
+
+    if(
+      !room.guestUid
+    ){
+
+      label.textContent=
+        'Aguardando o outro jogador...';
+
+      msg.textContent='';
+
+      return;
+
+    }
+
+
+    const myTurn=
+      onlineGame.turn()===
+      onlineMySide;
+
+
+    label.textContent=
+      myTurn
+        ? 'Sua vez'
+        : 'Vez do adversário';
+
+
+    dot.style.background=
+      onlineGame.turn()==='w'
+        ? '#e9e4d8'
+        : '#141210';
+
+
+    msg.textContent=
+      onlineGame.in_check()
+        ? 'Xeque!'
+        : '';
+
+  }
+
+
+  function renderOnlineBoard(){
+
+    onlineBoardEl.innerHTML='';
+
+
+    const boardState=
+      onlineGame.board();
+
+    const lastMove=
+      onlineRoomData &&
+      onlineRoomData.lastMove;
+
+
+    for(let row=0;row<8;row++){
+
+      for(let col=0;col<8;col++){
+
+        const file=FILES[col];
+
+        const rank=8-row;
+
+        const sqName=file+rank;
+
+
+        const div=
+          document.createElement('div');
+
+
+        div.className=
+          'sq '+
+          squareColor(col,row);
+
+
+        div.dataset.sq=sqName;
+
+
+        if(
+          lastMove &&
+          (
+            lastMove.from===sqName ||
+            lastMove.to===sqName
+          )
+        ){
+
+          div.classList.add('lastmove');
+
+        }
+
+
+        if(onlineSelectedSq===sqName){
+
+          div.classList.add('selected');
+
+        }
+
+
+        const piece=
+          boardState[row][col];
+
+
+        if(piece){
+
+          const shadow=
+            document.createElement('div');
+
+          shadow.className='piece-shadow';
+
+          div.appendChild(shadow);
+
+
+          div.appendChild(
+            makePieceSVG(
+              piece.color,
+              piece.type
+            )
+          );
+
+
+          if(
+            piece.type==='k' &&
+            piece.color===onlineGame.turn() &&
+            onlineGame.in_check()
+          ){
+
+            div.classList.add('check');
+
+          }
+
+        }
+
+
+        if(
+          onlineLegalTargets.includes(sqName)
+        ){
+
+          const marker=
+            document.createElement('div');
+
+          marker.className=
+            piece ? 'ring' : 'dot';
+
+          div.appendChild(marker);
+
+        }
+
+
+        if(col===0){
+
+          const coord=
+            document.createElement('span');
+
+          coord.className='coord rank';
+          coord.textContent=rank;
+
+          div.appendChild(coord);
+
+        }
+
+
+        if(row===7){
+
+          const coord=
+            document.createElement('span');
+
+          coord.className='coord file';
+          coord.textContent=file;
+
+          div.appendChild(coord);
+
+        }
+
+
+        div.addEventListener(
+          'click',
+          onOnlineSquareClick
+        );
+
+
+        onlineBoardEl.appendChild(div);
+
+      }
+
+    }
+
+  }
+
+
+  function onOnlineSquareClick(event){
+
+    if(!onlineRoomData) return;
+
+    if(onlineRoomData.status!=='active') return;
+
+    if(!onlineRoomData.guestUid) return;
+
+    if(onlineGame.turn()!==onlineMySide) return;
+
+
+    const sq=
+      event.currentTarget.dataset.sq;
+
+
+    if(onlineSelectedSq){
+
+      if(
+        onlineLegalTargets.includes(sq)
+      ){
+
+        makeOnlinePlayerMove(
+          onlineSelectedSq,
+          sq
+        );
+
+        return;
+
+      }
+
+    }
+
+
+    const piece=
+      onlineGame.get(sq);
+
+
+    if(
+      piece &&
+      piece.color===onlineMySide
+    ){
+
+      onlineSelectedSq=sq;
+
+
+      onlineLegalTargets=
+        onlineGame
+          .moves({
+            square:sq,
+            verbose:true
+          })
+          .map(move=>move.to);
+
+    }else{
+
+      onlineSelectedSq=null;
+
+      onlineLegalTargets=[];
+
+    }
+
+
+    renderOnlineBoard();
+
+  }
+
+
+  async function makeOnlinePlayerMove(from,to){
+
+    const possibleMoves=
+      onlineGame.moves({
+        square:from,
+        verbose:true
+      });
+
+
+    const target=
+      possibleMoves.find(
+        m=>m.to===to
+      );
+
+
+    let promotion=undefined;
+
+
+    if(
+      target &&
+      target.flags &&
+      target.flags.includes('p')
+    ){
+
+      promotion='q';
+
+    }
+
+
+    const mv=
+      onlineGame.move({
+        from,
+        to,
+        promotion
+      });
+
+
+    if(!mv) return;
+
+
+    onlineSelectedSq=null;
+
+    onlineLegalTargets=[];
+
+
+    renderOnlineBoard();
+
+
+    const update={
+
+      fen:onlineGame.fen(),
+
+      lastMove:{from,to},
+
+      updatedAt:Date.now()
+
+    };
+
+
+    if(onlineGame.in_checkmate()){
+
+      update.result=onlineRole;
+      update.resultReason='checkmate';
+      update.status='finished';
+
+    }else if(
+      onlineGame.in_draw() ||
+      onlineGame.in_stalemate() ||
+      onlineGame.in_threefold_repetition()
+    ){
+
+      update.result='draw';
+      update.resultReason='draw';
+      update.status='finished';
+
+    }
+
+
+    try{
+
+      await dbUpdate(
+        'rooms/'+onlineRoomCode,
+        update
+      );
+
+    }catch(error){
+
+      console.error(
+        'Erro ao enviar lance online:',
+        error
+      );
+
+    }
+
+  }
+
+
+  async function resignOnlineRoom(){
+
+    if(
+      !onlineRoomData ||
+      !onlineRoomCode ||
+      onlineRoomData.status!=='active'
+    ) return;
+
+
+    if(
+      !confirm(
+        'Tem certeza que deseja desistir desta partida?'
+      )
+    ) return;
+
+
+    const winnerRole=
+      onlineRole==='host'
+        ? 'guest'
+        : 'host';
+
+
+    try{
+
+      await dbUpdate(
+        'rooms/'+onlineRoomCode,
+        {
+
+          result:winnerRole,
+          resultReason:'resign',
+          status:'finished',
+          updatedAt:Date.now()
+
+        }
+      );
+
+    }catch(error){
+
+      console.error(
+        'Erro ao desistir:',
+        error
+      );
+
+    }
+
+  }
+
+
+  async function leaveOnlineRoom(){
+
+    if(!onlineRoomCode){
+
+      showOnlineLobby();
+
+      return;
+
+    }
+
+
+    try{
+
+      if(
+        onlineRoomData &&
+        onlineRoomData.status==='active'
+      ){
+
+        const winnerRole=
+          onlineRole==='host'
+            ? 'guest'
+            : 'host';
+
+
+        await dbUpdate(
+          'rooms/'+onlineRoomCode,
+          {
+
+            result:winnerRole,
+            resultReason:'abandon',
+            status:'finished',
+            updatedAt:Date.now()
+
+          }
+        );
+
+      }else if(
+        onlineRoomData &&
+        onlineRoomData.status==='waiting' &&
+        onlineRole==='host'
+      ){
+
+        await dbRemove(
+          'rooms/'+onlineRoomCode
+        );
+
+      }
+
+    }catch(error){
+
+      console.error(
+        'Erro ao sair da sala:',
+        error
+      );
+
+    }
+
+
+    detachOnlineRoom();
+
+    showOnlineLobby();
+
+  }
+
+
+  async function cancelOnlineRoom(){
+
+    if(
+      !onlineRoomCode ||
+      onlineRole!=='host'
+    ) return;
+
+
+    try{
+
+      await dbRemove(
+        'rooms/'+onlineRoomCode
+      );
+
+    }catch(error){
+
+      console.error(
+        'Erro ao cancelar sala:',
+        error
+      );
+
+    }
+
+
+    detachOnlineRoom();
+
+    showOnlineLobby();
+
+  }
+
+
+  async function handleOnlineGameFinished(room){
+
+    const resultCard=
+      document.getElementById(
+        'onlineResultCard'
+      );
+
+    const title=
+      document.getElementById(
+        'onlineResultTitle'
+      );
+
+    const sub=
+      document.getElementById(
+        'onlineResultSub'
+      );
+
+
+    let myResult;
+
+
+    if(room.result==='draw'){
+
+      myResult=.5;
+
+      title.textContent='Empate';
+
+      sub.textContent=
+        'A partida terminou empatada.';
+
+    }else if(room.result===onlineRole){
+
+      myResult=1;
+
+      title.textContent='Você venceu!';
+
+      sub.textContent=
+        room.resultReason==='resign'
+          ? 'Seu adversário desistiu.'
+          : room.resultReason==='abandon'
+            ? 'Seu adversário saiu da partida.'
+            : 'Xeque-mate a seu favor.';
+
+    }else{
+
+      myResult=0;
+
+      title.textContent='Você perdeu';
+
+      sub.textContent=
+        room.resultReason==='resign'
+          ? 'Você desistiu da partida.'
+          : room.resultReason==='abandon'
+            ? 'Você saiu da partida.'
+            : 'Seu adversário deu xeque-mate.';
+
+    }
+
+
+    resultCard.style.display='block';
+
+
+    await applyOnlineEloUpdate(
+      room,
+      myResult
+    );
+
+  }
+
+
+  async function applyOnlineEloUpdate(room,myResult){
+
+    if(!currentUser) return;
+
+
+    const appliedField=
+      onlineRole==='host'
+        ? 'hostEloApplied'
+        : 'guestEloApplied';
+
+
+    const guardKey=
+      room.code+'_'+room.result+
+      '_'+room.resultReason;
+
+
+    if(
+      room[appliedField] ||
+      onlineEloAppliedFor===guardKey
+    ) return;
+
+
+    onlineEloAppliedFor=guardKey;
+
+
+    const opponentEloAtStart=
+      onlineRole==='host'
+        ? Number(room.guestEloAtStart||1200)
+        : Number(room.hostEloAtStart||1200);
+
+
+    const myEloBefore=
+      Number(currentUser.eloPvp||1200);
+
+
+    const change=
+      calculateEloChange(
+        myEloBefore,
+        opponentEloAtStart,
+        myResult
+      );
+
+
+    const eloAfter=
+      Math.max(
+        100,
+        myEloBefore+change
+      );
+
+
+    currentUser.eloPvp=eloAfter;
+
+
+    currentUser.winsPvp=
+      Number(currentUser.winsPvp||0);
+
+    currentUser.lossesPvp=
+      Number(currentUser.lossesPvp||0);
+
+    currentUser.drawsPvp=
+      Number(currentUser.drawsPvp||0);
+
+
+    if(myResult===1){
+
+      currentUser.winsPvp++;
+
+    }else if(myResult===0){
+
+      currentUser.lossesPvp++;
+
+    }else{
+
+      currentUser.drawsPvp++;
+
+    }
+
+
+    const sub=
+      document.getElementById(
+        'onlineResultSub'
+      );
+
+    if(sub){
+
+      sub.textContent+=
+        ' (Elo online: '+
+        myEloBefore+
+        ' → '+
+        eloAfter+
+        ')';
+
+    }
+
+
+    try{
+
+      await dbUpdate(
+        'users/'+currentUser.uid,
+        {
+
+          eloPvp:currentUser.eloPvp,
+          winsPvp:currentUser.winsPvp,
+          lossesPvp:currentUser.lossesPvp,
+          drawsPvp:currentUser.drawsPvp
+
+        }
+      );
+
+
+      await dbUpdate(
+        'rooms/'+room.code,
+        {[appliedField]:true}
+      );
+
+
+      renderAccountBox();
+
+
+    }catch(error){
+
+      console.error(
+        'Erro ao salvar Elo online:',
+        error
+      );
+
+    }
+
+  }
+
+
+  document
+    .getElementById('btnCreateRoom')
+    .addEventListener(
+      'click',
+      createOnlineRoom
+    );
+
+
+  document
+    .getElementById('btnJoinRoom')
+    .addEventListener(
+      'click',
+      joinOnlineRoom
+    );
+
+
+  document
+    .getElementById('joinRoomInput')
+    .addEventListener(
+      'input',
+      event=>{
+
+        event.target.value=
+          event.target.value
+            .toUpperCase();
+
+      }
+    );
+
+
+  document
+    .getElementById('joinRoomInput')
+    .addEventListener(
+      'keydown',
+      event=>{
+
+        if(event.key==='Enter'){
+          joinOnlineRoom();
+        }
+
+      }
+    );
+
+
+  document
+    .getElementById('btnCancelRoom')
+    .addEventListener(
+      'click',
+      cancelOnlineRoom
+    );
+
+
+  document
+    .getElementById('btnCopyRoomCode')
+    .addEventListener(
+      'click',
+      ()=>{
+
+        const code=
+          document
+            .getElementById('createdRoomCode')
+            .textContent;
+
+        if(
+          navigator.clipboard &&
+          code
+        ){
+
+          navigator.clipboard
+            .writeText(code)
+            .catch(()=>{});
+
+        }
+
+      }
+    );
+
+
+  document
+    .getElementById('btnResignOnline')
+    .addEventListener(
+      'click',
+      resignOnlineRoom
+    );
+
+
+  document
+    .getElementById('btnLeaveOnline')
+    .addEventListener(
+      'click',
+      leaveOnlineRoom
+    );
+
+
+  document
+    .getElementById('btnOnlineNewRoom')
+    .addEventListener(
+      'click',
+      leaveOnlineRoom
+    );
 
 
   /* =========================================================
