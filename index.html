@@ -470,6 +470,60 @@
 
   }
 
+  .campaign-progress-bar{
+    width:100%;
+    height:10px;
+    background:var(--bg-elevated);
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+  }
+
+  .campaign-progress-fill{
+    height:100%;
+    background:linear-gradient(90deg,var(--gold-soft),var(--gold));
+    width:0%;
+    transition:width .3s ease;
+  }
+
+  .campaign-grid{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:10px;
+    margin-top:18px;
+  }
+
+  .campaign-card{
+    aspect-ratio:1/1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    cursor:pointer;
+    transition:.15s;
+    position:relative;
+  }
+
+  .campaign-card:hover{border-color:var(--gold-soft);transform:translateY(-2px);}
+
+  .campaign-card .num{font-family:var(--serif);font-size:20px;color:var(--text-dim);}
+
+  .campaign-card .stars{font-size:11px;letter-spacing:1px;}
+
+  .campaign-card.completed{border-color:var(--gold);background:rgba(201,162,75,.08);}
+  .campaign-card.completed .num{color:var(--gold);}
+
+  .campaign-card.current{box-shadow:0 0 0 2px var(--gold);}
+
+  .campaign-card.locked{cursor:not-allowed;opacity:.45;}
+
+  @media(max-width:700px){.campaign-grid{grid-template-columns:repeat(4,minmax(0,1fr));}}
+  @media(max-width:480px){.campaign-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
+
 
   .account{
 
@@ -2373,6 +2427,111 @@
   @media(max-width:800px){.info-grid{grid-template-columns:1fr;}.players-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.champ-rules{grid-template-columns:1fr;}.champ-head{display:block;}.champ-status{display:inline-block;margin-top:10px;}}
   @media(max-width:500px){.players-grid{grid-template-columns:1fr;}}
 
+  .img-slot{
+    aspect-ratio:4/3;
+    background:var(--bg-elevated);
+    border:1px dashed var(--line);
+    border-radius:var(--radius);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--text-dim);
+    overflow:hidden;
+  }
+
+  .img-slot svg{width:42px;height:42px;opacity:.4;}
+
+  .img-slot small{
+    display:block;
+    text-align:center;
+    font-size:10.5px;
+    color:var(--text-dim);
+    opacity:.7;
+    margin-top:6px;
+  }
+
+  .era-block{
+    display:grid;
+    grid-template-columns:64px 1fr 120px;
+    gap:16px;
+    align-items:center;
+    padding:16px 0;
+    border-bottom:1px solid var(--line);
+  }
+
+  .era-block:last-child{border-bottom:none;}
+
+  .era-block .era-icon{font-size:32px;text-align:center;}
+
+  .era-block h4{
+    margin:0 0 6px;
+    font-family:var(--serif);
+    font-size:16.5px;
+    color:var(--gold);
+  }
+
+  .era-block p{
+    margin:0;
+    font-size:13px;
+    color:var(--text-dim);
+    line-height:1.65;
+  }
+
+  .era-block .img-slot{aspect-ratio:1/1;}
+
+  .masters-grid,.moments-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:14px;
+    margin-top:14px;
+  }
+
+  .master-card,.moment-card{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+
+  .master-card .img-slot{
+    aspect-ratio:1/1;
+    border-radius:0;
+    border:none;
+    border-bottom:1px solid var(--line);
+  }
+
+  .moment-card .img-slot{
+    aspect-ratio:16/9;
+    border-radius:0;
+    border:none;
+    border-bottom:1px solid var(--line);
+  }
+
+  .master-card .body,.moment-card .body{padding:14px;}
+
+  .master-card h4,.moment-card h4{
+    margin:0 0 5px;
+    font-family:var(--serif);
+    font-size:15.5px;
+  }
+
+  .master-card p,.moment-card p{
+    margin:0;
+    font-size:12.5px;
+    color:var(--text-dim);
+    line-height:1.55;
+  }
+
+  @media(max-width:800px){
+    .masters-grid,.moments-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .era-block{grid-template-columns:48px 1fr;}
+    .era-block .img-slot{display:none;}
+  }
+
+  @media(max-width:500px){
+    .masters-grid,.moments-grid{grid-template-columns:1fr;}
+  }
+
 </style>
 
 </head>
@@ -2767,6 +2926,7 @@
     <button data-view="history">História</button>
 
     <button data-view="championship">Campeonato</button>
+    <button data-view="campaign">🏆 Campanha</button>
 
   </nav>
 
@@ -3812,39 +3972,182 @@
 
 
   <section class="view" id="view-history">
-    <div class="rank-head"><div><h2>História do <span style="color:var(--gold);">Xadrez</span></h2><p>Partidas, jogadas e jogadores que marcaram o jogo.</p></div></div>
-    <div class="info-grid">
-      <div class="info-card">
-        <h3>Uma breve <span>história</span></h3>
-        <p>O xadrez moderno nasceu da evolução de jogos de estratégia praticados na Índia e na Pérsia. Ao longo dos séculos, suas regras foram se transformando até chegar ao formato internacional conhecido atualmente. No século XIX surgiram grandes torneios e a organização competitiva moderna.</p>
-        <div class="history-timeline">
-          <div class="history-item"><strong>c. século VI</strong><br>Antecedentes do xadrez aparecem no subcontinente indiano.</div>
-          <div class="history-item"><strong>séculos XV–XVI</strong><br>As regras da dama e do bispo tornam o jogo muito mais dinâmico.</div>
-          <div class="history-item"><strong>1851</strong><br>O torneio de Londres ajuda a consolidar a era moderna dos grandes mestres.</div>
-          <div class="history-item"><strong>1886</strong><br>Steinitz enfrenta Zukertort no primeiro match reconhecido como disputa pelo título mundial.</div>
-          <div class="history-item"><strong>século XXI</strong><br>Computadores, bases de partidas e plataformas online transformam a preparação e a prática do xadrez.</div>
-        </div>
-      </div>
-      <div class="info-card">
-        <h3>Jogadas e partidas <span>famosas</span></h3>
-        <div class="history-timeline">
-          <div class="history-item"><strong>Partida Imortal — Anderssen x Kieseritzky, 1851</strong><p>Uma das partidas de ataque mais conhecidas da história.</p><span class="move-badge">1. e4 e5 2. f4 exf4 3. Bc4 Qh4+</span></div>
-          <div class="history-item"><strong>Partida da Ópera — Morphy x Duque de Brunswick / Conde Isouard, 1858</strong><p>Exemplo clássico de desenvolvimento rápido, iniciativa e ataque ao rei.</p><span class="move-badge">1. e4 e5 2. Nf3 d6 3. d4 Bg4</span></div>
-          <div class="history-item"><strong>Kasparov x Topalov, 1999</strong><p>Uma das partidas modernas mais celebradas, marcada por uma combinação tática extraordinária.</p><span class="move-badge">Combinação com sacrifício de torre</span></div>
-        </div>
+
+    <div class="rank-head">
+      <div>
+        <h2>🏆 História do <span style="color:var(--gold);">Xadrez</span></h2>
+        <p>Onde tudo começou, como as regras mudaram e quem marcou o jogo para sempre.</p>
       </div>
     </div>
-    <div class="info-card" style="margin-top:18px;"><h3>Grandes nomes do <span>xadrez</span></h3><div class="players-grid">
-      <div class="player-chip"><strong>Paul Morphy</strong><small>Gênio do xadrez romântico do século XIX.</small></div>
-      <div class="player-chip"><strong>José Raúl Capablanca</strong><small>Campeão mundial famoso pela técnica e pelos finais.</small></div>
-      <div class="player-chip"><strong>Alexander Alekhine</strong><small>Campeão mundial conhecido pelo estilo agressivo e criativo.</small></div>
-      <div class="player-chip"><strong>Bobby Fischer</strong><small>Campeão mundial e um dos maiores talentos dos Estados Unidos.</small></div>
-      <div class="player-chip"><strong>Garry Kasparov</strong><small>Campeão mundial e uma das figuras mais dominantes da era moderna.</small></div>
-      <div class="player-chip"><strong>Anatoly Karpov</strong><small>Campeão mundial conhecido pela precisão posicional.</small></div>
-      <div class="player-chip"><strong>Viswanathan Anand</strong><small>Campeão mundial e um dos grandes nomes da Índia.</small></div>
-      <div class="player-chip"><strong>Judit Polgár</strong><small>Uma das maiores enxadristas de todos os tempos.</small></div>
-      <div class="player-chip"><strong>Magnus Carlsen</strong><small>Campeão mundial e recordista de rating clássico em seu auge.</small></div>
-    </div></div>
+
+    <div class="info-card">
+      <h3>Uma breve <span>introdução</span></h3>
+      <p>
+        O xadrez que conhecemos hoje é o resultado de mais de 1.500 anos de evolução. Ele nasceu
+        como um jogo de estratégia no subcontinente indiano, viajou por impérios inteiros, foi
+        reinventado por diferentes culturas e, aos poucos, teve suas regras ajustadas até chegar
+        ao formato rápido e dinâmico que jogamos atualmente. Cada época deixou sua marca — desde
+        os primeiros exércitos representados no tabuleiro até os torneios internacionais e os
+        motores de xadrez modernos.
+      </p>
+    </div>
+
+    <div class="info-card" style="margin-top:18px;">
+      <h3>Linha do <span>tempo</span></h3>
+
+      <div class="era-block">
+        <div class="era-icon">🏺</div>
+        <div>
+          <h4>Origens</h4>
+          <p>
+            Muito antes do xadrez como o conhecemos, diversas civilizações já praticavam jogos de
+            tabuleiro baseados em estratégia militar e movimentação de peças. Esses antecessores
+            lançaram as bases conceituais — duas forças opostas, um tabuleiro dividido em casas e
+            a ideia de capturar as peças adversárias — que mais tarde dariam origem ao xadrez.
+          </p>
+        </div>
+        <div class="img-slot" data-img-slot="origens"><svg viewBox="0 0 100 100" class="piece-svg white"><use href="#p-pawn"></use></svg></div>
+      </div>
+
+      <div class="era-block">
+        <div class="era-icon">🕌</div>
+        <div>
+          <h4>Índia e o Chaturanga</h4>
+          <p>
+            Por volta do século VI, surge na Índia o Chaturanga — considerado o ancestral direto
+            do xadrez moderno. O nome significa "quatro membros", em referência às quatro divisões
+            do exército indiano da época: infantaria, cavalaria, elefantes e carruagens, que deram
+            origem ao peão, cavalo, bispo e torre que usamos até hoje.
+          </p>
+        </div>
+        <div class="img-slot" data-img-slot="chaturanga"><svg viewBox="0 0 100 100" class="piece-svg white"><use href="#p-knight"></use></svg></div>
+      </div>
+
+      <div class="era-block">
+        <div class="era-icon">🌍</div>
+        <div>
+          <h4>Expansão pela Ásia e Europa</h4>
+          <p>
+            O jogo se espalhou para a Pérsia, onde recebeu o nome "shatranj", e depois seguiu pelo
+            mundo árabe até chegar à Europa através da Península Ibérica e das rotas de comércio
+            medievais. Cada região adaptou o jogo ao seu próprio contexto cultural, e por séculos
+            existiram diferentes versões das regras, peças e até do tabuleiro.
+          </p>
+        </div>
+        <div class="img-slot" data-img-slot="expansao"><svg viewBox="0 0 100 100" class="piece-svg black"><use href="#p-bishop"></use></svg></div>
+      </div>
+
+      <div class="era-block">
+        <div class="era-icon">♟️</div>
+        <div>
+          <h4>Surgimento do Xadrez Moderno</h4>
+          <p>
+            Entre os séculos XV e XVI, a Europa promove a maior revolução nas regras do jogo: a
+            dama passa a se mover livremente por qualquer distância e o bispo ganha o movimento
+            diagonal completo, tornando o jogo muito mais rápido e agressivo. A partir daí, o
+            xadrez passa por um processo de padronização que culmina, no século XIX, na
+            organização dos primeiros grandes torneios internacionais e no nascimento da era dos
+            campeões mundiais.
+          </p>
+        </div>
+        <div class="img-slot" data-img-slot="xadrez-moderno"><svg viewBox="0 0 100 100" class="piece-svg white"><use href="#p-queen"></use></svg></div>
+      </div>
+
+    </div>
+
+    <div class="info-card" style="margin-top:18px;">
+      <h3>👑 Grandes <span>Mestres</span></h3>
+      <p style="color:var(--text-dim);font-size:13px;">Jogadores que definiram diferentes eras do xadrez.</p>
+
+      <div class="masters-grid">
+
+        <div class="master-card">
+          <div class="img-slot" data-img-slot="capablanca"><svg viewBox="0 0 100 100" class="piece-svg white"><use href="#p-king"></use></svg></div>
+          <div class="body">
+            <h4>José Raúl Capablanca</h4>
+            <p>Campeão mundial cubano, famoso pela clareza posicional e pela técnica quase infalível nos finais de partida.</p>
+          </div>
+        </div>
+
+        <div class="master-card">
+          <div class="img-slot" data-img-slot="alekhine"><svg viewBox="0 0 100 100" class="piece-svg black"><use href="#p-knight"></use></svg></div>
+          <div class="body">
+            <h4>Alexander Alekhine</h4>
+            <p>Campeão mundial russo-francês, reconhecido pelo estilo agressivo, criativo e por combinações táticas profundas.</p>
+          </div>
+        </div>
+
+        <div class="master-card">
+          <div class="img-slot" data-img-slot="fischer"><svg viewBox="0 0 100 100" class="piece-svg white"><use href="#p-rook"></use></svg></div>
+          <div class="body">
+            <h4>Bobby Fischer</h4>
+            <p>Campeão mundial americano e um dos maiores talentos da história, símbolo da era em que o xadrez virou fenômeno global.</p>
+          </div>
+        </div>
+
+        <div class="master-card">
+          <div class="img-slot" data-img-slot="karpov"><svg viewBox="0 0 100 100" class="piece-svg black"><use href="#p-bishop"></use></svg></div>
+          <div class="body">
+            <h4>Anatoly Karpov</h4>
+            <p>Campeão mundial soviético conhecido pela precisão posicional e por um estilo de jogo extremamente sólido.</p>
+          </div>
+        </div>
+
+        <div class="master-card">
+          <div class="img-slot" data-img-slot="kasparov"><svg viewBox="0 0 100 100" class="piece-svg white"><use href="#p-queen"></use></svg></div>
+          <div class="body">
+            <h4>Garry Kasparov</h4>
+            <p>Campeão mundial e uma das figuras mais dominantes da era moderna, protagonista dos históricos duelos contra computadores.</p>
+          </div>
+        </div>
+
+        <div class="master-card">
+          <div class="img-slot" data-img-slot="carlsen"><svg viewBox="0 0 100 100" class="piece-svg black"><use href="#p-king"></use></svg></div>
+          <div class="body">
+            <h4>Magnus Carlsen</h4>
+            <p>Campeão mundial norueguês e recordista de rating clássico, reconhecido pela versatilidade em todas as fases da partida.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="info-card" style="margin-top:18px;">
+      <h3>🏆 Grandes momentos do <span>xadrez</span></h3>
+      <p style="color:var(--text-dim);font-size:13px;">Partidas que entraram para a história do jogo.</p>
+
+      <div class="moments-grid">
+
+        <div class="moment-card">
+          <div class="img-slot" data-img-slot="partida-imortal"><svg viewBox="0 0 100 100" class="piece-svg white"><use href="#p-bishop"></use></svg></div>
+          <div class="body">
+            <h4>Partida Imortal — Anderssen x Kieseritzky, 1851</h4>
+            <p>Uma das partidas de ataque mais conhecidas da história, com Anderssen sacrificando peça após peça até dar um xeque-mate espetacular.</p>
+            <span class="move-badge">1. e4 e5 2. f4 exf4 3. Bc4 Qh4+</span>
+          </div>
+        </div>
+
+        <div class="moment-card">
+          <div class="img-slot" data-img-slot="partida-opera"><svg viewBox="0 0 100 100" class="piece-svg black"><use href="#p-queen"></use></svg></div>
+          <div class="body">
+            <h4>Partida da Ópera — Morphy x Duque de Brunswick / Conde Isouard, 1858</h4>
+            <p>Exemplo clássico de desenvolvimento rápido, iniciativa e ataque direto ao rei adversário, jogada literalmente durante uma ópera.</p>
+            <span class="move-badge">1. e4 e5 2. Nf3 d6 3. d4 Bg4</span>
+          </div>
+        </div>
+
+        <div class="moment-card">
+          <div class="img-slot" data-img-slot="kasparov-topalov"><svg viewBox="0 0 100 100" class="piece-svg white"><use href="#p-rook"></use></svg></div>
+          <div class="body">
+            <h4>Kasparov x Topalov, 1999</h4>
+            <p>Uma das partidas modernas mais celebradas, marcada por uma combinação tática extraordinária com sacrifício de torre.</p>
+            <span class="move-badge">Combinação com sacrifício de torre</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </section>
 
   <section class="view" id="view-championship">
@@ -3857,6 +4160,77 @@
       <div id="champForm" style="display:none;"><div class="field"><label>Jogador</label><input id="champUsername" type="text" readonly></div><div class="field"><label>Elo atual</label><input id="champElo" type="text" readonly></div><button class="btn primary" id="btnChampRegister">Inscrever no campeonato</button></div>
       <div id="champMessage" class="champ-message"></div>
     </div>
+  </section>
+
+  <!-- =========================================================
+       CAMPANHA
+       ========================================================= -->
+  <section class="view" id="view-campaign">
+
+    <div class="rank-head">
+      <div>
+        <h2>🏆 <span style="color:var(--gold);">CAMPANHA</span> de Xadrez</h2>
+        <p>Treine seu raciocínio. Supere desafios. Torne-se um jogador melhor.</p>
+      </div>
+    </div>
+
+    <div id="campaignLoggedOutCard" class="card" style="display:none;">
+      <h3>Entre para <span>jogar a campanha</span></h3>
+      <p style="color:var(--text-dim);font-size:13px;margin:0;">Seu progresso, estrelas e pontuação ficam salvos na sua conta.</p>
+    </div>
+
+    <div id="campaignLoggedInArea" style="display:none;">
+
+      <div class="info-card" id="campaignProgressCard">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <strong>Seu progresso</strong>
+          <span id="campaignProgressLabel" style="color:var(--text-dim);font-size:12.5px;"></span>
+        </div>
+        <div class="campaign-progress-bar"><div class="campaign-progress-fill" id="campaignProgressFill"></div></div>
+        <div style="display:flex;gap:18px;margin-top:10px;font-size:12.5px;color:var(--text-dim);">
+          <span>⭐ Estrelas: <strong id="campaignTotalStars" style="color:var(--gold);">0</strong>/60</span>
+          <span>🏅 Pontos: <strong id="campaignTotalScore" style="color:var(--gold);">0</strong></span>
+        </div>
+      </div>
+
+      <div class="campaign-grid" id="campaignGrid"></div>
+
+      <div id="campaignPuzzleArea" style="display:none;margin-top:20px;">
+
+        <div class="play-grid">
+
+          <div class="board-wrap">
+            <div class="board-frame"><div class="board" id="campaignBoard"></div></div>
+            <div class="status-bar">
+              <div class="turn-pill"><span id="campaignPhaseLabel" style="font-weight:600;"></span></div>
+              <div id="campaignStatusMsg"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="card">
+              <h3 id="campaignObjectiveTitle"></h3>
+              <p id="campaignObjectiveText" style="color:var(--text-dim);font-size:13px;"></p>
+              <div id="campaignFeedback" style="display:none;margin-top:10px;padding:10px 12px;border-radius:4px;font-size:13px;"></div>
+              <div class="actions-row" style="margin-top:14px;">
+                <button class="btn ghost" id="btnCampaignRetry">Tentar novamente</button>
+                <button class="btn ghost" id="btnCampaignExit">Voltar ao mapa</button>
+              </div>
+            </div>
+
+            <div class="card" id="campaignSuccessCard" style="display:none;">
+              <h3>✅ Fase concluída!</h3>
+              <p id="campaignSuccessText" style="color:var(--text-dim);font-size:13px;"></p>
+              <div id="campaignStarsEarned" style="font-size:24px;margin:8px 0;"></div>
+              <button class="btn primary" id="btnCampaignNext" style="width:100%;">Próxima fase →</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
   </section>
 
 </main>
@@ -4211,13 +4585,17 @@
 
     easy:{
       depth:2,
-      thinkMin:700,
-      thinkMax:1300,
+      maxDepth:2,
+      timeBudgetMs:150,
+      thinkMin:150,
+      thinkMax:350,
       randomness:.42
     },
 
     medium:{
       depth:3,
+      maxDepth:3,
+      timeBudgetMs:350,
       thinkMin:0,
       thinkMax:0,
       randomness:.10
@@ -4225,6 +4603,8 @@
 
     hard:{
       depth:4,
+      maxDepth:4,
+      timeBudgetMs:700,
       thinkMin:0,
       thinkMax:0,
       randomness:.025
@@ -4658,6 +5038,26 @@
     if(name==='championship'){
 
       renderChampionship();
+
+    }
+
+
+    if(name==='online'){
+
+      updateOnlineAuthVisibility();
+
+      if(onlineRoomCode && onlineRoomData){
+        handleOnlineRoomUpdate(onlineRoomData);
+      }else{
+        showOnlineLobby();
+      }
+
+    }
+
+
+    if(name==='campaign'){
+
+      renderCampaign();
 
     }
 
@@ -6605,8 +7005,19 @@
     depth,
     alpha,
     beta,
-    maximizing
+    maximizing,
+    deadline
   ){
+
+    if(
+      deadline &&
+      Date.now()>=deadline
+    ){
+
+      throw 'TIME_UP';
+
+    }
+
 
     if(
       depth<=0 ||
@@ -6642,18 +7053,25 @@
 
         g.move(move);
 
+        let score;
 
-        const score=
-          minimax(
-            g,
-            depth-1,
-            alpha,
-            beta,
-            false
-          );
+        try{
 
+          score=
+            minimax(
+              g,
+              depth-1,
+              alpha,
+              beta,
+              false,
+              deadline
+            );
 
-        g.undo();
+        }finally{
+
+          g.undo();
+
+        }
 
 
         best=
@@ -6693,18 +7111,25 @@
 
       g.move(move);
 
+      let score;
 
-      const score=
-        minimax(
-          g,
-          depth-1,
-          alpha,
-          beta,
-          true
-        );
+      try{
 
+        score=
+          minimax(
+            g,
+            depth-1,
+            alpha,
+            beta,
+            true,
+            deadline
+          );
 
-      g.undo();
+      }finally{
+
+        g.undo();
+
+      }
 
 
       best=
@@ -6797,62 +7222,130 @@
         : Infinity;
 
 
-    let bestMoves=[];
+    let bestMoves=[moves[0]];
+
+
+    const deadline=
+      Date.now()+
+      (config.timeBudgetMs||500);
 
 
     for(
-      const move of moves
+      let depth=1;
+      depth<=(config.maxDepth||config.depth||3);
+      depth++
     ){
 
-      game.move(move);
+      let depthBestScore=
+        maximizing
+          ? -Infinity
+          : Infinity;
+
+      let depthBestMoves=[];
+
+      let aborted=false;
 
 
-      const score=
-        minimax(
-          game,
-          config.depth-1,
-          -Infinity,
-          Infinity,
-          !maximizing
-        );
+      try{
+
+        for(
+          const move of moves
+        ){
+
+          game.move(move);
+
+          let score;
+
+          try{
+
+            score=
+              minimax(
+                game,
+                depth-1,
+                -Infinity,
+                Infinity,
+                !maximizing,
+                deadline
+              );
+
+          }finally{
+
+            game.undo();
+
+          }
 
 
-      game.undo();
+          if(
+            maximizing
+          ){
+
+            if(score>depthBestScore){
+
+              depthBestScore=score;
+
+              depthBestMoves=[move];
+
+            }else if(
+              score===depthBestScore
+            ){
+
+              depthBestMoves.push(move);
+
+            }
+
+          }else{
+
+            if(score<depthBestScore){
+
+              depthBestScore=score;
+
+              depthBestMoves=[move];
+
+            }else if(
+              score===depthBestScore
+            ){
+
+              depthBestMoves.push(move);
+
+            }
+
+          }
+
+        }
+
+      }catch(err){
+
+        if(err==='TIME_UP'){
+
+          aborted=true;
+
+        }else{
+
+          throw err;
+
+        }
+
+      }
 
 
       if(
-        maximizing
+        !aborted &&
+        depthBestMoves.length
       ){
 
-        if(score>bestScore){
+        bestScore=depthBestScore;
 
-          bestScore=score;
+        bestMoves=depthBestMoves;
 
-          bestMoves=[move];
+      }
 
-        }else if(
-          score===bestScore
-        ){
 
-          bestMoves.push(move);
+      if(
+        aborted ||
+        Date.now()>=deadline
+      ){
 
-        }
-
-      }else{
-
-        if(score<bestScore){
-
-          bestScore=score;
-
-          bestMoves=[move];
-
-        }else if(
-          score===bestScore
-        ){
-
-          bestMoves.push(move);
-
-        }
+        break;
 
       }
 
@@ -6914,7 +7407,7 @@
     'var PST_KING=[-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-20,-30,-30,-40,-40,-30,-30,-20,-10,-20,-20,-20,-20,-20,-20,-10,20,20,0,0,0,0,20,20,20,30,10,0,0,10,30,20];',
     'var PST={p:PST_PAWN,n:PST_KNIGHT,b:PST_BISHOP,r:PST_ROOK,q:PST_QUEEN,k:PST_KING};',
     '',
-    'var DIFF_CONFIG={easy:{depth:2,randomness:.42},medium:{depth:3,randomness:.10},hard:{depth:4,randomness:.025}};',
+    'var DIFF_CONFIG={easy:{maxDepth:2,timeBudgetMs:150,randomness:.42},medium:{maxDepth:3,timeBudgetMs:350,randomness:.10},hard:{maxDepth:4,timeBudgetMs:700,randomness:.025}};',
     '',
     'function evaluateBoard(g){',
     '  if(g.in_checkmate()) return g.turn()==="w" ? -999999 : 999999;',
@@ -6959,7 +7452,8 @@
     '  return moves;',
     '}',
     '',
-    'function minimax(g,depth,alpha,beta,maximizing){',
+    'function minimax(g,depth,alpha,beta,maximizing,deadline){',
+    '  if(deadline&&Date.now()>=deadline) throw "TIME_UP";',
     '  if(depth<=0||g.game_over()) return evaluateBoard(g);',
     '  var moves=orderedMoves(g);',
     '  if(moves.length===0) return evaluateBoard(g);',
@@ -6967,8 +7461,9 @@
     '    var best=-Infinity;',
     '    for(var i=0;i<moves.length;i++){',
     '      g.move(moves[i]);',
-    '      var score=minimax(g,depth-1,alpha,beta,false);',
-    '      g.undo();',
+    '      var score;',
+    '      try{ score=minimax(g,depth-1,alpha,beta,false,deadline); }',
+    '      finally{ g.undo(); }',
     '      best=Math.max(best,score);',
     '      alpha=Math.max(alpha,best);',
     '      if(beta<=alpha) break;',
@@ -6978,8 +7473,9 @@
     '  var worst=Infinity;',
     '  for(var j=0;j<moves.length;j++){',
     '    g.move(moves[j]);',
-    '    var score2=minimax(g,depth-1,alpha,beta,true);',
-    '    g.undo();',
+    '    var score2;',
+    '    try{ score2=minimax(g,depth-1,alpha,beta,true,deadline); }',
+    '    finally{ g.undo(); }',
     '    worst=Math.min(worst,score2);',
     '    beta=Math.min(beta,worst);',
     '    if(beta<=alpha) break;',
@@ -6997,20 +7493,32 @@
     '    var top=Math.min(5,moves.length);',
     '    return moves[Math.floor(Math.random()*top)];',
     '  }',
-    '  var bestScore=maximizing ? -Infinity : Infinity;',
-    '  var bestMoves=[];',
-    '  for(var i=0;i<moves.length;i++){',
-    '    var move=moves[i];',
-    '    game.move(move);',
-    '    var score=minimax(game,config.depth-1,-Infinity,Infinity,!maximizing);',
-    '    game.undo();',
-    '    if(maximizing){',
-    '      if(score>bestScore){bestScore=score;bestMoves=[move];}',
-    '      else if(score===bestScore) bestMoves.push(move);',
-    '    }else{',
-    '      if(score<bestScore){bestScore=score;bestMoves=[move];}',
-    '      else if(score===bestScore) bestMoves.push(move);',
+    '  var deadline=Date.now()+(config.timeBudgetMs||500);',
+    '  var bestMoves=[moves[0]];',
+    '  for(var depth=1; depth<=(config.maxDepth||3); depth++){',
+    '    var depthBestScore=maximizing ? -Infinity : Infinity;',
+    '    var depthBestMoves=[];',
+    '    var aborted=false;',
+    '    try{',
+    '      for(var i=0;i<moves.length;i++){',
+    '        var move=moves[i];',
+    '        game.move(move);',
+    '        var score;',
+    '        try{ score=minimax(game,depth-1,-Infinity,Infinity,!maximizing,deadline); }',
+    '        finally{ game.undo(); }',
+    '        if(maximizing){',
+    '          if(score>depthBestScore){depthBestScore=score;depthBestMoves=[move];}',
+    '          else if(score===depthBestScore) depthBestMoves.push(move);',
+    '        }else{',
+    '          if(score<depthBestScore){depthBestScore=score;depthBestMoves=[move];}',
+    '          else if(score===depthBestScore) depthBestMoves.push(move);',
+    '        }',
+    '      }',
+    '    }catch(err){',
+    '      if(err==="TIME_UP"){ aborted=true; } else { throw err; }',
     '    }',
+    '    if(!aborted&&depthBestMoves.length){ bestMoves=depthBestMoves; }',
+    '    if(aborted||Date.now()>=deadline) break;',
     '  }',
     '  if(difficulty==="medium"&&Math.random()<config.randomness&&moves.length>1){',
     '    return moves[Math.floor(Math.random()*Math.min(3,moves.length))];',
@@ -10348,6 +10856,680 @@
 
 
   /* =========================================================
+     CAMPANHA — BANCO DE FASES
+     ========================================================= */
+
+  /*
+    Cada fase é independente e autocontida: FEN da posição,
+    lado que joga, e a sequência de lances da solução (alternando
+    jogador/resposta automática quando for mate em 2 ou 3).
+    Adicionar novas fases no futuro é só acrescentar objetos
+    a este array — nada mais no sistema precisa mudar.
+  */
+
+  const CAMPAIGN_PHASES=[
+    {id:1,title:'Fase 1 — Primeiros passos',difficulty:'Iniciante',fen:'6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1',playerSide:'w',solution:[{from:'a1',to:'a8'}],objective:'Mate em 1',points:100,explanation:'O rei preto está preso atrás dos próprios peões. A torre entra na 8ª fileira e dá xeque-mate, pois o rei não tem nenhuma casa livre para fugir.'},
+    {id:2,title:'Fase 2 — Dama certeira',difficulty:'Iniciante',fen:'7k/8/5K2/8/8/8/8/6Q1 w - - 0 1',playerSide:'w',solution:[{from:'g1',to:'g7'}],objective:'Mate em 1',points:100,explanation:'A dama avança pela coluna g e dá xeque-mate ao lado do rei, protegida pelo próprio rei branco.'},
+    {id:3,title:'Fase 3 — Peça protegida',difficulty:'Iniciante',fen:'6k1/5p1p/8/5N2/3Q4/8/8/4K3 w - - 0 1',playerSide:'w',solution:[{from:'d4',to:'g7'}],objective:'Mate em 1 (identifique a peça protegida)',points:120,explanation:'A dama dá xeque-mate ao lado do rei. Repare que ela está protegida pelo cavalo em f5 — por isso o rei não pode capturá-la.'},
+    {id:4,title:'Fase 4 — Torre e rei juntos',difficulty:'Iniciante',fen:'7k/8/6K1/8/8/8/8/R7 w - - 0 1',playerSide:'w',solution:[{from:'a1',to:'a8'}],objective:'Mate em 1',points:120,explanation:'O rei branco corta as casas g7 e h7, enquanto a torre dá o xeque-mate na 8ª fileira. Um clássico mate de torre e rei.'},
+    {id:5,title:'Fase 5 — Defendida por peão',difficulty:'Iniciante',fen:'6k1/5p1p/7P/8/3Q4/8/8/4K3 w - - 0 1',playerSide:'w',solution:[{from:'d4',to:'g7'}],objective:'Mate em 1 (identifique a peça protegida)',points:120,explanation:'A dama dá xeque-mate ao lado do rei, protegida pelo peão em h6. Mais uma vez, o rei não pode recapturar.'},
+    {id:6,title:'Fase 6 — A caçada começa',difficulty:'Intermediário',fen:'6k1/5pp1/8/6K1/8/8/1R6/R7 w - - 0 1',playerSide:'w',solution:[{from:'a1',to:'a8'},{from:'g8',to:'h7'},{from:'b2',to:'h2'}],objective:'Mate em 2',points:150,explanation:'A primeira torre corta a 8ª fileira, forçando o rei para h7 — a única casa livre. A segunda torre entra pela coluna h e dá xeque-mate.'},
+    {id:7,title:'Fase 7 — Do outro lado',difficulty:'Intermediário',fen:'1k6/1pp5/8/1K6/8/8/6R1/7R w - - 0 1',playerSide:'w',solution:[{from:'h1',to:'h8'},{from:'b8',to:'a7'},{from:'g2',to:'a2'}],objective:'Mate em 2',points:150,explanation:'Mesmo mecanismo do lado da dama: a torre corta a 8ª fileira forçando o rei a a7, e a segunda torre mata pela coluna a.'},
+    {id:8,title:'Fase 8 — Confirme o padrão',difficulty:'Intermediário',fen:'6k1/5pp1/8/5K2/8/2R5/8/R7 w - - 0 1',playerSide:'w',solution:[{from:'a1',to:'a8'},{from:'g8',to:'h7'},{from:'c3',to:'h3'}],objective:'Mate em 2',points:150,explanation:'O mesmo padrão de corte e mate — agora reconheça-o com as torres em casas diferentes.'},
+    {id:9,title:'Fase 9 — Treine o padrão',difficulty:'Intermediário',fen:'1k6/1pp5/8/2K5/8/8/4R3/7R w - - 0 1',playerSide:'w',solution:[{from:'h1',to:'h8'},{from:'b8',to:'a7'},{from:'e2',to:'a2'}],objective:'Mate em 2',points:150,explanation:'Novamente o corte na 8ª fileira força o rei ao canto, e a segunda torre finaliza pela coluna aberta.'},
+    {id:10,title:'Fase 10 — Domine o mecanismo',difficulty:'Intermediário',fen:'6k1/5pp1/8/6K1/3R4/8/8/R7 w - - 0 1',playerSide:'w',solution:[{from:'a1',to:'a8'},{from:'g8',to:'h7'},{from:'d4',to:'h4'}],objective:'Mate em 2',points:150,explanation:'A esta altura você já reconhece o padrão: corte na fileira, rei forçado ao canto, mate pela coluna.'},
+    {id:11,title:'Fase 11 — Dama e cavalo',difficulty:'Intermediário',fen:'6k1/5p1p/8/5KP1/8/6N1/8/Q7 w - - 0 1',playerSide:'w',solution:[{from:'a1',to:'a8'},{from:'g8',to:'g7'},{from:'g3',to:'h5'}],objective:'Mate em 2',points:180,explanation:'A dama corta a 8ª fileira forçando o rei a g7. O cavalo salta para h5 e dá xeque-mate — o rei e o peão já cobrem todas as saídas.'},
+    {id:12,title:'Fase 12 — Outro flanco',difficulty:'Intermediário',fen:'1k6/p1p5/8/1PK5/8/1N6/8/7Q w - - 0 1',playerSide:'w',solution:[{from:'h1',to:'h8'},{from:'b8',to:'b7'},{from:'b3',to:'a5'}],objective:'Mate em 2',points:180,explanation:'Mesmo padrão de dama e cavalo, espelhado para o lado da dama.'},
+    {id:13,title:'Fase 13 — Dama e torre',difficulty:'Intermediário',fen:'6k1/5pp1/8/6K1/2P5/8/1Q6/R7 w - - 0 1',playerSide:'w',solution:[{from:'a1',to:'a8'},{from:'g8',to:'h7'},{from:'b2',to:'h2'}],objective:'Mate em 2',points:180,explanation:'A torre corta a fileira e a dama entra pela coluna h para finalizar — mais peças no tabuleiro, mesmo raciocínio.'},
+    {id:14,title:'Fase 14 — Mais peças em jogo',difficulty:'Intermediário',fen:'1k6/1pp5/8/1K6/8/8/6Q1/3N3R w - - 0 1',playerSide:'w',solution:[{from:'h1',to:'h8'},{from:'b8',to:'a7'},{from:'g2',to:'a2'}],objective:'Mate em 2',points:180,explanation:'Com um cavalo extra no tabuleiro (que não participa diretamente), confirme o mesmo mecanismo de corte e mate.'},
+    {id:15,title:'Fase 15 — Quase lá',difficulty:'Intermediário',fen:'6k1/5pp1/8/5K2/8/2Q5/3PP3/R7 w - - 0 1',playerSide:'w',solution:[{from:'a1',to:'a8'},{from:'g8',to:'h7'},{from:'c3',to:'h3'}],objective:'Mate em 2',points:180,explanation:'Mais peões no tabuleiro para praticar a leitura da posição antes de partir para os desafios avançados.'},
+    {id:16,title:'Fase 16 — Avançado: sacrifício',difficulty:'Avançado',fen:'6k1/5pp1/8/5K2/4N3/8/8/R7 w - - 0 1',playerSide:'w',solution:[{from:'a1',to:'a8'},{from:'g8',to:'h7'},{from:'e4',to:'g5'},{from:'h7',to:'h6'},{from:'a8',to:'h8'}],objective:'Mate em 3',points:250,explanation:'A torre corta a fileira (Kh7 forçado). O cavalo dá um xeque intermediário que empurra o rei para h6 — a última casa livre. A torre volta pela coluna h e finaliza o mate.'},
+    {id:17,title:'Fase 17 — Avançado: espelhado',difficulty:'Avançado',fen:'1k6/1pp5/8/2K5/3N4/8/8/7R w - - 0 1',playerSide:'w',solution:[{from:'h1',to:'h8'},{from:'b8',to:'a7'},{from:'d4',to:'b5'},{from:'a7',to:'a6'},{from:'h8',to:'a8'}],objective:'Mate em 3',points:250,explanation:'A mesma combinação de 3 lances, agora do lado da dama: corte, xeque intermediário do cavalo, mate final da torre.'},
+    {id:18,title:'Fase 18 — Avançado: confirme',difficulty:'Avançado',fen:'6k1/5pp1/8/5K2/2P5/5N2/8/R7 w - - 0 1',playerSide:'w',solution:[{from:'a1',to:'a8'},{from:'g8',to:'h7'},{from:'f3',to:'g5'},{from:'h7',to:'h6'},{from:'a8',to:'h8'}],objective:'Mate em 3',points:250,explanation:'Mesma sequência de 3 lances — agora calcule você mesmo antes de olhar as dicas.'},
+    {id:19,title:'Fase 19 — Combinação rica',difficulty:'Avançado',fen:'6k1/5p1p/8/5KP1/8/2P3N1/8/Q2B4 w - - 0 1',playerSide:'w',solution:[{from:'a1',to:'a8'},{from:'g8',to:'g7'},{from:'g3',to:'h5'}],objective:'Mate em 2',points:220,explanation:'Com várias peças no tabuleiro, identifique quais realmente participam do mate: a dama corta a fileira e o cavalo finaliza.'},
+    {id:20,title:'Fase 20 — Desafio final',difficulty:'Avançado',fen:'6k1/5pp1/8/5K2/4N3/1PP5/8/R2B4 w - - 0 1',playerSide:'w',solution:[{from:'a1',to:'a8'},{from:'g8',to:'h7'},{from:'e4',to:'g5'},{from:'h7',to:'h6'},{from:'a8',to:'h8'}],objective:'Mate em 3',points:300,explanation:'O grande final da campanha: o mesmo mecanismo de corte, xeque intermediário e mate, agora com o tabuleiro mais cheio. Parabéns por chegar até aqui!'}
+  ];
+
+
+  /* =========================================================
+     CAMPANHA — ESTADO E LÓGICA
+     ========================================================= */
+
+  let campaignGame=new Chess();
+
+  let campaignCurrentPhase=null;
+
+  let campaignStep=0;
+
+  let campaignSelectedSq=null;
+
+  let campaignLegalTargets=[];
+
+  let campaignAttempts=0;
+
+  let campaignHadError=false;
+
+  let campaignStartTime=0;
+
+  let campaignProgress={completed:{},totalStars:0,totalScore:0};
+
+
+  const campaignBoardEl=
+    document.getElementById('campaignBoard');
+
+
+  function defaultCampaignProgress(){
+    return {completed:{},totalStars:0,totalScore:0};
+  }
+
+
+  async function loadCampaignProgress(){
+
+    if(!currentUser) return defaultCampaignProgress();
+
+    try{
+
+      const data=
+        await dbGet(
+          'users/'+currentUser.uid+'/campaign'
+        );
+
+      if(!data) return defaultCampaignProgress();
+
+      return {
+        completed:data.completed||{},
+        totalStars:Number(data.totalStars||0),
+        totalScore:Number(data.totalScore||0)
+      };
+
+    }catch(error){
+
+      console.error('Erro ao carregar campanha:',error);
+
+      return defaultCampaignProgress();
+
+    }
+
+  }
+
+
+  async function saveCampaignProgress(){
+
+    if(!currentUser) return;
+
+    try{
+
+      await dbUpdate(
+        'users/'+currentUser.uid+'/campaign',
+        {
+
+          completed:campaignProgress.completed,
+          totalStars:campaignProgress.totalStars,
+          totalScore:campaignProgress.totalScore
+
+        }
+      );
+
+    }catch(error){
+
+      console.error('Erro ao salvar campanha:',error);
+
+    }
+
+  }
+
+
+  function isCampaignPhaseUnlocked(phaseId){
+
+    if(phaseId===1) return true;
+
+    return !!campaignProgress.completed[phaseId-1];
+
+  }
+
+
+  async function renderCampaign(){
+
+    const loggedOut=
+      document.getElementById('campaignLoggedOutCard');
+
+    const loggedIn=
+      document.getElementById('campaignLoggedInArea');
+
+    if(!currentUser){
+
+      loggedOut.style.display='block';
+      loggedIn.style.display='none';
+      return;
+
+    }
+
+    loggedOut.style.display='none';
+    loggedIn.style.display='block';
+
+
+    campaignProgress=
+      await loadCampaignProgress();
+
+
+    renderCampaignProgressBar();
+
+    renderCampaignGrid();
+
+
+    document.getElementById('campaignPuzzleArea').style.display='none';
+
+  }
+
+
+  function renderCampaignProgressBar(){
+
+    const total=CAMPAIGN_PHASES.length;
+
+    const done=
+      Object.keys(campaignProgress.completed).length;
+
+    document.getElementById('campaignProgressFill').style.width=
+      Math.round((done/total)*100)+'%';
+
+    document.getElementById('campaignProgressLabel').textContent=
+      done+' / '+total+' fases concluídas';
+
+    document.getElementById('campaignTotalStars').textContent=
+      campaignProgress.totalStars;
+
+    document.getElementById('campaignTotalScore').textContent=
+      campaignProgress.totalScore;
+
+  }
+
+
+  function renderCampaignGrid(){
+
+    const grid=
+      document.getElementById('campaignGrid');
+
+    grid.innerHTML=
+      CAMPAIGN_PHASES.map(phase=>{
+
+        const done=
+          campaignProgress.completed[phase.id];
+
+        const unlocked=
+          isCampaignPhaseUnlocked(phase.id);
+
+        const cls=
+          done ? 'completed' : unlocked ? '' : 'locked';
+
+        const icon=
+          done ? '✅' : unlocked ? '🔓' : '🔒';
+
+        const stars=
+          done
+            ? '⭐'.repeat(done.stars||0)+'☆'.repeat(3-(done.stars||0))
+            : '';
+
+        return (
+          '<div class="campaign-card '+cls+'" data-phase-id="'+phase.id+'">'+
+            '<span class="num">'+String(phase.id).padStart(2,'0')+'</span>'+
+            '<span>'+icon+'</span>'+
+            '<span class="stars" style="color:var(--gold);">'+stars+'</span>'+
+          '</div>'
+        );
+
+      }).join('');
+
+
+    grid.querySelectorAll('.campaign-card').forEach(card=>{
+
+      card.addEventListener('click',()=>{
+
+        const id=
+          Number(card.dataset.phaseId);
+
+        if(!isCampaignPhaseUnlocked(id)) return;
+
+        startCampaignPhase(id);
+
+      });
+
+    });
+
+  }
+
+
+  function startCampaignPhase(phaseId){
+
+    const phase=
+      CAMPAIGN_PHASES.find(p=>p.id===phaseId);
+
+    if(!phase) return;
+
+
+    campaignCurrentPhase=phase;
+
+    campaignGame=new Chess(phase.fen);
+
+    campaignStep=0;
+
+    campaignSelectedSq=null;
+
+    campaignLegalTargets=[];
+
+    campaignAttempts=0;
+
+    campaignHadError=false;
+
+    campaignStartTime=Date.now();
+
+
+    document.getElementById('campaignPuzzleArea').style.display='block';
+
+    document.getElementById('campaignSuccessCard').style.display='none';
+
+    document.getElementById('campaignFeedback').style.display='none';
+
+    document.getElementById('campaignPhaseLabel').textContent=
+      phase.title;
+
+    document.getElementById('campaignObjectiveTitle').textContent=
+      phase.objective;
+
+    document.getElementById('campaignObjectiveText').textContent=
+      'Encontre a jogada correta para as brancas. '+
+      (phase.difficulty ? 'Dificuldade: '+phase.difficulty+'.' : '');
+
+    document.getElementById('campaignStatusMsg').textContent=
+      'Sua vez de jogar';
+
+
+    renderCampaignBoard();
+
+
+    document.getElementById('campaignPuzzleArea')
+      .scrollIntoView({behavior:'smooth',block:'start'});
+
+  }
+
+
+  function renderCampaignBoard(){
+
+    campaignBoardEl.innerHTML='';
+
+
+    const boardState=campaignGame.board();
+
+
+    for(let row=0;row<8;row++){
+
+      for(let col=0;col<8;col++){
+
+        const file=FILES[col];
+        const rank=8-row;
+        const sqName=file+rank;
+
+
+        const div=document.createElement('div');
+
+        div.className='sq '+squareColor(col,row);
+
+        div.dataset.sq=sqName;
+
+
+        if(campaignSelectedSq===sqName){
+          div.classList.add('selected');
+        }
+
+
+        const piece=boardState[row][col];
+
+
+        if(piece){
+
+          const shadow=document.createElement('div');
+          shadow.className='piece-shadow';
+          div.appendChild(shadow);
+
+          div.appendChild(makePieceSVG(piece.color,piece.type));
+
+
+          if(
+            piece.type==='k' &&
+            piece.color===campaignGame.turn() &&
+            campaignGame.in_check()
+          ){
+            div.classList.add('check');
+          }
+
+        }
+
+
+        if(campaignLegalTargets.includes(sqName)){
+
+          const marker=document.createElement('div');
+          marker.className=piece ? 'ring' : 'dot';
+          div.appendChild(marker);
+
+        }
+
+
+        if(col===0){
+          const coord=document.createElement('span');
+          coord.className='coord rank';
+          coord.textContent=rank;
+          div.appendChild(coord);
+        }
+
+        if(row===7){
+          const coord=document.createElement('span');
+          coord.className='coord file';
+          coord.textContent=file;
+          div.appendChild(coord);
+        }
+
+
+        div.addEventListener('click',onCampaignSquareClick);
+
+        campaignBoardEl.appendChild(div);
+
+      }
+
+    }
+
+  }
+
+
+  function onCampaignSquareClick(event){
+
+    if(!campaignCurrentPhase) return;
+
+    if(campaignGame.turn()!==campaignCurrentPhase.playerSide) return;
+
+
+    const sq=event.currentTarget.dataset.sq;
+
+
+    if(campaignSelectedSq){
+
+      if(campaignLegalTargets.includes(sq)){
+
+        attemptCampaignMove(campaignSelectedSq,sq);
+
+        return;
+
+      }
+
+    }
+
+
+    const piece=campaignGame.get(sq);
+
+    if(piece && piece.color===campaignCurrentPhase.playerSide){
+
+      campaignSelectedSq=sq;
+
+      campaignLegalTargets=
+        campaignGame
+          .moves({square:sq,verbose:true})
+          .map(m=>m.to);
+
+    }else{
+
+      campaignSelectedSq=null;
+      campaignLegalTargets=[];
+
+    }
+
+
+    renderCampaignBoard();
+
+  }
+
+
+  function attemptCampaignMove(from,to){
+
+    const expected=
+      campaignCurrentPhase.solution[campaignStep];
+
+
+    campaignSelectedSq=null;
+    campaignLegalTargets=[];
+
+
+    if(!expected || expected.from!==from || expected.to!==to){
+
+      campaignAttempts++;
+
+      campaignHadError=true;
+
+
+      showCampaignFeedback(
+        false,
+        '❌ Essa não é a melhor jogada. Tente novamente.'
+      );
+
+      renderCampaignBoard();
+
+      return;
+
+    }
+
+
+    const possible=
+      campaignGame.moves({square:from,verbose:true});
+
+    const target=
+      possible.find(m=>m.to===to);
+
+    const promotion=
+      (target && target.flags && target.flags.includes('p'))
+        ? 'q'
+        : undefined;
+
+
+    campaignGame.move({from,to,promotion});
+
+    campaignStep++;
+
+    renderCampaignBoard();
+
+
+    if(campaignStep>=campaignCurrentPhase.solution.length){
+
+      finishCampaignPhase();
+
+      return;
+
+    }
+
+
+    /* há uma resposta automática do "adversário" no roteiro */
+
+    const reply=
+      campaignCurrentPhase.solution[campaignStep];
+
+
+    if(reply){
+
+      showCampaignFeedback(true,'✅ Boa! Aguarde a resposta...');
+
+
+      setTimeout(()=>{
+
+        const replyPossible=
+          campaignGame.moves({square:reply.from,verbose:true});
+
+        const replyTarget=
+          replyPossible.find(m=>m.to===reply.to);
+
+        const replyPromotion=
+          (replyTarget && replyTarget.flags && replyTarget.flags.includes('p'))
+            ? 'q'
+            : undefined;
+
+
+        campaignGame.move({
+          from:reply.from,
+          to:reply.to,
+          promotion:replyPromotion
+        });
+
+
+        campaignStep++;
+
+        renderCampaignBoard();
+
+
+        document.getElementById('campaignStatusMsg').textContent=
+          'Sua vez de jogar';
+
+        document.getElementById('campaignFeedback').style.display='none';
+
+      },700);
+
+    }
+
+  }
+
+
+  function showCampaignFeedback(success,text){
+
+    const box=
+      document.getElementById('campaignFeedback');
+
+    box.style.display='block';
+
+    box.textContent=text;
+
+    box.style.background=
+      success
+        ? 'rgba(90,140,90,.15)'
+        : 'rgba(178,84,76,.15)';
+
+    box.style.border=
+      '1px solid '+
+      (success ? 'rgba(90,140,90,.4)' : 'rgba(178,84,76,.4)');
+
+    box.style.color=
+      success ? '#9fcf9f' : '#d99992';
+
+  }
+
+
+  async function finishCampaignPhase(){
+
+    const phase=campaignCurrentPhase;
+
+
+    document.getElementById('campaignStatusMsg').textContent=
+      'Xeque-mate!';
+
+
+    const elapsedSeconds=
+      (Date.now()-campaignStartTime)/1000;
+
+
+    let stars=3;
+
+    if(campaignHadError && campaignAttempts>2) stars=1;
+    else if(campaignHadError) stars=2;
+    else if(elapsedSeconds>60) stars=2;
+
+
+    let points=phase.points;
+
+    if(!campaignHadError) points+=50;
+    if(elapsedSeconds<30) points+=50;
+
+
+    const already=
+      campaignProgress.completed[phase.id];
+
+    const isNewCompletion=!already;
+
+
+    if(!already || (already.stars||0)<stars){
+
+      campaignProgress.completed[phase.id]={
+        stars,
+        score:points
+      };
+
+    }
+
+
+    if(isNewCompletion){
+
+      campaignProgress.totalStars+=stars;
+
+      campaignProgress.totalScore+=points;
+
+    }
+
+
+    await saveCampaignProgress();
+
+
+    renderCampaignProgressBar();
+
+
+    document.getElementById('campaignSuccessCard').style.display='block';
+
+    document.getElementById('campaignSuccessText').textContent=
+      phase.explanation;
+
+    document.getElementById('campaignStarsEarned').textContent=
+      '⭐'.repeat(stars)+'☆'.repeat(3-stars)+
+      '   +'+points+' pontos';
+
+
+    const nextBtn=
+      document.getElementById('btnCampaignNext');
+
+    const hasNext=
+      CAMPAIGN_PHASES.some(p=>p.id===phase.id+1);
+
+    nextBtn.style.display=hasNext ? 'block' : 'none';
+
+  }
+
+
+  document.getElementById('btnCampaignRetry')
+    .addEventListener('click',()=>{
+      if(campaignCurrentPhase){
+        startCampaignPhase(campaignCurrentPhase.id);
+      }
+    });
+
+
+  document.getElementById('btnCampaignExit')
+    .addEventListener('click',()=>{
+
+      document.getElementById('campaignPuzzleArea').style.display='none';
+
+      campaignCurrentPhase=null;
+
+      renderCampaignGrid();
+
+    });
+
+
+  document.getElementById('btnCampaignNext')
+    .addEventListener('click',()=>{
+
+      if(!campaignCurrentPhase) return;
+
+      const nextId=campaignCurrentPhase.id+1;
+
+      const next=
+        CAMPAIGN_PHASES.find(p=>p.id===nextId);
+
+      if(next) startCampaignPhase(nextId);
+
+    });
+
+
+  /* =========================================================
      RANKING EM TEMPO REAL
      ========================================================= */
 
@@ -10451,6 +11633,18 @@
             currentFirebaseUser=null;
 
             currentUser=null;
+
+            if(typeof detachOnlineRoom==='function'){
+              detachOnlineRoom();
+            }
+
+            if(typeof showOnlineLobby==='function'){
+              showOnlineLobby();
+            }
+
+            if(typeof renderCampaign==='function'){
+              renderCampaign();
+            }
 
             renderAccountBox();
 
