@@ -31,7 +31,8 @@
       get,
       update,
       remove,
-      onValue
+      onValue,
+      onDisconnect
     } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -66,7 +67,8 @@
       get,
       update,
       remove,
-      onValue
+      onValue,
+      onDisconnect
     };
 
     console.log("Firebase conectado com sucesso.");
@@ -468,6 +470,23 @@
 
     font-size:12px;
 
+  }
+
+  .online-player-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:6px 8px;
+    border-radius:4px;
+  }
+
+  .online-player-row:hover{
+    background:rgba(255,255,255,.03);
+  }
+
+  .online-player-row .watch-btn{
+    padding:4px 10px;
+    font-size:16px;
   }
 
   .campaign-progress-bar{
@@ -3213,6 +3232,14 @@
     id="view-online"
   >
 
+    <div
+      id="spectateBanner"
+      style="display:none;align-items:center;justify-content:space-between;gap:10px;background:rgba(201,162,75,.1);border:1px solid var(--gold-soft);border-radius:var(--radius);padding:10px 14px;margin-bottom:14px;"
+    >
+      <span style="font-size:13px;font-weight:600;"></span>
+      <button class="btn ghost" id="btnStopSpectate">Sair do modo espectador</button>
+    </div>
+
     <div class="play-grid">
 
 
@@ -3275,6 +3302,11 @@
           id="onlineLoggedInArea"
           style="display:none;"
         >
+
+          <div class="card">
+            <h3>👁 Jogadores <span>online agora</span></h3>
+            <div id="onlinePlayersList" style="display:flex;flex-direction:column;gap:8px;margin-top:10px;"></div>
+          </div>
 
 
           <!-- LOBBY -->
@@ -4905,6 +4937,93 @@
 
 
   /* =========================================================
+     AVISO DE "SUA VEZ" — título piscando + som + notificação
+     ========================================================= */
+
+  const originalPageTitle=document.title;
+
+  let turnAlertInterval=null;
+
+
+  function playNotifyTurnSound(){
+
+    playTone(880,.10,'sine',.05);
+
+    setTimeout(()=>playTone(1046,.14,'sine',.05),110);
+
+  }
+
+
+  function notifyMyTurn(){
+
+    playNotifyTurnSound();
+
+
+    if(!document.hidden) return;
+
+
+    if(turnAlertInterval) return;
+
+
+    let flip=false;
+
+    turnAlertInterval=setInterval(()=>{
+
+      document.title=
+        flip
+          ? originalPageTitle
+          : '🔔 Sua vez! — Clube de Xadrez';
+
+      flip=!flip;
+
+    },1000);
+
+
+    if(
+      'Notification' in window &&
+      Notification.permission==='granted'
+    ){
+
+      try{
+
+        new Notification('Clube de Xadrez',{
+          body:'É a sua vez de jogar!',
+          icon:'♟️'
+        });
+
+      }catch(e){}
+
+    }
+
+  }
+
+
+  function stopTurnAlert(){
+
+    if(turnAlertInterval){
+
+      clearInterval(turnAlertInterval);
+
+      turnAlertInterval=null;
+
+    }
+
+    document.title=originalPageTitle;
+
+  }
+
+
+  document.addEventListener('visibilitychange',()=>{
+
+    if(!document.hidden) stopTurnAlert();
+
+  });
+
+
+  window.addEventListener('focus',stopTurnAlert);
+
+
+  /* =========================================================
      PIEÇAS
      ========================================================= */
 
@@ -5046,7 +5165,11 @@
 
       updateOnlineAuthVisibility();
 
-      if(onlineRoomCode && onlineRoomData){
+      renderOnlinePlayersList();
+
+      if(spectateMode){
+        /* mantém o modo espectador ativo ao reabrir a aba */
+      }else if(onlineRoomCode && onlineRoomData){
         handleOnlineRoomUpdate(onlineRoomData);
       }else{
         showOnlineLobby();
@@ -5763,6 +5886,11 @@
 
     resultAlreadySaved=false;
 
+    if(typeof setPresence==='function'){
+      setPresence('bot',{difficulty});
+      mirrorLiveBotGame();
+    }
+
     gameStartTime=
       Date.now();
 
@@ -6090,6 +6218,11 @@
     gameActive=false;
 
     botThinking=false;
+
+    if(typeof setPresence==='function' && currentUser){
+      setPresence('idle');
+      dbRemove('liveGames/'+currentUser.uid).catch(()=>{});
+    }
 
 
     stopClock();
@@ -8462,6 +8595,10 @@
 
     renderChampionship();
 
+    setPresence('idle');
+
+    startPresenceHeartbeat();
+
     switchView('profile');
 
   }
@@ -9428,6 +9565,8 @@
 
   let onlineEloAppliedFor=null;
 
+  let onlineLastSeenFen=null;
+
 
   const onlineBoardEl=
     document.getElementById(
@@ -9486,6 +9625,13 @@
 
 
   function showOnlineLobby(){
+
+    if(typeof stopSpectating==='function') stopSpectating();
+
+    document
+      .getElementById('onlineGameArea')
+      .querySelectorAll('.actions-row .btn')
+      .forEach(b=>b.style.display='');
 
     document
       .getElementById('onlineLobby')
@@ -9641,6 +9787,9 @@
         .style.display='block';
 
 
+      setPresence('online',{roomCode:code});
+
+
       subscribeOnlineRoom(code);
 
 
@@ -9780,6 +9929,9 @@
       onlineEloAppliedFor=null;
 
 
+      setPresence('online',{roomCode:code});
+
+
       subscribeOnlineRoom(code);
 
 
@@ -9805,6 +9957,9 @@
 
 
   function subscribeOnlineRoom(code){
+
+    onlineLastSeenFen=null;
+
 
     if(onlineUnsub){
 
@@ -9874,6 +10029,8 @@
 
     onlineEloAppliedFor=null;
 
+    onlineLastSeenFen=null;
+
   }
 
 
@@ -9941,11 +10098,48 @@
     showOnlineGameArea();
 
 
+    const newFen=
+      room.fen ||
+      new Chess().fen();
+
+
+    const isOpponentMove=
+      onlineLastSeenFen!==null &&
+      onlineLastSeenFen!==newFen &&
+      onlineRoomData.lastMoveBy &&
+      onlineRoomData.lastMoveBy!==currentUser.uid;
+
+
     onlineGame=
-      new Chess(
-        room.fen ||
-        new Chess().fen()
-      );
+      new Chess(newFen);
+
+
+    if(isOpponentMove){
+
+      const lastPly=
+        onlineGame.history({verbose:true}).slice(-1)[0];
+
+      if(lastPly && lastPly.captured){
+        playCaptureSound();
+      }else{
+        playMoveSound();
+      }
+
+      if(onlineGame.in_check()){
+        setTimeout(playCheckSound,120);
+      }
+
+      if(
+        room.status==='active' &&
+        onlineGame.turn()===onlineMySide
+      ){
+        notifyMyTurn();
+      }
+
+    }
+
+
+    onlineLastSeenFen=newFen;
 
 
     renderOnlineBoard();
@@ -10351,6 +10545,20 @@
     if(!mv) return;
 
 
+    stopTurnAlert();
+
+
+    if(mv.captured){
+      playCaptureSound();
+    }else{
+      playMoveSound();
+    }
+
+    if(onlineGame.in_check()){
+      setTimeout(playCheckSound,120);
+    }
+
+
     onlineSelectedSq=null;
 
     onlineLegalTargets=[];
@@ -10364,6 +10572,8 @@
       fen:onlineGame.fen(),
 
       lastMove:{from,to},
+
+      lastMoveBy:currentUser.uid,
 
       updatedAt:Date.now()
 
@@ -10516,6 +10726,8 @@
 
     detachOnlineRoom();
 
+    if(typeof setPresence==='function') setPresence('idle');
+
     showOnlineLobby();
 
   }
@@ -10546,6 +10758,8 @@
 
 
     detachOnlineRoom();
+
+    if(typeof setPresence==='function') setPresence('idle');
 
     showOnlineLobby();
 
@@ -10853,6 +11067,15 @@
       'click',
       leaveOnlineRoom
     );
+
+
+  document
+    .getElementById('btnStopSpectate')
+    .addEventListener('click',()=>{
+
+      showOnlineLobby();
+
+    });
 
 
   /* =========================================================
@@ -11530,6 +11753,410 @@
 
 
   /* =========================================================
+     PRESENÇA — "quem está online agora" + espectador
+     ========================================================= */
+
+  /*
+    presence/{uid}: status atual do jogador (idle / jogando contra
+    bot / jogando online). Usa onDisconnect para se auto-limpar se
+    a pessoa fechar a aba sem sair "educadamente".
+
+    liveGames/{uid}: espelho somente-leitura do tabuleiro de quem
+    está jogando contra o Bot, para permitir espectador nesse modo
+    também (partidas online já são visíveis via o node "rooms").
+  */
+
+  let presenceHeartbeat=null;
+
+  let spectateUnsub=null;
+
+  let spectateMode=null; /* 'room' | 'bot' | null */
+
+
+  async function setPresence(status,extra){
+
+    if(!currentUser) return;
+
+    try{
+
+      await waitForFirebase();
+
+      const path='presence/'+currentUser.uid;
+
+
+      const data=Object.assign({
+
+        username:currentUser.username,
+        avatar:getUserAvatarId(currentUser),
+        elo:currentUser.elo,
+        status:status,
+        updatedAt:Date.now()
+
+      },extra||{});
+
+
+      await dbSet(path,data);
+
+
+      const r=
+        window.firebaseFns.ref(window.firebaseDB,path);
+
+      window.firebaseFns
+        .onDisconnect(r)
+        .remove();
+
+    }catch(error){
+
+      console.error('Erro ao atualizar presença:',error);
+
+    }
+
+  }
+
+
+  async function clearPresence(uid){
+
+    const useUid=uid||(currentUser && currentUser.uid);
+
+    if(!useUid) return;
+
+    try{
+
+      await dbRemove('presence/'+useUid);
+
+      await dbRemove('liveGames/'+useUid);
+
+    }catch(error){}
+
+  }
+
+
+  async function mirrorLiveBotGame(){
+
+    if(!currentUser || !gameActive) return;
+
+    try{
+
+      await dbSet('liveGames/'+currentUser.uid,{
+
+        username:currentUser.username,
+        avatar:getUserAvatarId(currentUser),
+        elo:currentUser.elo,
+        difficulty:difficulty,
+        fen:game.fen(),
+        lastMove:lastMove,
+        playerSide:playerSide,
+        updatedAt:Date.now()
+
+      });
+
+    }catch(error){}
+
+  }
+
+
+  function startPresenceHeartbeat(){
+
+    if(presenceHeartbeat) return;
+
+    presenceHeartbeat=setInterval(()=>{
+
+      if(!currentUser) return;
+
+      if(gameActive){
+
+        setPresence('bot',{difficulty});
+
+        mirrorLiveBotGame();
+
+      }else if(onlineRoomCode && onlineRoomData && onlineRoomData.status==='active'){
+
+        setPresence('online',{roomCode:onlineRoomCode});
+
+      }else{
+
+        setPresence('idle');
+
+        dbRemove('liveGames/'+currentUser.uid).catch(()=>{});
+
+      }
+
+    },15000);
+
+  }
+
+
+  async function renderOnlinePlayersList(){
+
+    const box=document.getElementById('onlinePlayersList');
+
+    if(!box) return;
+
+    if(!currentUser){ box.innerHTML=''; return; }
+
+    try{
+
+      const data=await dbGet('presence');
+
+      const players=
+        data
+          ? Object.entries(data)
+              .filter(([uid])=>uid!==currentUser.uid)
+              .map(([uid,p])=>Object.assign({uid},p))
+          : [];
+
+
+      if(players.length===0){
+
+        box.innerHTML=
+          '<p style="color:var(--text-dim);font-size:12.5px;">Nenhum outro jogador online agora.</p>';
+
+        return;
+
+      }
+
+
+      box.innerHTML=
+        players.map(p=>{
+
+          const statusLabel=
+            p.status==='bot' ? 'jogando vs Bot ('+(p.difficulty||'')+')'
+            : p.status==='online' ? 'em partida online'
+            : 'disponível';
+
+
+          const canWatch=
+            p.status==='bot' || p.status==='online';
+
+
+          return (
+            '<div class="online-player-row">'+
+              '<span class="avatar-badge" style="width:28px;height:28px;">'+avatarSvgMarkup(p.avatar||'avatar1')+'</span>'+
+              '<div style="flex:1;min-width:0;">'+
+                '<div style="font-size:13px;font-weight:600;">'+escapeHtml(p.username||'?')+'</div>'+
+                '<div style="font-size:11.5px;color:var(--text-dim);">Elo '+(p.elo||1200)+' · '+statusLabel+'</div>'+
+              '</div>'+
+              (canWatch
+                ? '<button class="btn ghost watch-btn" data-watch-uid="'+p.uid+'" title="Assistir">👁</button>'
+                : ''
+              )+
+            '</div>'
+          );
+
+        }).join('');
+
+
+      box.querySelectorAll('.watch-btn').forEach(btn=>{
+
+        btn.addEventListener('click',()=>{
+
+          spectatePlayer(btn.dataset.watchUid);
+
+        });
+
+      });
+
+    }catch(error){
+
+      console.error('Erro ao carregar jogadores online:',error);
+
+    }
+
+  }
+
+
+  async function spectatePlayer(uid){
+
+    try{
+
+      const presenceData=
+        await dbGet('presence/'+uid);
+
+      if(!presenceData) return;
+
+
+      switchView('online');
+
+
+      if(presenceData.status==='online' && presenceData.roomCode){
+
+        startSpectateRoom(presenceData.roomCode);
+
+      }else if(presenceData.status==='bot'){
+
+        startSpectateBotGame(uid);
+
+      }
+
+    }catch(error){
+
+      console.error('Erro ao assistir jogador:',error);
+
+    }
+
+  }
+
+
+  function stopSpectating(){
+
+    if(spectateUnsub){
+
+      try{ spectateUnsub(); }catch(e){}
+
+      spectateUnsub=null;
+
+    }
+
+    spectateMode=null;
+
+
+    const banner=document.getElementById('spectateBanner');
+
+    if(banner) banner.style.display='none';
+
+  }
+
+
+  function startSpectateRoom(code){
+
+    detachOnlineRoom();
+
+    stopSpectating();
+
+
+    spectateMode='room';
+
+
+    const banner=document.getElementById('spectateBanner');
+
+    if(banner){
+
+      banner.style.display='flex';
+
+      banner.querySelector('span').textContent=
+        '👁 Modo espectador — sala '+code;
+
+    }
+
+
+    document.getElementById('onlineLobby').style.display='none';
+
+    showOnlineGameArea();
+
+    document.getElementById('onlineGameArea').querySelectorAll('.actions-row .btn')
+      .forEach(b=>b.style.display='none');
+
+
+    const roomRef=
+      window.firebaseFns.ref(window.firebaseDB,'rooms/'+code);
+
+
+    spectateUnsub=
+      window.firebaseFns.onValue(roomRef,snapshot=>{
+
+        const room=snapshot.val();
+
+        if(!room) return;
+
+
+        onlineGame=new Chess(room.fen || new Chess().fen());
+
+        onlineRoomData=room;
+
+        onlineMySide=null; /* espectador não move */
+
+        renderOnlineBoard();
+
+        renderOnlineOpponentInfo({
+          hostUsername:room.hostUsername,
+          hostAvatar:room.hostAvatar,
+          hostEloAtStart:room.hostEloAtStart,
+          guestUsername:room.guestUsername,
+          guestAvatar:room.guestAvatar,
+          guestEloAtStart:room.guestEloAtStart,
+          guestUid:room.guestUid
+        });
+
+        document.getElementById('onlineTurnLabel').textContent=
+          (room.status==='finished' ? 'Partida encerrada' :
+            (room.hostUsername||'Host')+' vs '+(room.guestUsername||'...')
+          );
+
+      });
+
+  }
+
+
+  function startSpectateBotGame(uid){
+
+    stopSpectating();
+
+
+    spectateMode='bot';
+
+
+    const banner=document.getElementById('spectateBanner');
+
+    if(banner){
+
+      banner.style.display='flex';
+
+      banner.querySelector('span').textContent=
+        '👁 Modo espectador — partida contra o Bot';
+
+    }
+
+
+    document.getElementById('onlineLobby').style.display='none';
+
+    showOnlineGameArea();
+
+    document.getElementById('onlineGameArea').querySelectorAll('.actions-row .btn')
+      .forEach(b=>b.style.display='none');
+
+
+    const liveRef=
+      window.firebaseFns.ref(window.firebaseDB,'liveGames/'+uid);
+
+
+    spectateUnsub=
+      window.firebaseFns.onValue(liveRef,snapshot=>{
+
+        const live=snapshot.val();
+
+        if(!live){
+
+          document.getElementById('onlineTurnLabel').textContent=
+            'A partida terminou.';
+
+          return;
+
+        }
+
+
+        onlineGame=new Chess(live.fen || new Chess().fen());
+
+        renderOnlineBoard();
+
+        document.getElementById('onlineTurnLabel').textContent=
+          escapeHtml(live.username||'Jogador')+' vs Bot ('+(live.difficulty||'')+')';
+
+        renderOnlineOpponentInfo({
+          hostUsername:live.username,
+          hostAvatar:live.avatar,
+          hostEloAtStart:live.elo,
+          guestUsername:'Bot',
+          guestAvatar:null,
+          guestEloAtStart:null,
+          guestUid:'bot'
+        });
+
+      });
+
+  }
+
+
+  /* =========================================================
      RANKING EM TEMPO REAL
      ========================================================= */
 
@@ -11629,6 +12256,18 @@
         async firebaseUser=>{
 
           if(!firebaseUser){
+
+            const oldUid=
+              currentUser && currentUser.uid;
+
+            if(oldUid){
+              clearPresence(oldUid);
+            }
+
+            if(presenceHeartbeat){
+              clearInterval(presenceHeartbeat);
+              presenceHeartbeat=null;
+            }
 
             currentFirebaseUser=null;
 
