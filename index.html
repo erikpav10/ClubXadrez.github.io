@@ -489,6 +489,46 @@
     font-size:16px;
   }
 
+  .champ-round-title{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--gold);
+    margin-bottom:8px;
+  }
+
+  .champ-match{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    background:var(--bg-elevated);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:10px 14px;
+    margin-bottom:8px;
+    font-size:13px;
+    flex-wrap:wrap;
+  }
+
+  .champ-match .side{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex:1;
+    min-width:120px;
+  }
+
+  .champ-match .side.winner{
+    color:var(--gold);
+    font-weight:700;
+  }
+
+  .champ-match .vs{
+    color:var(--text-dim);
+    font-size:11px;
+  }
+
   .campaign-progress-bar{
     width:100%;
     height:10px;
@@ -3304,6 +3344,25 @@
         >
 
           <div class="card">
+            <h3>👥 <span>Amigos</span></h3>
+
+            <div class="field" style="margin-bottom:10px;">
+              <label>Adicionar por nome de usuário</label>
+              <div style="display:flex;gap:8px;">
+                <input id="friendSearchInput" autocomplete="off" style="flex:1;">
+                <button class="btn primary" id="btnSendFriendRequest">Adicionar</button>
+              </div>
+            </div>
+
+            <div class="auth-err" id="friendRequestMsg"></div>
+
+            <div id="friendRequestsBox"></div>
+
+            <div id="friendsListBox" style="display:flex;flex-direction:column;gap:8px;margin-top:10px;"></div>
+          </div>
+
+
+          <div class="card">
             <h3>👁 Jogadores <span>online agora</span></h3>
             <div id="onlinePlayersList" style="display:flex;flex-direction:column;gap:8px;margin-top:10px;"></div>
           </div>
@@ -4191,6 +4250,26 @@
       <div id="champLoggedOut" class="auth-err" style="display:none;"></div><div id="champLocked" class="auth-err" style="display:none;"></div>
       <div id="champForm" style="display:none;"><div class="field"><label>Jogador</label><input id="champUsername" type="text" readonly></div><div class="field"><label>Elo atual</label><input id="champElo" type="text" readonly></div><button class="btn primary" id="btnChampRegister">Inscrever no campeonato</button></div>
       <div id="champMessage" class="champ-message"></div>
+    </div>
+
+    <div class="info-card" id="champBracketCard" style="margin-top:18px;display:none;">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h3 style="margin:0;">Chaveamento do <span>Campeonato</span></h3>
+        <button class="btn primary" id="btnStartChampionship" style="display:none;">Iniciar Campeonato</button>
+      </div>
+
+      <p id="champBracketStatus" style="color:var(--text-dim);font-size:13px;margin:8px 0 0;"></p>
+
+      <div id="champBracketRounds" style="margin-top:14px;display:flex;flex-direction:column;gap:18px;"></div>
+
+      <div id="champChampionBanner" style="display:none;margin-top:16px;padding:16px;text-align:center;background:rgba(201,162,75,.1);border:1px solid var(--gold);border-radius:var(--radius);"></div>
+
+    </div>
+
+    <div class="info-card" id="champRankingCard" style="margin-top:18px;">
+      <h3>🏅 Ranking do <span>Campeonato</span></h3>
+      <div id="champRankingBox" style="margin-top:10px;"></div>
     </div>
   </section>
 
@@ -5166,6 +5245,10 @@
       updateOnlineAuthVisibility();
 
       renderOnlinePlayersList();
+
+      renderFriendRequests();
+
+      renderFriendsList();
 
       if(spectateMode){
         /* mantém o modo espectador ativo ao reabrir a aba */
@@ -12157,6 +12240,348 @@
 
 
   /* =========================================================
+     AMIGOS
+     ========================================================= */
+
+  /*
+    friendRequests/{toUid}/{fromUid}: pedido pendente.
+    users/{uid}/friends/{friendUid}: true — lista de amigos,
+    espelhada nos dois usuários quando o pedido é aceito.
+  */
+
+  async function sendFriendRequestByUsername(){
+
+    const input=document.getElementById('friendSearchInput');
+
+    const msg=document.getElementById('friendRequestMsg');
+
+    msg.style.display='none';
+
+
+    const uname=
+      input.value.trim().toLowerCase();
+
+    if(!uname || !currentUser) return;
+
+
+    if(uname===currentUser.username.toLowerCase()){
+
+      msg.textContent='Você não pode adicionar a si mesmo.';
+      msg.style.display='block';
+      return;
+
+    }
+
+
+    try{
+
+      const target=
+        await dbGet('usernames/'+uname);
+
+      if(!target){
+
+        msg.textContent='Usuário não encontrado.';
+        msg.style.display='block';
+        return;
+
+      }
+
+
+      const targetUid=target.uid;
+
+
+      const already=
+        await dbGet('users/'+currentUser.uid+'/friends/'+targetUid)
+          .catch(()=>null);
+
+      if(already){
+
+        msg.textContent='Vocês já são amigos.';
+        msg.style.display='block';
+        return;
+
+      }
+
+
+      await dbSet(
+        'friendRequests/'+targetUid+'/'+currentUser.uid,
+        {
+          fromUsername:currentUser.username,
+          fromAvatar:getUserAvatarId(currentUser),
+          createdAt:Date.now()
+        }
+      );
+
+
+      input.value='';
+
+      msg.style.color='#9fcf9f';
+      msg.style.borderColor='rgba(90,140,90,.4)';
+      msg.style.background='rgba(90,140,90,.12)';
+      msg.textContent='Pedido de amizade enviado!';
+      msg.style.display='block';
+
+    }catch(error){
+
+      console.error('Erro ao enviar pedido de amizade:',error);
+
+      msg.textContent='Não foi possível enviar o pedido.';
+      msg.style.display='block';
+
+    }
+
+  }
+
+
+  async function renderFriendRequests(){
+
+    const box=document.getElementById('friendRequestsBox');
+
+    if(!box) return;
+
+    if(!currentUser){ box.innerHTML=''; return; }
+
+
+    try{
+
+      const data=
+        await dbGet('friendRequests/'+currentUser.uid)
+          .catch(()=>null);
+
+      if(!data){ box.innerHTML=''; return; }
+
+
+      box.innerHTML=
+        Object.entries(data).map(([fromUid,req])=>(
+
+          '<div class="online-player-row" style="background:rgba(201,162,75,.06);">'+
+            '<span class="avatar-badge" style="width:28px;height:28px;">'+avatarSvgMarkup(req.fromAvatar||'avatar1')+'</span>'+
+            '<div style="flex:1;min-width:0;">'+
+              '<div style="font-size:13px;font-weight:600;">'+escapeHtml(req.fromUsername||'?')+'</div>'+
+              '<div style="font-size:11px;color:var(--text-dim);">quer ser seu amigo</div>'+
+            '</div>'+
+            '<button class="btn primary" data-accept-friend="'+fromUid+'" style="padding:4px 10px;font-size:12px;">Aceitar</button>'+
+            '<button class="btn ghost" data-decline-friend="'+fromUid+'" style="padding:4px 10px;font-size:12px;">Recusar</button>'+
+          '</div>'
+
+        )).join('');
+
+
+      box.querySelectorAll('[data-accept-friend]').forEach(btn=>{
+
+        btn.addEventListener('click',()=>
+          acceptFriendRequest(btn.dataset.acceptFriend)
+        );
+
+      });
+
+
+      box.querySelectorAll('[data-decline-friend]').forEach(btn=>{
+
+        btn.addEventListener('click',()=>
+          declineFriendRequest(btn.dataset.declineFriend)
+        );
+
+      });
+
+    }catch(error){
+
+      console.error('Erro ao carregar pedidos de amizade:',error);
+
+    }
+
+  }
+
+
+  async function acceptFriendRequest(fromUid){
+
+    if(!currentUser) return;
+
+    try{
+
+      await dbSet('users/'+currentUser.uid+'/friends/'+fromUid,true);
+
+      await dbSet('users/'+fromUid+'/friends/'+currentUser.uid,true);
+
+      await dbRemove('friendRequests/'+currentUser.uid+'/'+fromUid);
+
+
+      renderFriendRequests();
+
+      renderFriendsList();
+
+    }catch(error){
+
+      console.error('Erro ao aceitar amizade:',error);
+
+    }
+
+  }
+
+
+  async function declineFriendRequest(fromUid){
+
+    if(!currentUser) return;
+
+    try{
+
+      await dbRemove('friendRequests/'+currentUser.uid+'/'+fromUid);
+
+      renderFriendRequests();
+
+    }catch(error){
+
+      console.error('Erro ao recusar amizade:',error);
+
+    }
+
+  }
+
+
+  async function removeFriend(friendUid){
+
+    if(!currentUser) return;
+
+    if(!confirm('Remover esse amigo?')) return;
+
+    try{
+
+      await dbRemove('users/'+currentUser.uid+'/friends/'+friendUid);
+
+      await dbRemove('users/'+friendUid+'/friends/'+currentUser.uid);
+
+      renderFriendsList();
+
+    }catch(error){
+
+      console.error('Erro ao remover amigo:',error);
+
+    }
+
+  }
+
+
+  async function renderFriendsList(){
+
+    const box=document.getElementById('friendsListBox');
+
+    if(!box) return;
+
+    if(!currentUser){ box.innerHTML=''; return; }
+
+
+    try{
+
+      const friendsData=
+        await dbGet('users/'+currentUser.uid+'/friends')
+          .catch(()=>null);
+
+      const friendUids=
+        friendsData ? Object.keys(friendsData) : [];
+
+
+      if(friendUids.length===0){
+
+        box.innerHTML=
+          '<p style="color:var(--text-dim);font-size:12.5px;">Você ainda não tem amigos adicionados.</p>';
+
+        return;
+
+      }
+
+
+      const presenceData=
+        await dbGet('presence').catch(()=>null) || {};
+
+
+      const rows=await Promise.all(
+        friendUids.map(async uid=>{
+
+          let userData=null;
+
+          try{
+            userData=await dbGet('users/'+uid);
+          }catch(e){}
+
+          if(!userData) return '';
+
+
+          const pres=presenceData[uid];
+
+          const isOnline=!!pres;
+
+          const statusLabel=
+            !pres ? 'offline'
+              : pres.status==='bot' ? 'jogando vs Bot'
+              : pres.status==='online' ? 'em partida online'
+              : 'disponível';
+
+          const canWatch=
+            pres && (pres.status==='bot' || pres.status==='online');
+
+
+          return (
+            '<div class="online-player-row">'+
+              '<span class="avatar-badge" style="width:28px;height:28px;'+(isOnline?'':'opacity:.4;')+'">'+avatarSvgMarkup(getUserAvatarId(userData))+'</span>'+
+              '<div style="flex:1;min-width:0;">'+
+                '<div style="font-size:13px;font-weight:600;">'+escapeHtml(userData.username||'?')+'</div>'+
+                '<div style="font-size:11.5px;color:var(--text-dim);">Elo '+(userData.elo||1200)+' · '+statusLabel+'</div>'+
+              '</div>'+
+              (canWatch ? '<button class="btn ghost watch-btn" data-watch-uid="'+uid+'" title="Assistir">👁</button>' : '')+
+              '<button class="btn ghost" data-remove-friend="'+uid+'" title="Remover amigo" style="padding:4px 8px;">✕</button>'+
+            '</div>'
+          );
+
+        })
+      );
+
+
+      box.innerHTML=rows.join('');
+
+
+      box.querySelectorAll('.watch-btn').forEach(btn=>{
+
+        btn.addEventListener('click',()=>
+          spectatePlayer(btn.dataset.watchUid)
+        );
+
+      });
+
+
+      box.querySelectorAll('[data-remove-friend]').forEach(btn=>{
+
+        btn.addEventListener('click',()=>
+          removeFriend(btn.dataset.removeFriend)
+        );
+
+      });
+
+    }catch(error){
+
+      console.error('Erro ao carregar amigos:',error);
+
+    }
+
+  }
+
+
+  document
+    .getElementById('btnSendFriendRequest')
+    .addEventListener('click',sendFriendRequestByUsername);
+
+
+  document
+    .getElementById('friendSearchInput')
+    .addEventListener('keydown',event=>{
+
+      if(event.key==='Enter'){
+        sendFriendRequestByUsername();
+      }
+
+    });
+
+
+  /* =========================================================
      RANKING EM TEMPO REAL
      ========================================================= */
 
@@ -12386,6 +12811,13 @@
     if(elo<1500){locked.textContent='Seu Elo atual é '+elo+'. É necessário ter Elo 1500 ou superior para se inscrever.';locked.style.display='block';status.textContent='Bloqueado até Elo 1500';return;}
     status.textContent='Elegível • Elo '+elo;form.style.display='block';
     try{const reg=await dbGet('tournaments/bot2026/participants/'+currentUser.uid);const btn=document.getElementById('btnChampRegister');if(reg){btn.disabled=true;btn.textContent='Inscrição confirmada';message.textContent='Você já está inscrito no Campeonato Bot.';message.classList.add('show');}else{btn.disabled=false;btn.textContent='Inscrever no campeonato';}}catch(e){console.error('Erro ao verificar inscrição:',e);}
+
+    if(typeof renderChampionshipBracket==='function'){
+      renderChampionshipBracket(typeof champCurrentData!=='undefined'?champCurrentData:null);
+    }
+    if(typeof renderChampionshipRanking==='function'){
+      renderChampionshipRanking();
+    }
   }
 
   document.getElementById('btnChampRegister').addEventListener('click',async()=>{
@@ -12395,6 +12827,790 @@
     try{await dbSet('tournaments/bot2026/participants/'+currentUser.uid,{uid:currentUser.uid,username:currentUser.username||'',elo,registeredAt:new Date().toISOString(),status:'registered'});message.textContent='Inscrição realizada com sucesso! Você está registrado no Campeonato Bot.';message.classList.add('show');btn.textContent='Inscrição confirmada';}
     catch(e){console.error('Erro ao registrar campeonato:',e);message.textContent='Não foi possível concluir a inscrição. Verifique as regras do Realtime Database.';message.classList.add('show');btn.disabled=false;btn.textContent='Inscrever no campeonato';}
   });
+
+
+  /* =========================================================
+     CAMPEONATO — CHAVEAMENTO AUTOMÁTICO
+     ========================================================= */
+
+  /*
+    championship/current: um único campeonato ativo por vez.
+    status: 'registration' | 'in_progress' | 'finished'
+    rounds: [{ roundNumber, matches:[{matchId,p1,p2,roomCode,result,winnerUid,winnerName}] }]
+    Cada "p1"/"p2" é {uid,username,elo,avatar,isBot}.
+
+    Não existe um servidor árbitro aqui — qualquer cliente conectado
+    que perceba uma partida terminada escreve o resultado de volta
+    no chaveamento, e quando todas as partidas da rodada têm
+    resultado, monta a rodada seguinte. Isso é "melhor esforço":
+    funciona bem com gente navegando no site, mas não é
+    instantâneo se ninguém estiver com a aba do Campeonato aberta.
+  */
+
+  const CHAMP_BOT_NAMES=[
+    'Bot Aurora','Bot Fênix','Bot Cobalto','Bot Nébula',
+    'Bot Solaris','Bot Ferro','Bot Prisma','Bot Vórtex',
+    'Bot Ônix','Bot Safira','Bot Basalto','Bot Zircão'
+  ];
+
+  let champUnsub=null;
+
+  let champCurrentData=null;
+
+
+  function nextPowerOfTwo(n){
+
+    let p=1;
+
+    while(p<n) p*=2;
+
+    return Math.max(2,p);
+
+  }
+
+
+  function shuffleArray(arr){
+
+    const a=arr.slice();
+
+    for(let i=a.length-1;i>0;i--){
+
+      const j=Math.floor(Math.random()*(i+1));
+
+      [a[i],a[j]]=[a[j],a[i]];
+
+    }
+
+    return a;
+
+  }
+
+
+  async function loadChampionshipParticipants(){
+
+    const data=
+      await dbGet('tournaments/bot2026/participants')
+        .catch(()=>null);
+
+    if(!data) return [];
+
+    return Object.values(data).map(p=>({
+
+      uid:p.uid,
+      username:p.username,
+      elo:Number(p.elo||1200),
+      avatar:'avatar1',
+      isBot:false
+
+    }));
+
+  }
+
+
+  function makeBotEntry(index,avgElo){
+
+    return {
+
+      uid:'bot_'+index+'_'+Math.random().toString(36).slice(2,7),
+
+      username:CHAMP_BOT_NAMES[index%CHAMP_BOT_NAMES.length],
+
+      elo:Math.round(avgElo+(Math.random()*200-100)),
+
+      avatar:'avatar'+(1+(index%5)),
+
+      isBot:true
+
+    };
+
+  }
+
+
+  function championshipExpectedScore(eloA,eloB){
+
+    return 1/(1+Math.pow(10,(eloB-eloA)/400));
+
+  }
+
+
+  async function startChampionshipTournament(){
+
+    if(!currentUser) return;
+
+
+    const btn=document.getElementById('btnStartChampionship');
+
+    btn.disabled=true;
+
+
+    try{
+
+      const existing=
+        await dbGet('championship/current').catch(()=>null);
+
+      if(existing && existing.status!=='registration' && existing.status){
+
+        alert('Já existe um campeonato em andamento.');
+
+        return;
+
+      }
+
+
+      let participants=
+        await loadChampionshipParticipants();
+
+      if(participants.length<2){
+
+        alert('É preciso pelo menos 2 jogadores inscritos para iniciar.');
+
+        return;
+
+      }
+
+
+      const avgElo=
+        Math.round(
+          participants.reduce((s,p)=>s+p.elo,0)/participants.length
+        );
+
+
+      const bracketSize=
+        nextPowerOfTwo(participants.length);
+
+
+      let botIndex=0;
+
+      while(participants.length<bracketSize){
+
+        participants.push(makeBotEntry(botIndex,avgElo));
+
+        botIndex++;
+
+      }
+
+
+      participants=shuffleArray(participants);
+
+
+      const matches=[];
+
+      for(let i=0;i<participants.length;i+=2){
+
+        matches.push(
+          await buildChampionshipMatch(
+            participants[i],
+            participants[i+1],
+            1,
+            i/2
+          )
+        );
+
+      }
+
+
+      const championship={
+
+        status:'in_progress',
+
+        createdBy:currentUser.uid,
+
+        createdAt:Date.now(),
+
+        currentRound:1,
+
+        totalRounds:Math.log2(bracketSize),
+
+        rounds:[{roundNumber:1,matches}],
+
+        champion:null
+
+      };
+
+
+      await dbSet('championship/current',championship);
+
+
+    }catch(error){
+
+      console.error('Erro ao iniciar campeonato:',error);
+
+      alert('Não foi possível iniciar o campeonato.');
+
+    }finally{
+
+      btn.disabled=false;
+
+    }
+
+  }
+
+
+  async function buildChampionshipMatch(p1,p2,roundNumber,matchIndex){
+
+    const matchId=
+      'r'+roundNumber+'m'+matchIndex;
+
+
+    const match={
+
+      matchId,
+
+      p1,
+
+      p2,
+
+      roomCode:null,
+
+      result:null,
+
+      winnerUid:null,
+
+      winnerName:null
+
+    };
+
+
+    if(p1.isBot && p2.isBot){
+
+      const expected=
+        championshipExpectedScore(p1.elo,p2.elo);
+
+      const p1Wins=Math.random()<expected;
+
+      match.result=p1Wins?'p1':'p2';
+
+      match.winnerUid=p1Wins?p1.uid:p2.uid;
+
+      match.winnerName=p1Wins?p1.username:p2.username;
+
+    }else if(p1.isBot || p2.isBot){
+
+      const human=p1.isBot?p2:p1;
+
+      const bot=p1.isBot?p1:p2;
+
+      const expected=
+        championshipExpectedScore(human.elo,bot.elo);
+
+      const humanWins=Math.random()<expected;
+
+      const winner=humanWins?human:bot;
+
+      match.result=(winner===p1)?'p1':'p2';
+
+      match.winnerUid=winner.uid;
+
+      match.winnerName=winner.username;
+
+    }else{
+
+      /* dois humanos: cria uma sala automaticamente para os dois */
+
+      let code=null;
+
+      for(let attempt=0;attempt<6;attempt++){
+
+        const candidate=generateRoomCode();
+
+        const exists=await dbGet('rooms/'+candidate).catch(()=>null);
+
+        if(!exists){ code=candidate; break; }
+
+      }
+
+
+      if(code){
+
+        const hostSide=Math.random()<0.5?'w':'b';
+
+        await dbSet('rooms/'+code,{
+
+          code,
+          hostUid:p1.uid,
+          hostUsername:p1.username,
+          hostAvatar:p1.avatar||'avatar1',
+          hostEloAtStart:p1.elo,
+
+          guestUid:p2.uid,
+          guestUsername:p2.username,
+          guestAvatar:p2.avatar||'avatar1',
+          guestEloAtStart:p2.elo,
+
+          hostSide,
+
+          status:'active',
+
+          fen:new Chess().fen(),
+
+          lastMove:null,
+          lastMoveBy:null,
+
+          result:null,
+          resultReason:null,
+
+          hostEloApplied:true,
+          guestEloApplied:true,
+
+          championshipMatchId:matchId,
+
+          createdAt:Date.now(),
+          updatedAt:Date.now()
+
+        });
+
+
+        match.roomCode=code;
+
+      }
+
+    }
+
+
+    return match;
+
+  }
+
+
+  async function reportChampionshipMatchResult(room){
+
+    if(!room.championshipMatchId) return;
+
+    try{
+
+      const champ=
+        await dbGet('championship/current').catch(()=>null);
+
+      if(!champ || champ.status!=='in_progress') return;
+
+
+      const round=
+        champ.rounds[champ.rounds.length-1];
+
+      const match=
+        round.matches.find(m=>m.matchId===room.championshipMatchId);
+
+      if(!match || match.result) return;
+
+
+      let winnerUid,winnerName;
+
+      if(room.result==='draw'){
+
+        /* empate: decide por Elo maior; se empatar, o anfitrião avança */
+
+        winnerUid=
+          (room.hostEloAtStart||0)>=(room.guestEloAtStart||0)
+            ? room.hostUid : room.guestUid;
+
+      }else{
+
+        winnerUid=
+          room.result==='host' ? room.hostUid : room.guestUid;
+
+      }
+
+      winnerName=
+        winnerUid===match.p1.uid ? match.p1.username : match.p2.username;
+
+
+      const matchPath=
+        'championship/current/rounds/'+
+        (champ.rounds.length-1)+
+        '/matches/'+
+        round.matches.indexOf(match);
+
+
+      await dbUpdate(matchPath,{
+
+        result:winnerUid===match.p1.uid?'p1':'p2',
+
+        winnerUid,
+
+        winnerName
+
+      });
+
+
+      await tryAdvanceChampionshipRound();
+
+    }catch(error){
+
+      console.error('Erro ao reportar resultado do campeonato:',error);
+
+    }
+
+  }
+
+
+  async function tryAdvanceChampionshipRound(){
+
+    try{
+
+      const champ=
+        await dbGet('championship/current').catch(()=>null);
+
+      if(!champ || champ.status!=='in_progress') return;
+
+
+      const round=
+        champ.rounds[champ.rounds.length-1];
+
+      const allDecided=
+        round.matches.every(m=>m.result);
+
+      if(!allDecided) return;
+
+
+      if(round.matches.length===1){
+
+        const winner=round.matches[0];
+
+        await dbUpdate('championship/current',{
+
+          status:'finished',
+
+          champion:{uid:winner.winnerUid,username:winner.winnerName}
+
+        });
+
+
+        if(
+          !String(winner.winnerUid).startsWith('bot_')
+        ){
+
+          await incrementChampionshipTitle(
+            winner.winnerUid,
+            winner.winnerName
+          );
+
+        }
+
+
+        return;
+
+      }
+
+
+      const winners=
+        round.matches.map(m=>
+          m.result==='p1' ? m.p1 : m.p2
+        );
+
+
+      const nextRoundNumber=champ.currentRound+1;
+
+      const nextMatches=[];
+
+      for(let i=0;i<winners.length;i+=2){
+
+        nextMatches.push(
+          await buildChampionshipMatch(
+            winners[i],
+            winners[i+1],
+            nextRoundNumber,
+            i/2
+          )
+        );
+
+      }
+
+
+      const newRounds=
+        champ.rounds.concat([{
+
+          roundNumber:nextRoundNumber,
+
+          matches:nextMatches
+
+        }]);
+
+
+      await dbUpdate('championship/current',{
+
+        currentRound:nextRoundNumber,
+
+        rounds:newRounds
+
+      });
+
+    }catch(error){
+
+      console.error('Erro ao avançar rodada do campeonato:',error);
+
+    }
+
+  }
+
+
+  async function incrementChampionshipTitle(uid,username){
+
+    try{
+
+      const existing=
+        await dbGet('championshipRanking/'+uid).catch(()=>null);
+
+      await dbSet('championshipRanking/'+uid,{
+
+        username,
+
+        titles:(existing && existing.titles ? existing.titles : 0)+1,
+
+        lastWonAt:Date.now()
+
+      });
+
+    }catch(error){
+
+      console.error('Erro ao salvar título do campeonato:',error);
+
+    }
+
+  }
+
+
+  function renderChampionshipBracket(champ){
+
+    const card=document.getElementById('champBracketCard');
+
+    const statusEl=document.getElementById('champBracketStatus');
+
+    const roundsEl=document.getElementById('champBracketRounds');
+
+    const startBtn=document.getElementById('btnStartChampionship');
+
+    const banner=document.getElementById('champChampionBanner');
+
+
+    card.style.display='block';
+
+
+    if(!champ || champ.status==='registration' || !champ.rounds){
+
+      statusEl.textContent=
+        'Nenhum campeonato em andamento no momento. Inscreva-se acima e clique em "Iniciar Campeonato" quando houver pelo menos 2 jogadores.';
+
+      roundsEl.innerHTML='';
+
+      banner.style.display='none';
+
+      startBtn.style.display=
+        currentUser ? 'block' : 'none';
+
+      return;
+
+    }
+
+
+    startBtn.style.display='none';
+
+
+    statusEl.textContent=
+      champ.status==='finished'
+        ? 'Campeonato encerrado.'
+        : 'Rodada '+champ.currentRound+' de '+champ.totalRounds+' em andamento.';
+
+
+    roundsEl.innerHTML=
+      champ.rounds.map(round=>{
+
+        const matchesHtml=
+          round.matches.map(m=>{
+
+            const p1Winner=m.result==='p1';
+
+            const p2Winner=m.result==='p2';
+
+
+            const iAmP1=
+              currentUser && m.p1.uid===currentUser.uid;
+
+            const iAmP2=
+              currentUser && m.p2.uid===currentUser.uid;
+
+
+            const canEnter=
+              !m.result && m.roomCode &&
+              (iAmP1 || iAmP2);
+
+
+            return (
+              '<div class="champ-match">'+
+                '<span class="side '+(p1Winner?'winner':'')+'">'+
+                  escapeHtml(m.p1.username)+
+                  (m.p1.isBot?' 🤖':'')+
+                  ' <small style="color:var(--text-dim);">('+m.p1.elo+')</small>'+
+                '</span>'+
+                '<span class="vs">vs</span>'+
+                '<span class="side '+(p2Winner?'winner':'')+'">'+
+                  escapeHtml(m.p2.username)+
+                  (m.p2.isBot?' 🤖':'')+
+                  ' <small style="color:var(--text-dim);">('+m.p2.elo+')</small>'+
+                '</span>'+
+                (canEnter
+                  ? '<button class="btn primary" data-champ-room="'+m.roomCode+'" style="padding:5px 12px;font-size:12px;">Entrar na partida</button>'
+                  : (m.result ? '' : '<small style="color:var(--text-dim);">aguardando</small>')
+                )+
+              '</div>'
+            );
+
+          }).join('');
+
+
+        return (
+          '<div>'+
+            '<div class="champ-round-title">Rodada '+round.roundNumber+'</div>'+
+            matchesHtml+
+          '</div>'
+        );
+
+      }).join('');
+
+
+      roundsEl.querySelectorAll('[data-champ-room]').forEach(btn=>{
+
+        btn.addEventListener('click',()=>{
+
+          const code=btn.dataset.champRoom;
+
+          switchView('online');
+
+          onlineRoomCode=code;
+
+          onlineRole=null;
+
+          subscribeOnlineRoom(code);
+
+        });
+
+      });
+
+
+    if(champ.status==='finished' && champ.champion){
+
+      banner.style.display='block';
+
+      banner.innerHTML=
+        '🏆 <strong style="color:var(--gold);font-size:18px;">'+
+        escapeHtml(champ.champion.username)+
+        '</strong> é o campeão!';
+
+    }else{
+
+      banner.style.display='none';
+
+    }
+
+  }
+
+
+  async function renderChampionshipRanking(){
+
+    const box=document.getElementById('champRankingBox');
+
+    if(!box) return;
+
+    try{
+
+      const data=
+        await dbGet('championshipRanking').catch(()=>null);
+
+      if(!data){
+
+        box.innerHTML=
+          '<p style="color:var(--text-dim);font-size:12.5px;">Ainda não há campeões registrados.</p>';
+
+        return;
+
+      }
+
+
+      const list=
+        Object.values(data)
+          .sort((a,b)=>(b.titles||0)-(a.titles||0))
+          .slice(0,10);
+
+
+      box.innerHTML=
+        '<table class="ranktable"><thead><tr><th>#</th><th>Jogador</th><th>Títulos</th></tr></thead><tbody>'+
+        list.map((p,i)=>
+          '<tr><td>'+(i+1)+'</td><td>'+escapeHtml(p.username||'?')+'</td><td>'+(p.titles||0)+'</td></tr>'
+        ).join('')+
+        '</tbody></table>';
+
+    }catch(error){
+
+      console.error('Erro ao carregar ranking do campeonato:',error);
+
+    }
+
+  }
+
+
+  function subscribeChampionship(){
+
+    if(champUnsub) return;
+
+    try{
+
+      const ref=
+        window.firebaseFns.ref(window.firebaseDB,'championship/current');
+
+      champUnsub=
+        window.firebaseFns.onValue(ref,snapshot=>{
+
+          champCurrentData=snapshot.val();
+
+          renderChampionshipBracket(champCurrentData);
+
+          if(
+            document.getElementById('view-championship')
+              .classList.contains('active')
+          ){
+
+            renderChampionshipRanking();
+
+          }
+
+        });
+
+    }catch(error){
+
+      console.error('Erro ao assinar campeonato:',error);
+
+    }
+
+  }
+
+
+  document
+    .getElementById('btnStartChampionship')
+    .addEventListener('click',startChampionshipTournament);
+
+
+  subscribeChampionship();
+
+
+  /* detecta quando uma partida marcada como campeonato termina */
+
+  const _originalHandleOnlineRoomUpdateForChamp=handleOnlineRoomUpdate;
+
+  handleOnlineRoomUpdate=function(room){
+
+    _originalHandleOnlineRoomUpdateForChamp(room);
+
+    if(
+      room &&
+      room.championshipMatchId &&
+      room.status==='finished' &&
+      room.result
+    ){
+
+      reportChampionshipMatchResult(room);
+
+    }
+
+  };
 
 
   async function init(){
